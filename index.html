@@ -2,23 +2,43 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>메인</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MBO 기록지</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="card">
-    <h1>MBO 기록지</h1>
-    <p id="userInfo"></p>
+  <div class="page">
+    <div class="card-box">
+      <h2>MBO 기록지</h2>
+      <p id="userInfo" class="page-note">로그인 정보를 불러오는 중...</p>
 
-    <a href="record.html">기록 저장소</a>
-    <a id="adminLink" class="hidden" href="admin-users.html">회원 승인 관리</a>
+      <div class="home-links">
+        <a href="record.html">
+          <div class="title">기록 저장소</div>
+          <div class="sub">Practice / League Records</div>
+        </a>
 
-    <button id="logoutBtn">로그아웃</button>
-  </div>
+        <a href="scoresheet.html">
+          <div class="title">기록지 작성</div>
+          <div class="sub">Scoresheet</div>
+        </a>
 
-  <div class="card">
-    <h2>내 기록</h2>
-    <div id="myStats">불러오는 중...</div>
+        <a id="adminLink" class="hidden" href="admin-users.html">
+          <div class="title">회원 승인 관리</div>
+          <div class="sub">Admin Approval</div>
+        </a>
+
+        <a href="#" id="logoutBtn">
+          <div class="title">로그아웃</div>
+          <div class="sub">Logout</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="card-box">
+      <h2>내 기록</h2>
+      <div id="myStats" class="page-note">불러오는 중...</div>
+    </div>
   </div>
 
   <script type="module">
@@ -31,26 +51,43 @@
       where
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    document.getElementById("logoutBtn").onclick = logout;
+    const userInfo = document.getElementById("userInfo");
+    const myStats = document.getElementById("myStats");
+    const adminLink = document.getElementById("adminLink");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    logoutBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      await logout();
+    });
 
     checkLogin(async (user, userData) => {
-      document.getElementById("userInfo").textContent =
-        `${userData.nickname} #${userData.number}`;
+      userInfo.textContent = `${userData.nickname} #${userData.number}`;
 
       if (isAdmin(userData)) {
-        document.getElementById("adminLink").classList.remove("hidden");
+        adminLink.classList.remove("hidden");
       }
 
-      loadMyStats(userData.nickname);
+      await loadMyStats(userData.nickname);
     });
 
     async function loadMyStats(nickname) {
-      const myStats = document.getElementById("myStats");
+      const q = query(
+        collection(db, "records"),
+        where("nickname", "==", nickname)
+      );
 
-      const q = query(collection(db, "records"), where("nickname", "==", nickname));
       const snap = await getDocs(q);
 
-      myStats.innerHTML = `<p>총 기록 수: ${snap.size}</p>`;
+      if (snap.empty) {
+        myStats.innerHTML = "아직 저장된 개인 기록이 없습니다.";
+        return;
+      }
+
+      myStats.innerHTML = `
+        <p>총 기록 수: <strong>${snap.size}</strong></p>
+        <p>자세한 기록은 기록 저장소에서 확인할 수 있습니다.</p>
+      `;
     }
   </script>
 </body>
