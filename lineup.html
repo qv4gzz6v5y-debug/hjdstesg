@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>라인업 작성</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .lineup-wrap{width:95%;max-width:1100px;margin:34px auto}.lineup-card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 8px 20px rgba(0,0,0,.06);margin-bottom:22px}.card-title{font-size:34px;font-weight:800;margin-bottom:16px}.lineup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.lineup-input,.lineup-select,.cell-input{width:100%;padding:12px 14px;margin:8px 0;border-radius:12px;border:1px solid #ccc;box-sizing:border-box;font-size:16px;background:#fff}.cell-input{margin:0;padding:8px 10px;text-align:center}.lineup-table-wrap{overflow-x:auto;margin-top:18px}.lineup-table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}.lineup-table th,.lineup-table td{border:1px solid #ddd;padding:8px;text-align:center}.lineup-table th{background:#f7f7f7}.lineup-btn{padding:11px 18px;border-radius:10px;border:none;background:#111;color:#fff;cursor:pointer;margin-right:8px;margin-top:12px}.empty-text{color:#666}.menu-clean{display:flex;flex-wrap:wrap;gap:12px;padding:16px 0 0}.menu-clean a{text-decoration:none;padding:10px 14px;border-radius:14px;background:#fff;border:1px solid #d6d6d6;font-size:18px}.saved-box{background:#f8f8f8;border-left:6px solid #1b65ba;border-radius:14px;padding:16px;margin-top:12px}.small-btn{padding:7px 10px;border-radius:8px;border:none;background:#111;color:#fff;cursor:pointer}.small-btn.delete{background:#b00020}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top-title">
+      <h1>레이 마린스</h1>
+      <a class="top-link" href="index.html">메인으로</a>
+    </div>
+    <div class="menu-clean">
+      <a href="lineup.html">라인업</a>
+      <a href="record.html">기록실</a>
+      <a href="scoresheet.html">기록지</a>
+      <a href="mypage.html">마이페이지</a>
+    </div>
+  </div>
+
+  <div class="lineup-wrap">
+    <div class="lineup-card">
+      <div class="card-title">라인업 작성</div>
+      <p class="empty-text">경기 종류와 날짜를 맞춰 저장하면, 기록지에서 같은 경기 종류/날짜를 선택했을 때 자동으로 불러옵니다.</p>
+      <div class="lineup-grid">
+        <div>
+          <label for="gameType">경기 종류</label>
+          <select id="gameType" class="lineup-select">
+            <option value="연습경기">연습경기</option>
+            <option value="리그경기">리그경기</option>
+          </select>
+        </div>
+        <div>
+          <label for="lineupDate">경기 날짜</label>
+          <input id="lineupDate" type="date" class="lineup-input">
+        </div>
+        <div>
+          <label for="opponent">상대팀</label>
+          <input id="opponent" class="lineup-input" placeholder="예: 오버드라이브">
+        </div>
+        <div>
+          <label for="starterPitcher">선발 투수</label>
+          <input id="starterPitcher" class="lineup-input" placeholder="예: FlaneY2111">
+        </div>
+      </div>
+
+      <div class="lineup-table-wrap">
+        <table class="lineup-table">
+          <thead>
+            <tr><th>타순</th><th>선수명</th><th>포지션</th></tr>
+          </thead>
+          <tbody id="lineupBody"></tbody>
+        </table>
+      </div>
+
+      <button id="saveLineupBtn" class="lineup-btn">라인업 저장</button>
+      <button id="resetLineupBtn" class="lineup-btn">초기화</button>
+    </div>
+
+    <div class="lineup-card">
+      <div class="card-title">저장된 라인업</div>
+      <div id="lineupList"><p class="empty-text">라인업을 불러오는 중...</p></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { checkLogin, isStaff } from "./auth.js";
+    import { doc, setDoc, deleteDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const gameTypeInput = document.getElementById("gameType");
+    const lineupDateInput = document.getElementById("lineupDate");
+    const opponentInput = document.getElementById("opponent");
+    const starterPitcherInput = document.getElementById("starterPitcher");
+    const lineupBody = document.getElementById("lineupBody");
+    const lineupList = document.getElementById("lineupList");
+
+    let currentUserData = null;
+
+    checkLogin((user, userData) => {
+      currentUserData = userData;
+      if (!isStaff(userData)) {
+        alert("라인업 작성은 관리자 또는 기록원만 가능합니다.");
+        location.href = "index.html";
+        return;
+      }
+      init();
+    });
+
+    function getDefaultDate(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`;}
+    function getLineupId(gameType, date){return `${gameType}_${date}`;}
+
+    function renderRows(players = []) {
+      lineupBody.innerHTML = "";
+      for (let i = 1; i <= 9; i++) {
+        const p = players[i - 1] || {};
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input class="cell-input" id="order${i}" value="${p.order || i}"></td>
+          <td><input class="cell-input" id="name${i}" value="${p.name || ""}" placeholder="선수명"></td>
+          <td><input class="cell-input" id="pos${i}" value="${p.position || ""}" placeholder="CF"></td>
+        `;
+        lineupBody.appendChild(tr);
+      }
+    }
+
+    function getPlayers() {
+      const players = [];
+      for (let i = 1; i <= 9; i++) {
+        const order = document.getElementById(`order${i}`).value.trim();
+        const name = document.getElementById(`name${i}`).value.trim();
+        const position = document.getElementById(`pos${i}`).value.trim();
+        players.push({ order, name, position });
+      }
+      return players;
+    }
+
+    document.getElementById("saveLineupBtn").addEventListener("click", async () => {
+      const gameType = gameTypeInput.value;
+      const date = lineupDateInput.value;
+      if (!date) { alert("경기 날짜를 선택해줘."); return; }
+      const data = {
+        gameType,
+        date,
+        opponent: opponentInput.value.trim(),
+        pitcher: starterPitcherInput.value.trim(),
+        players: getPlayers(),
+        updatedAt: Date.now(),
+        createdBy: currentUserData?.nickname || ""
+      };
+      await setDoc(doc(db, "lineups", getLineupId(gameType, date)), data);
+      alert("라인업 저장 완료!");
+    });
+
+    document.getElementById("resetLineupBtn").addEventListener("click", () => {
+      gameTypeInput.value = "연습경기";
+      lineupDateInput.value = getDefaultDate();
+      opponentInput.value = "";
+      starterPitcherInput.value = "";
+      renderRows();
+    });
+
+    window.deleteLineup = async function(id) {
+      if (!confirm("이 라인업을 삭제할까요?")) return;
+      await deleteDoc(doc(db, "lineups", id));
+      alert("삭제 완료");
+    };
+
+    const lineupQuery = query(collection(db, "lineups"), orderBy("updatedAt", "desc"));
+    onSnapshot(lineupQuery, (snapshot) => {
+      lineupList.innerHTML = "";
+      if (snapshot.empty) { lineupList.innerHTML = `<p class="empty-text">저장된 라인업이 없습니다.</p>`; return; }
+      snapshot.forEach((docu) => {
+        const l = docu.data();
+        const box = document.createElement("div");
+        box.className = "saved-box";
+        box.innerHTML = `
+          <strong>${l.date || "-"} / ${l.gameType || "-"}</strong>
+          <p>상대팀: ${l.opponent || "-"} / 선발: ${l.pitcher || "-"}</p>
+          <button class="small-btn delete" onclick="deleteLineup('${docu.id}')">삭제</button>
+        `;
+        lineupList.appendChild(box);
+      });
+    });
+
+    function init(){ lineupDateInput.value = getDefaultDate(); renderRows(); }
+  </script>
+</body>
+</html>
