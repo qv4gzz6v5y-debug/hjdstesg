@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>메인</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="card">
+    <h1>MBO 기록지</h1>
+    <p id="userInfo"></p>
+
+    <a href="record.html">기록 저장소</a>
+    <a id="adminLink" class="hidden" href="admin-users.html">회원 승인 관리</a>
+
+    <button id="logoutBtn">로그아웃</button>
+  </div>
+
+  <div class="card">
+    <h2>내 기록</h2>
+    <div id="myStats">불러오는 중...</div>
+  </div>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { checkLogin, logout, isAdmin } from "./auth.js";
+    import {
+      collection,
+      getDocs,
+      query,
+      where
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    document.getElementById("logoutBtn").onclick = logout;
+
+    checkLogin(async (user, userData) => {
+      document.getElementById("userInfo").textContent =
+        `${userData.nickname} #${userData.number}`;
+
+      if (isAdmin(userData)) {
+        document.getElementById("adminLink").classList.remove("hidden");
+      }
+
+      loadMyStats(userData.nickname);
+    });
+
+    async function loadMyStats(nickname) {
+      const myStats = document.getElementById("myStats");
+
+      const q = query(collection(db, "records"), where("nickname", "==", nickname));
+      const snap = await getDocs(q);
+
+      myStats.innerHTML = `<p>총 기록 수: ${snap.size}</p>`;
+    }
+  </script>
+</body>
+</html>

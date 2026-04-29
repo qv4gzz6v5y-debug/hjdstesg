@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>회원가입</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="card-box">
+    <h2>회원가입</h2>
+    <p class="page-note">마인크래프트 닉네임, 등번호, 비밀번호를 입력하세요.</p>
+
+    <label for="nickname">마인크래프트 닉네임</label>
+    <input id="nickname" class="input" placeholder="예: Steve123">
+
+    <label for="number">등번호</label>
+    <input id="number" class="input" placeholder="예: 17">
+
+    <label for="password">비밀번호</label>
+    <input id="password" class="input" type="password" placeholder="비밀번호">
+
+    <button id="signupBtn" class="btn">회원가입 신청</button>
+    <a class="back-link" href="login.html">로그인으로 돌아가기</a>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+    import { nicknameToEmail } from "./auth.js";
+    import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const ADMIN_NICKNAME = "0sx_xy0";
+
+    document.getElementById("signupBtn").addEventListener("click", async () => {
+      const nickname = document.getElementById("nickname").value.trim();
+      const number = document.getElementById("number").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!nickname || !number || !password) {
+        alert("닉네임, 등번호, 비밀번호를 모두 입력해주세요.");
+        return;
+      }
+
+      try {
+        const result = await createUserWithEmailAndPassword(
+          auth,
+          nicknameToEmail(nickname),
+          password
+        );
+
+        const isFirstAdmin = nickname === ADMIN_NICKNAME;
+
+        await setDoc(doc(db, "users", result.user.uid), {
+          uid: result.user.uid,
+          nickname,
+          number,
+          role: isFirstAdmin ? "owner" : "player",
+          approved: isFirstAdmin ? true : false,
+          createdAt: Date.now()
+        });
+
+        await signOut(auth);
+
+        if (isFirstAdmin) {
+          alert("관리자 계정 생성 완료!");
+          location.href = "login.html";
+        } else {
+          alert("회원가입 신청 완료. 관리자의 승인을 기다려주세요.");
+          location.href = "pending.html";
+        }
+
+      } catch (error) {
+        console.error(error);
+        alert("회원가입 실패: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>로그인</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="card-box">
+    <h2>로그인</h2>
+    <p class="page-note">마인크래프트 닉네임과 비밀번호로 로그인하세요.</p>
+
+    <label for="nickname">마인크래프트 닉네임</label>
+    <input id="nickname" class="input" placeholder="닉네임">
+
+    <label for="password">비밀번호</label>
+    <input id="password" class="input" type="password" placeholder="비밀번호">
+
+    <button id="loginBtn" class="btn">로그인</button>
+    <a class="back-link" href="signup.html">회원가입</a>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+    import { nicknameToEmail } from "./auth.js";
+    import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const nickname = document.getElementById("nickname").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!nickname || !password) {
+        alert("닉네임과 비밀번호를 입력해주세요.");
+        return;
+      }
+
+      try {
+        const result = await signInWithEmailAndPassword(
+          auth,
+          nicknameToEmail(nickname),
+          password
+        );
+
+        const userDoc = await getDoc(doc(db, "users", result.user.uid));
+
+        if (!userDoc.exists()) {
+          alert("회원 정보가 없습니다.");
+          await signOut(auth);
+          return;
+        }
+
+        const userData = userDoc.data();
+
+        if (!userData.approved) {
+          alert("아직 관리자의 승인이 필요합니다.");
+          await signOut(auth);
+          location.href = "pending.html";
+          return;
+        }
+
+        location.href = "index.html";
+
+      } catch (error) {
+        console.error(error);
+        alert("로그인 실패. 닉네임 또는 비밀번호를 확인해주세요.");
+      }
+    });
+  </script>
+</body>
+</html>

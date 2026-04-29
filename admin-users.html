@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>회원 승인 관리</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+    <div class="card-box">
+      <h2>회원 승인 관리</h2>
+      <p class="page-note">회원가입 신청한 유저를 승인하거나 거절할 수 있습니다.</p>
+      <a class="back-link" href="index.html">메인으로</a>
+
+      <div id="pendingUsers"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { checkLogin, isAdmin } from "./auth.js";
+    import {
+      collection,
+      getDocs,
+      query,
+      where,
+      doc,
+      updateDoc,
+      deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const pendingUsers = document.getElementById("pendingUsers");
+
+    checkLogin(async (user, userData) => {
+      if (!isAdmin(userData)) {
+        alert("관리자만 접근할 수 있습니다.");
+        location.href = "index.html";
+        return;
+      }
+
+      loadPendingUsers();
+    });
+
+    async function loadPendingUsers() {
+      const q = query(collection(db, "users"), where("approved", "==", false));
+      const snap = await getDocs(q);
+
+      pendingUsers.innerHTML = "";
+
+      if (snap.empty) {
+        pendingUsers.innerHTML = `<p class="page-note">승인 대기 중인 유저가 없습니다.</p>`;
+        return;
+      }
+
+      snap.forEach((docu) => {
+        const user = docu.data();
+
+        const box = document.createElement("div");
+        box.className = "user-row";
+
+        box.style.marginTop = "16px";
+        box.style.padding = "18px";
+
+        box.innerHTML = `
+          <h3>${user.nickname} #${user.number}</h3>
+          <p>역할: ${user.role}</p>
+          <button class="btn" onclick="approveUser('${docu.id}')">승인</button>
+          <button class="btn danger" onclick="rejectUser('${docu.id}')">거절</button>
+        `;
+
+        pendingUsers.appendChild(box);
+      });
+    }
+
+    window.approveUser = async function(uid) {
+      await updateDoc(doc(db, "users", uid), {
+        approved: true
+      });
+
+      alert("승인 완료");
+      loadPendingUsers();
+    };
+
+    window.rejectUser = async function(uid) {
+      const ok = confirm("이 유저를 거절할까요?");
+      if (!ok) return;
+
+      await deleteDoc(doc(db, "users", uid));
+      alert("거절 완료");
+      loadPendingUsers();
+    };
+  </script>
+</body>
+</html>
