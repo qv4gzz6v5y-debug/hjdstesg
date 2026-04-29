@@ -268,7 +268,6 @@
         <button type="button" id="addInningBtn" class="sheet-btn sub">연장 이닝 추가</button>
         <button type="button" id="removeInningBtn" class="sheet-btn sub">마지막 이닝 삭제</button>
       </div>
-
       <div class="sheet-table-wrap">
         <table class="sheet-table">
           <thead id="inningHead"></thead>
@@ -304,7 +303,6 @@
       <div class="section-actions">
         <button type="button" id="addPitcherBtn" class="sheet-btn sub">투수 추가</button>
       </div>
-
       <div class="sheet-table-wrap">
         <table class="sheet-table">
           <thead>
@@ -341,6 +339,7 @@
 
   <script type="module">
     import { db } from "./firebase-config.js";
+    import { checkLogin, isStaff } from "./auth.js";
     import {
       collection,
       addDoc,
@@ -354,20 +353,20 @@
       orderBy
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
-
-    function isStaff(user) {
-      return !!user && (user.role === "super_admin" || user.role === "admin" || user.role === "scorer");
-    }
+    let currentUserData = null;
 
     const editCard = document.getElementById("editCard");
 
-    if (isStaff(currentUser)) {
-      editCard.classList.remove("hidden");
-    } else {
-      alert("접근 권한이 없습니다.");
-      location.href = "record.html";
-    }
+    checkLogin((user, userData) => {
+      currentUserData = userData;
+
+      if (isStaff(userData)) {
+        editCard.classList.remove("hidden");
+      } else {
+        alert("기록지는 관리자 또는 기록원만 접근할 수 있습니다.");
+        location.href = "record.html";
+      }
+    });
 
     const gameTypeInput = document.getElementById("gameType");
     const gameDateInput = document.getElementById("gameDate");
@@ -424,7 +423,6 @@
 
     function calculateBatterStats(text) {
       const raw = String(text || "").trim();
-
       if (!raw) {
         return { ab: 0, h: 0, double: 0, triple: 0, hr: 0, rbi: 0, r: 0, so: 0 };
       }
@@ -466,7 +464,6 @@
       const str = String(value || "").trim();
       if (!str) return 0;
       if (!str.includes(".")) return (Number(str) || 0) * 3;
-
       const [whole, part] = str.split(".");
       return (Number(whole) || 0) * 3 + (Number(part) || 0);
     }
@@ -475,7 +472,6 @@
       const outs = inningsToOuts(inningValue);
       const er = Number(erValue || 0);
       if (!outs) return "0.00";
-
       const innings = outs / 3;
       return ((er * 9) / innings).toFixed(2);
     }
@@ -485,7 +481,6 @@
         document.getElementById(`p_inning_${rowId}`).value,
         document.getElementById(`p_er_${rowId}`).value
       );
-
       document.getElementById(`p_era_${rowId}`).textContent = era;
     }
 
@@ -493,7 +488,6 @@
       batterRowCounter += 1;
       const rowId = batterRowCounter;
       const row = document.createElement("tr");
-
       if (data.isSub) row.classList.add("sub-row");
       row.dataset.rowId = rowId;
 
@@ -560,7 +554,6 @@
     function createBattersRows() {
       battersBody.innerHTML = "";
       batterRowCounter = 0;
-
       for (let i = 1; i <= 9; i++) {
         battersBody.appendChild(createBatterRow({ order: i }));
       }
@@ -569,7 +562,6 @@
     function createPitchersRows() {
       pitchersBody.innerHTML = "";
       pitcherRowCounter = 0;
-
       for (let i = 1; i <= 4; i++) {
         pitchersBody.appendChild(createPitcherRow());
       }
@@ -577,11 +569,9 @@
 
     function getInningRow(prefix) {
       const arr = [];
-
       for (let i = 1; i <= inningCount; i++) {
         arr.push(document.getElementById(`${prefix}${i}`).value.trim());
       }
-
       return arr;
     }
 
@@ -624,7 +614,6 @@
 
       rows.forEach(row => {
         const rowId = row.dataset.pitcherRowId;
-
         const item = {
           name: document.getElementById(`p_name_${rowId}`).value.trim(),
           decision: document.getElementById(`p_decision_${rowId}`).value.trim(),
@@ -637,7 +626,6 @@
           bb: document.getElementById(`p_bb_${rowId}`).value.trim(),
           era: document.getElementById(`p_era_${rowId}`).textContent
         };
-
         if (item.name) arr.push(item);
       });
 
@@ -647,18 +635,16 @@
     function resetForm() {
       currentEditId = null;
       gameTypeInput.value = "연습경기";
-      gameDateInput.value = getDefaultDate();
+    gameDateInput.value = getDefaultDate();
       gameTimeInput.value = "";
       opponentInput.value = "";
       homeAwayInput.value = "";
       finalScoreInput.value = "";
       gameResultInput.value = "";
-
       inningCount = 9;
       renderInningTable();
       createBattersRows();
       createPitchersRows();
-
       saveBtn.textContent = "저장";
     }
 
@@ -680,7 +666,6 @@
       lineup.players.forEach((player, idx) => {
         const row = battersBody.querySelectorAll("tr")[idx];
         if (!row) return;
-
         const rowId = row.dataset.rowId;
 
         document.getElementById(`b_order_${rowId}`).value = player.order || "";
@@ -690,7 +675,6 @@
 
       if (lineup.pitcher) {
         const firstPitcherRow = pitchersBody.querySelector("tr");
-
         if (firstPitcherRow) {
           const rowId = firstPitcherRow.dataset.pitcherRowId;
           document.getElementById(`p_name_${rowId}`).value = lineup.pitcher;
@@ -717,10 +701,7 @@
         box.className = "sheet-box";
 
         box.innerHTML = `
-          <div class="sheet-top">
-            <span class="game-type-badge">${sheet.gameType || "연습경기"}</span>
-            ${sheet.gameDate || "-"} ${sheet.gameTime || ""} vs ${sheet.opponent || "-"} (${sheet.homeAway || "-"}) ${sheet.finalScore || "-"} ${sheet.gameResult || "-"}
-          </div>
+          <div class="sheet-top"><span class="game-type-badge">${sheet.gameType || "연습경기"}</span>${sheet.gameDate || "-"} ${sheet.gameTime || ""} vs ${sheet.opponent || "-"} (${sheet.homeAway || "-"}) ${sheet.finalScore || "-"} ${sheet.gameResult || "-"}</div>
 
           <div class="result-subtitle">이닝 점수</div>
           <div class="sheet-table-wrap">
@@ -845,6 +826,7 @@
 
     async function saveSheet() {
       const now = Date.now();
+
       const inningsHeader = Array.from({ length: inningCount }, (_, i) => String(i + 1));
 
       const data = {
@@ -855,6 +837,8 @@
         homeAway: homeAwayInput.value,
         finalScore: finalScoreInput.value.trim(),
         gameResult: gameResultInput.value,
+        createdByUid: currentUserData?.uid || "",
+        createdByNickname: currentUserData?.nickname || "",
         innings: {
           header: inningsHeader,
           away: getInningRow("away"),
@@ -883,7 +867,6 @@
             ...data,
             createdAt: now
           });
-
           await syncRecordSummary(added.id, { ...data, createdAt: now });
           alert("기록지 저장 완료!");
         }
@@ -917,7 +900,6 @@
       createBattersRows();
       battersBody.innerHTML = "";
       batterRowCounter = 0;
-
       (sheet.batters || []).forEach((b) => {
         battersBody.appendChild(createBatterRow({
           order: b.order || "",
@@ -931,7 +913,6 @@
       createPitchersRows();
       pitchersBody.innerHTML = "";
       pitcherRowCounter = 0;
-
       if (sheet.pitchers && sheet.pitchers.length > 0) {
         sheet.pitchers.forEach((p) => {
           pitchersBody.appendChild(createPitcherRow({
@@ -971,7 +952,6 @@
         await deleteDoc(doc(db, "scoresheets", id));
         await deleteDoc(doc(db, "records", id));
         alert("기록지 삭제 완료!");
-
         if (currentEditId === id) resetForm();
       } catch (error) {
         console.error(error);
@@ -984,7 +964,6 @@
       if (!baseRow) return;
 
       const currentOrder = document.getElementById(`b_order_${rowId}`).value.trim();
-
       const newRow = createBatterRow({
         order: currentOrder,
         isSub: true
@@ -1015,17 +994,14 @@
     addInningBtn.addEventListener("click", () => {
       const away = getInningRow("away");
       const home = getInningRow("home");
-
       inningCount += 1;
       renderInningTable(away, home);
     });
 
     removeInningBtn.addEventListener("click", () => {
       if (inningCount <= 9) return;
-
       const away = getInningRow("away").slice(0, -1);
       const home = getInningRow("home").slice(0, -1);
-
       inningCount -= 1;
       renderInningTable(away, home);
     });
@@ -1046,21 +1022,19 @@
     createBattersRows();
     createPitchersRows();
     renderInningTable();
-    gameDateInput.value = getDefaultDate();
     gameTypeInput.value = "연습경기";
+    gameDateInput.value = getDefaultDate();
 
     const sheetQuery = query(collection(db, "scoresheets"), orderBy("createdAt", "desc"));
 
     onSnapshot(sheetQuery, (snapshot) => {
       sheets = [];
-
       snapshot.forEach((docu) => {
         sheets.push({
           id: docu.id,
           ...docu.data()
         });
       });
-
       renderSheets();
     }, (error) => {
       console.error(error);

@@ -3,12 +3,12 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-aut
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "여기에_API_KEY",
-  authDomain: "여기에_AUTH_DOMAIN",
-  projectId: "여기에_PROJECT_ID",
-  storageBucket: "여기에_STORAGE_BUCKET",
-  messagingSenderId: "여기에_MESSAGING_SENDER_ID",
-  appId: "여기에_APP_ID"
+  apiKey: "AIzaSyA3SwM_GMl_AMYmlBwEUblnYOVIah4lXXQ",
+  authDomain: "dfaragrf.firebaseapp.com",
+  projectId: "dfaragrf",
+  storageBucket: "dfaragrf.firebasestorage.app",
+  messagingSenderId: "370888053498",
+  appId: "1:370888053498:web:a0b09a51a63949f16def43"
 };
 
 export const app = initializeApp(firebaseConfig);

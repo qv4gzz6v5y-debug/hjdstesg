@@ -9,6 +9,7 @@ export function nicknameToEmail(nickname) {
 export function isStaff(userData) {
   return userData && (
     userData.role === "owner" ||
+    userData.role === "super_admin" ||
     userData.role === "admin" ||
     userData.role === "scorer"
   );
@@ -17,6 +18,7 @@ export function isStaff(userData) {
 export function isAdmin(userData) {
   return userData && (
     userData.role === "owner" ||
+    userData.role === "super_admin" ||
     userData.role === "admin"
   );
 }

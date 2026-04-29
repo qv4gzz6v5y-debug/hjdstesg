@@ -31,17 +31,12 @@
       const password = document.getElementById("password").value;
 
       if (!nickname || !password) {
-        alert("닉네임과 비밀번호를 입력해주세요.");
+        alert("닉네임과 비밀번호를 입력해줘.");
         return;
       }
 
       try {
-        const result = await signInWithEmailAndPassword(
-          auth,
-          nicknameToEmail(nickname),
-          password
-        );
-
+        const result = await signInWithEmailAndPassword(auth, nicknameToEmail(nickname), password);
         const userDoc = await getDoc(doc(db, "users", result.user.uid));
 
         if (!userDoc.exists()) {
@@ -60,10 +55,9 @@
         }
 
         location.href = "index.html";
-
       } catch (error) {
         console.error(error);
-        alert("로그인 실패. 닉네임 또는 비밀번호를 확인해주세요.");
+        alert("로그인 실패. 닉네임 또는 비밀번호를 확인해줘.");
       }
     });
   </script>

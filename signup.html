@@ -37,17 +37,12 @@
       const password = document.getElementById("password").value;
 
       if (!nickname || !number || !password) {
-        alert("닉네임, 등번호, 비밀번호를 모두 입력해주세요.");
+        alert("닉네임, 등번호, 비밀번호를 모두 입력해줘.");
         return;
       }
 
       try {
-        const result = await createUserWithEmailAndPassword(
-          auth,
-          nicknameToEmail(nickname),
-          password
-        );
-
+        const result = await createUserWithEmailAndPassword(auth, nicknameToEmail(nickname), password);
         const isFirstAdmin = nickname === ADMIN_NICKNAME;
 
         await setDoc(doc(db, "users", result.user.uid), {
@@ -61,14 +56,8 @@
 
         await signOut(auth);
 
-        if (isFirstAdmin) {
-          alert("관리자 계정 생성 완료!");
-          location.href = "login.html";
-        } else {
-          alert("회원가입 신청 완료. 관리자의 승인을 기다려주세요.");
-          location.href = "pending.html";
-        }
-
+        alert(isFirstAdmin ? "관리자 계정 생성 완료!" : "회원가입 신청 완료. 관리자의 승인을 기다려주세요.");
+        location.href = isFirstAdmin ? "login.html" : "pending.html";
       } catch (error) {
         console.error(error);
         alert("회원가입 실패: " + error.message);
