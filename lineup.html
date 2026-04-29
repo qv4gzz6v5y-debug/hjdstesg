@@ -5,7 +5,31 @@
   <title>라인업 작성</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    .lineup-wrap{width:95%;max-width:1100px;margin:34px auto}.lineup-card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 8px 20px rgba(0,0,0,.06);margin-bottom:22px}.card-title{font-size:34px;font-weight:800;margin-bottom:16px}.lineup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.lineup-input,.lineup-select,.cell-input{width:100%;padding:12px 14px;margin:8px 0;border-radius:12px;border:1px solid #ccc;box-sizing:border-box;font-size:16px;background:#fff}.cell-input{margin:0;padding:8px 10px;text-align:center}.lineup-table-wrap{overflow-x:auto;margin-top:18px}.lineup-table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}.lineup-table th,.lineup-table td{border:1px solid #ddd;padding:8px;text-align:center}.lineup-table th{background:#f7f7f7}.lineup-btn{padding:11px 18px;border-radius:10px;border:none;background:#111;color:#fff;cursor:pointer;margin-right:8px;margin-top:12px}.empty-text{color:#666}.menu-clean{display:flex;flex-wrap:wrap;gap:12px;padding:16px 0 0}.menu-clean a{text-decoration:none;padding:10px 14px;border-radius:14px;background:#fff;border:1px solid #d6d6d6;font-size:18px}.saved-box{background:#f8f8f8;border-left:6px solid #1b65ba;border-radius:14px;padding:16px;margin-top:12px}.small-btn{padding:7px 10px;border-radius:8px;border:none;background:#111;color:#fff;cursor:pointer}.small-btn.delete{background:#b00020}
+    .lineup-wrap{width:95%;max-width:1100px;margin:34px auto}
+    .lineup-card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 8px 20px rgba(0,0,0,.06);margin-bottom:22px}
+    .card-title{font-size:34px;font-weight:800;margin-bottom:16px}
+    .lineup-note,.empty-text{color:#666;font-size:15px;line-height:1.6}
+    .lineup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .lineup-input,.lineup-select,.cell-input{width:100%;padding:12px 14px;margin:8px 0;border-radius:12px;border:1px solid #ccc;box-sizing:border-box;font-size:16px;background:#fff}
+    .cell-input{margin:0;padding:8px 10px;text-align:center}
+    .lineup-table-wrap{overflow-x:auto;margin-top:18px}
+    .lineup-table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}
+    .lineup-table th,.lineup-table td{border:1px solid #ddd;padding:8px;text-align:center}
+    .lineup-table th{background:#f7f7f7}
+    .lineup-btn{padding:11px 18px;border-radius:10px;border:none;background:#111;color:#fff;cursor:pointer;margin-right:8px;margin-top:12px}
+    .menu-clean{display:flex;flex-wrap:wrap;gap:12px;padding:16px 0 0}
+    .menu-clean a{text-decoration:none;padding:10px 14px;border-radius:14px;background:#fff;border:1px solid #d6d6d6;font-size:18px}
+    .saved-box{background:#f8f8f8;border-left:6px solid #1b65ba;border-radius:14px;padding:16px;margin-top:12px}
+    .saved-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+    .saved-title{font-size:20px;font-weight:800;cursor:pointer;line-height:1.5}
+    .saved-title:hover{text-decoration:underline}
+    .saved-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .small-btn{padding:7px 10px;border-radius:8px;border:none;background:#111;color:#fff;cursor:pointer;font-size:13px}
+    .small-btn.sub{background:#1b65ba}
+    .small-btn.delete{background:#b00020}
+    .detail-box{display:none;margin-top:14px;background:#fff;border:1px solid #ddd;border-radius:12px;padding:12px}
+    .detail-box.show{display:block}
+    .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#e8f1ff;color:#1b65ba;font-size:13px;font-weight:700;margin-right:6px}
   </style>
 </head>
 <body>
@@ -25,7 +49,8 @@
   <div class="lineup-wrap">
     <div class="lineup-card">
       <div class="card-title">라인업 작성</div>
-      <p class="empty-text">경기 종류와 날짜를 맞춰 저장하면, 기록지에서 같은 경기 종류/날짜를 선택했을 때 자동으로 불러옵니다.</p>
+      <p class="lineup-note">경기 종류와 날짜를 맞춰 저장하면, 기록지에서 같은 경기 종류/날짜를 선택했을 때 자동으로 불러옵니다.</p>
+
       <div class="lineup-grid">
         <div>
           <label for="gameType">경기 종류</label>
@@ -63,6 +88,7 @@
 
     <div class="lineup-card">
       <div class="card-title">저장된 라인업</div>
+      <p class="lineup-note">날짜/경기종류 글씨나 선택 버튼을 누르면 상세 라인업지가 열립니다.</p>
       <div id="lineupList"><p class="empty-text">라인업을 불러오는 중...</p></div>
     </div>
   </div>
@@ -91,8 +117,14 @@
       init();
     });
 
-    function getDefaultDate(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`;}
-    function getLineupId(gameType, date){return `${gameType}_${date}`;}
+    function getDefaultDate() {
+      const n = new Date();
+      return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`;
+    }
+
+    function getLineupId(gameType, date) {
+      return `${gameType}_${date}`;
+    }
 
     function renderRows(players = []) {
       lineupBody.innerHTML = "";
@@ -111,10 +143,11 @@
     function getPlayers() {
       const players = [];
       for (let i = 1; i <= 9; i++) {
-        const order = document.getElementById(`order${i}`).value.trim();
-        const name = document.getElementById(`name${i}`).value.trim();
-        const position = document.getElementById(`pos${i}`).value.trim();
-        players.push({ order, name, position });
+        players.push({
+          order: document.getElementById(`order${i}`).value.trim(),
+          name: document.getElementById(`name${i}`).value.trim(),
+          position: document.getElementById(`pos${i}`).value.trim()
+        });
       }
       return players;
     }
@@ -122,7 +155,11 @@
     document.getElementById("saveLineupBtn").addEventListener("click", async () => {
       const gameType = gameTypeInput.value;
       const date = lineupDateInput.value;
-      if (!date) { alert("경기 날짜를 선택해줘."); return; }
+      if (!date) {
+        alert("경기 날짜를 선택해줘.");
+        return;
+      }
+
       const data = {
         gameType,
         date,
@@ -132,6 +169,7 @@
         updatedAt: Date.now(),
         createdBy: currentUserData?.nickname || ""
       };
+
       await setDoc(doc(db, "lineups", getLineupId(gameType, date)), data);
       alert("라인업 저장 완료!");
     });
@@ -144,6 +182,12 @@
       renderRows();
     });
 
+    window.toggleLineupDetail = function(id) {
+      const detail = document.getElementById(`detail_${id}`);
+      if (!detail) return;
+      detail.classList.toggle("show");
+    };
+
     window.deleteLineup = async function(id) {
       if (!confirm("이 라인업을 삭제할까요?")) return;
       await deleteDoc(doc(db, "lineups", id));
@@ -151,23 +195,62 @@
     };
 
     const lineupQuery = query(collection(db, "lineups"), orderBy("updatedAt", "desc"));
+
     onSnapshot(lineupQuery, (snapshot) => {
       lineupList.innerHTML = "";
-      if (snapshot.empty) { lineupList.innerHTML = `<p class="empty-text">저장된 라인업이 없습니다.</p>`; return; }
+      if (snapshot.empty) {
+        lineupList.innerHTML = `<p class="empty-text">저장된 라인업이 없습니다.</p>`;
+        return;
+      }
+
       snapshot.forEach((docu) => {
         const l = docu.data();
         const box = document.createElement("div");
         box.className = "saved-box";
+
+        const playersHtml = (l.players || []).map(p => `
+          <tr>
+            <td>${p.order || ""}</td>
+            <td>${p.name || ""}</td>
+            <td>${p.position || ""}</td>
+          </tr>
+        `).join("");
+
         box.innerHTML = `
-          <strong>${l.date || "-"} / ${l.gameType || "-"}</strong>
-          <p>상대팀: ${l.opponent || "-"} / 선발: ${l.pitcher || "-"}</p>
-          <button class="small-btn delete" onclick="deleteLineup('${docu.id}')">삭제</button>
+          <div class="saved-top">
+            <div class="saved-title" onclick="toggleLineupDetail('${docu.id}')">
+              <span class="badge">${l.gameType || "-"}</span>
+              ${l.date || "-"}<br>
+              <span style="font-size:15px;font-weight:500;color:#666;">상대팀: ${l.opponent || "-"} / 선발투수: ${l.pitcher || "-"}</span>
+            </div>
+            <div class="saved-actions">
+              <button class="small-btn sub" onclick="toggleLineupDetail('${docu.id}')">선택</button>
+              <button class="small-btn delete" onclick="deleteLineup('${docu.id}')">삭제</button>
+            </div>
+          </div>
+
+          <div id="detail_${docu.id}" class="detail-box">
+            <h3>상세 라인업지</h3>
+            <p><strong>경기 종류:</strong> ${l.gameType || "-"}</p>
+            <p><strong>날짜:</strong> ${l.date || "-"}</p>
+            <p><strong>상대팀:</strong> ${l.opponent || "-"}</p>
+            <p><strong>선발투수:</strong> ${l.pitcher || "-"}</p>
+            <div class="lineup-table-wrap">
+              <table class="lineup-table">
+                <thead><tr><th>타순</th><th>선수명</th><th>포지션</th></tr></thead>
+                <tbody>${playersHtml}</tbody>
+              </table>
+            </div>
+          </div>
         `;
         lineupList.appendChild(box);
       });
     });
 
-    function init(){ lineupDateInput.value = getDefaultDate(); renderRows(); }
+    function init() {
+      lineupDateInput.value = getDefaultDate();
+      renderRows();
+    }
   </script>
 </body>
 </html>
