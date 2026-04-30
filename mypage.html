@@ -175,7 +175,7 @@
     }
 
     function renderSummary(batterGames, pitcherGames) {
-      const b = { games: batterGames.length, ab: 0, h: 0, double: 0, triple: 0, hr: 0, rbi: 0, r: 0, so: 0 };
+      const b = { games: batterGames.length, ab: 0, h: 0, double: 0, triple: 0, hr: 0, rbi: 0, r: 0, so: 0, e: 0, runout: 0 };
       batterGames.forEach((g) => {
         const s = g.stats || {};
         b.ab += Number(s.ab) || 0;
