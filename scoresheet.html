@@ -78,12 +78,97 @@ window.removeBatterToken=(id,idx)=>{const t=getRecordTokens(id);t.splice(idx,1);
 function batterStats(text){const tokens=String(text||'').trim().split(/\s+/).filter(Boolean);const c=w=>tokens.filter(x=>x===w).length;const single=c('안타')+c('1루타'), dbl=c('2루타'), tri=c('3루타'), hr=c('홈런'), so=c('삼진');const out=c('뜬공')+c('땅볼')+c('병살')+c('주루사');return{ab:single+dbl+tri+hr+so+out,h:single+dbl+tri+hr,double:dbl,triple:tri,hr,rbi:c('타점'),r:c('득점'),so,e:c('실책'),runout:c('주루사'),bb:c('볼넷'),hbp:c('사구')}};
 function updateBatter(id){const s=batterStats(getRecordText(id));$(`b_summary_${id}`).innerHTML=`<div class="stat-grid"><div class="stat-pill">타수<b>${s.ab}</b></div><div class="stat-pill">안타<b>${s.h}</b></div><div class="stat-pill">2루타<b>${s.double}</b></div><div class="stat-pill">3루타<b>${s.triple}</b></div><div class="stat-pill">홈런<b>${s.hr}</b></div><div class="stat-pill">타점<b>${s.rbi}</b></div><div class="stat-pill">득점<b>${s.r}</b></div><div class="stat-pill">삼진<b>${s.so}</b></div><div class="stat-pill">실책<b>${s.e}</b></div><div class="stat-pill">주루사<b>${s.runout}</b></div></div>`}
 function batterButtons(id){const groups=[['안타',['안타','2루타','3루타','홈런']],['출루·아웃',['볼넷','사구','삼진','뜬공','땅볼','병살']],['추가 기록',['타점','득점','실책','주루사']]];return groups.map(g=>`<div class="quick-group"><p class="quick-title">${g[0]}</p><div class="quick-row">${g[1].map(t=>`<button type="button" class="quick-btn ${tokenClass(t)}" onclick="addBatterToken(${id},'${t}')">${t}</button>`).join('')}</div></div>`).join('')}
-function createBatterRow(data={}){batterRowCounter++;const id=batterRowCounter, card=document.createElement('div');card.className='player-card batter-player-card';if(data.isSub)card.classList.add('sub-row');card.dataset.rowId=id;card.innerHTML=`<div class="player-head"><div><span class="field-label">타순</span><input id="b_order_${id}" class="cell-input" value="${data.order||''}"></div><div><span class="field-label">선수명</span><input id="b_name_${id}" class="cell-input" value="${data.name||''}" placeholder="선수명"></div><div><span class="field-label">포지션</span><input id="b_pos_${id}" class="cell-input" value="${data.position||''}" placeholder="CF"></div></div><div class="player-main"><div class="panel"><div class="panel-title">기록 입력</div><div id="b_tokens_${id}" class="token-area" data-tokens=""></div><textarea id="b_manual_${id}" class="manual-input" placeholder="직접 입력도 가능"></textarea><div class="quick-group">${batterButtons(id)}</div></div><div class="panel"><div class="panel-title">자동 계산</div><div id="b_summary_${id}"></div></div><div class="card-actions"><button type="button" class="sheet-btn small sub" onclick="addSubRow(${id})">교체</button><button type="button" class="sheet-btn small delete batter-delete-btn" onclick="removeBatterRow(${id})">삭제</button><span class="delete-hint">1명만 남으면 삭제 불가</span></div></div>`;const parts=String(data.record||'').trim().split(/\s+/).filter(Boolean);if(parts.length){setRecordTokens(id,parts.filter(known));$(`b_manual_${id}`).value=parts.filter(x=>!known(x)).join(' ')}$(`b_manual_${id}`).addEventListener('input',()=>updateBatter(id));setTimeout(()=>{updateBatter(id);refreshDeletes()},0);return card}
+function createBatterRow(data={}){
+  batterRowCounter++;
+  const id=batterRowCounter;
+  const card=document.createElement('div');
+  card.className='player-card batter-player-card';
+  if(data.isSub) card.classList.add('sub-row');
+  card.dataset.rowId=id;
+
+  card.innerHTML=`
+    <div class="player-head">
+      <div><span class="field-label">타순</span><input id="b_order_${id}" class="cell-input" value="${data.order||''}"></div>
+      <div><span class="field-label">선수명</span><input id="b_name_${id}" class="cell-input" value="${data.name||''}" placeholder="선수명"></div>
+      <div><span class="field-label">포지션</span><input id="b_pos_${id}" class="cell-input" value="${data.position||''}" placeholder="CF"></div>
+    </div>
+    <div class="player-main">
+      <div class="panel">
+        <div class="panel-title">기록 입력</div>
+        <div id="b_tokens_${id}" class="token-area" data-tokens=""></div>
+        <textarea id="b_manual_${id}" class="manual-input" placeholder="직접 입력도 가능"></textarea>
+        <div class="quick-group">${batterButtons(id)}</div>
+      </div>
+      <div class="panel"><div class="panel-title">자동 계산</div><div id="b_summary_${id}"></div></div>
+      <div class="card-actions">
+        <button type="button" class="sheet-btn small sub" onclick="addSubRow(${id})">교체</button>
+        <button type="button" class="sheet-btn small delete batter-delete-btn" onclick="removeBatterRow(${id})">삭제</button>
+        <span class="delete-hint">1명만 남으면 삭제 불가</span>
+      </div>
+    </div>`;
+
+  // 중요: 아직 document에 붙기 전이므로 document.getElementById 대신 card.querySelector 사용
+  const manual = card.querySelector(`#b_manual_${id}`);
+  const tokenArea = card.querySelector(`#b_tokens_${id}`);
+  const parts=String(data.record||'').trim().split(/\s+/).filter(Boolean);
+
+  if(parts.length){
+    const tokens = parts.filter(known);
+    tokenArea.dataset.tokens = tokens.join('|');
+    tokenArea.innerHTML = tokens.map((t,i)=>
+      `<span class="token-chip ${tokenClass(t)}">${t}<button type="button" class="token-x" onclick="removeBatterToken(${id},${i})">×</button></span>`
+    ).join('');
+    manual.value = parts.filter(x=>!known(x)).join(' ');
+  }
+
+  manual.addEventListener('input',()=>updateBatter(id));
+  setTimeout(()=>{updateBatter(id);refreshDeletes()},0);
+  return card;
+}
 function pVal(id,f){return Number($(`p_${f}_${id}`).value)||0}function incPitcher(id,f,delta,label){$(`p_${f}_${id}`).value=pVal(id,f)+delta;const area=$(`p_token_area_${id}`), idx=area.children.length;const chip=document.createElement('span');chip.className=`token-chip ${tokenClass(label)}`;chip.dataset.field=f;chip.dataset.delta=delta;chip.innerHTML=`${label}<button type="button" class="token-x">×</button>`;chip.querySelector('button').onclick=()=>{ $(`p_${f}_${id}`).value=Math.max(0,pVal(id,f)-delta); chip.remove(); updatePitcher(id); };area.appendChild(chip);updatePitcher(id)}window.incPitcher=incPitcher;
 function outsToInning(outs){return `${Math.floor(outs/3)}.${outs%3}`}function inningToOuts(v){const s=String(v||'').trim();if(!s)return 0;if(!s.includes('.'))return (Number(s)||0)*3;const [a,b]=s.split('.');return (Number(a)||0)*3+(Number(b)||0)}function calcEra(inn,er){const outs=inningToOuts(inn), e=Number(er)||0;if(!outs)return'0.00';return ((e*9)/(outs/3)).toFixed(2)}
 function updatePitcher(id){const era=calcEra($(`p_inning_${id}`).value,$(`p_er_${id}`).value);$(`p_era_${id}`).textContent=era;$(`p_summary_${id}`).innerHTML=`<div class="stat-grid"><div class="stat-pill">이닝<b>${$(`p_inning_${id}`).value||'0'}</b></div><div class="stat-pill">ERA<b>${era}</b></div><div class="stat-pill">실점<b>${pVal(id,'runs')}</b></div><div class="stat-pill">자책<b>${pVal(id,'er')}</b></div><div class="stat-pill">피안타<b>${pVal(id,'hits')}</b></div><div class="stat-pill">피홈런<b>${pVal(id,'hr')}</b></div><div class="stat-pill">탈삼진<b>${pVal(id,'so')}</b></div><div class="stat-pill">사사구<b>${pVal(id,'bb')}</b></div></div>`}
 function pitcherButtons(id){return `<div class="quick-group"><p class="quick-title">이닝</p><div class="quick-row pitcher"><button type="button" class="quick-btn hit" onclick="incPitcher(${id},'inningOuts',1,'+1아웃');document.getElementById('p_inning_${id}').value=outsToInning(pVal(${id},'inningOuts'))">+1아웃</button><button type="button" class="quick-btn hit" onclick="incPitcher(${id},'inningOuts',3,'+1이닝');document.getElementById('p_inning_${id}').value=outsToInning(pVal(${id},'inningOuts'))">+1이닝</button></div></div><div class="quick-group"><p class="quick-title">투구 기록</p><div class="quick-row pitcher"><button type="button" class="quick-btn plus" onclick="incPitcher(${id},'so',1,'삼진')">+삼진</button><button type="button" class="quick-btn warn" onclick="incPitcher(${id},'runs',1,'실점')">+실점</button><button type="button" class="quick-btn warn" onclick="incPitcher(${id},'er',1,'자책')">+자책</button><button type="button" class="quick-btn danger" onclick="incPitcher(${id},'hits',1,'피안타')">+피안타</button><button type="button" class="quick-btn danger" onclick="incPitcher(${id},'hr',1,'피홈런')">+피홈런</button><button type="button" class="quick-btn warn" onclick="incPitcher(${id},'bb',1,'사사구')">+사사구</button></div></div>`}
-function createPitcherRow(data={}){pitcherRowCounter++;const id=pitcherRowCounter,card=document.createElement('div');card.className='player-card pitcher-player-card';card.dataset.pitcherRowId=id;card.innerHTML=`<div class="pitcher-head"><div><span class="field-label">투수명</span><input id="p_name_${id}" class="cell-input" value="${data.name||''}" placeholder="투수명"></div><div><span class="field-label">결과</span><input id="p_decision_${id}" class="cell-input" value="${data.decision||''}" placeholder="승/패/홀드"></div></div><div class="pitcher-main"><div class="panel"><div class="panel-title">투수 기록</div><div id="p_token_area_${id}" class="token-area"></div><input type="hidden" id="p_inningOuts_${id}" value="${inningToOuts(data.inning||'')}"><div class="pitcher-fields"><label>이닝<input id="p_inning_${id}" class="cell-input" value="${data.inning||''}"></label><label>실점<input id="p_runs_${id}" class="cell-input" value="${data.runs||''}"></label><label>자책<input id="p_er_${id}" class="cell-input" value="${data.er||''}"></label><label>피안타<input id="p_hits_${id}" class="cell-input" value="${data.hits||''}"></label><label>피홈런<input id="p_hr_${id}" class="cell-input" value="${data.hr||''}"></label><label>탈삼진<input id="p_so_${id}" class="cell-input" value="${data.so||''}"></label><label>사사구<input id="p_bb_${id}" class="cell-input" value="${data.bb||''}"></label></div>${pitcherButtons(id)}</div><div class="panel"><div class="panel-title">요약</div><div id="p_summary_${id}"></div><div id="p_era_${id}" style="display:none">0.00</div></div><div class="card-actions"><button type="button" class="sheet-btn small delete pitcher-delete-btn" onclick="removePitcherRow(${id})">삭제</button><span class="delete-hint">1명만 남으면 삭제 불가</span></div></div>`;['inning','runs','er','hits','hr','so','bb','decision'].forEach(f=>$(`p_${f}_${id}`).addEventListener('input',()=>updatePitcher(id)));setTimeout(()=>{updatePitcher(id);refreshDeletes()},0);return card}
+function createPitcherRow(data={}){
+  pitcherRowCounter++;
+  const id=pitcherRowCounter;
+  const card=document.createElement('div');
+  card.className='player-card pitcher-player-card';
+  card.dataset.pitcherRowId=id;
+
+  card.innerHTML=`
+    <div class="pitcher-head">
+      <div><span class="field-label">투수명</span><input id="p_name_${id}" class="cell-input" value="${data.name||''}" placeholder="투수명"></div>
+      <div><span class="field-label">결과</span><input id="p_decision_${id}" class="cell-input" value="${data.decision||''}" placeholder="승/패/홀드"></div>
+    </div>
+    <div class="pitcher-main">
+      <div class="panel">
+        <div class="panel-title">투수 기록</div>
+        <div id="p_token_area_${id}" class="token-area"></div>
+        <input type="hidden" id="p_inningOuts_${id}" value="${inningToOuts(data.inning||'')}">
+        <div class="pitcher-fields">
+          <label>이닝<input id="p_inning_${id}" class="cell-input" value="${data.inning||''}"></label>
+          <label>실점<input id="p_runs_${id}" class="cell-input" value="${data.runs||''}"></label>
+          <label>자책<input id="p_er_${id}" class="cell-input" value="${data.er||''}"></label>
+          <label>피안타<input id="p_hits_${id}" class="cell-input" value="${data.hits||''}"></label>
+          <label>피홈런<input id="p_hr_${id}" class="cell-input" value="${data.hr||''}"></label>
+          <label>탈삼진<input id="p_so_${id}" class="cell-input" value="${data.so||''}"></label>
+          <label>사사구<input id="p_bb_${id}" class="cell-input" value="${data.bb||''}"></label>
+        </div>
+        ${pitcherButtons(id)}
+      </div>
+      <div class="panel"><div class="panel-title">요약</div><div id="p_summary_${id}"></div><div id="p_era_${id}" style="display:none">0.00</div></div>
+      <div class="card-actions"><button type="button" class="sheet-btn small delete pitcher-delete-btn" onclick="removePitcherRow(${id})">삭제</button><span class="delete-hint">1명만 남으면 삭제 불가</span></div>
+    </div>`;
+
+  // 중요: card가 아직 document에 붙기 전이므로 card.querySelector 사용
+  ['inning','runs','er','hits','hr','so','bb','decision'].forEach(f=>{
+    card.querySelector(`#p_${f}_${id}`).addEventListener('input',()=>updatePitcher(id));
+  });
+
+  setTimeout(()=>{updatePitcher(id);refreshDeletes()},0);
+  return card;
+}
 function refreshDeletes(){battersBody.querySelectorAll('.batter-delete-btn').forEach(b=>b.disabled=battersBody.querySelectorAll('.batter-player-card').length<=1);pitchersBody.querySelectorAll('.pitcher-delete-btn').forEach(b=>b.disabled=pitchersBody.querySelectorAll('.pitcher-player-card').length<=1)}
 function createBatters(){battersBody.innerHTML='';batterRowCounter=0;for(let i=1;i<=9;i++)battersBody.appendChild(createBatterRow({order:i}));refreshDeletes()}function createPitchers(){pitchersBody.innerHTML='';pitcherRowCounter=0;pitchersBody.appendChild(createPitcherRow());refreshDeletes()}
 function getBatters(){return[...battersBody.querySelectorAll('.batter-player-card')].map(row=>{const id=row.dataset.rowId,record=getRecordText(id),s=batterStats(record);return{order:$(`b_order_${id}`).value.trim(),name:$(`b_name_${id}`).value.trim(),position:$(`b_pos_${id}`).value.trim(),record,isSub:row.classList.contains('sub-row'),stats:{ab:s.ab,h:s.h,double:s.double,triple:s.triple,hr:s.hr,rbi:s.rbi,r:s.r,so:s.so,e:s.e,runout:s.runout,bb:s.bb,hbp:s.hbp}}}).filter(x=>x.name||x.position||x.record)}
