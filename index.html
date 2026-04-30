@@ -3,24 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MBO 기록지</title>
+  <title>레이 마린스</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="page">
     <div class="card-box">
-      <h2>MBO 기록지</h2>
+      <h2>레이 마린스</h2>
       <p id="userInfo" class="page-note">로그인 정보를 불러오는 중...</p>
 
       <div class="home-links">
+        <a href="lineup.html">
+          <div class="title">라인업</div>
+          <div class="sub">Lineup</div>
+        </a>
+
         <a href="record.html">
-          <div class="title">기록 저장소</div>
-          <div class="sub">Practice / League Records</div>
+          <div class="title">기록실</div>
+          <div class="sub">Records</div>
         </a>
 
         <a href="scoresheet.html">
           <div class="title">기록지 작성</div>
           <div class="sub">Scoresheet</div>
+        </a>
+
+        <a href="mypage.html" id="mypageLink">
+          <div class="title">마이페이지</div>
+          <div class="sub">My Stats</div>
         </a>
 
         <a id="adminLink" class="hidden" href="admin-users.html">
@@ -34,61 +44,26 @@
         </a>
       </div>
     </div>
-
-    <div class="card-box">
-      <h2>내 기록</h2>
-      <div id="myStats" class="page-note">불러오는 중...</div>
-    </div>
   </div>
 
   <script type="module">
-    import { db } from "./firebase-config.js";
     import { checkLogin, logout, isAdmin } from "./auth.js";
-    import {
-      collection,
-      getDocs,
-      query,
-      where
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const userInfo = document.getElementById("userInfo");
-    const myStats = document.getElementById("myStats");
     const adminLink = document.getElementById("adminLink");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    logoutBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
+    logoutBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
       await logout();
     });
 
-    checkLogin(async (user, userData) => {
+    checkLogin((user, userData) => {
       userInfo.textContent = `${userData.nickname} #${userData.number}`;
-
       if (isAdmin(userData)) {
         adminLink.classList.remove("hidden");
       }
-
-      await loadMyStats(userData.nickname);
     });
-
-    async function loadMyStats(nickname) {
-      const q = query(
-        collection(db, "records"),
-        where("nickname", "==", nickname)
-      );
-
-      const snap = await getDocs(q);
-
-      if (snap.empty) {
-        myStats.innerHTML = "아직 저장된 개인 기록이 없습니다.";
-        return;
-      }
-
-      myStats.innerHTML = `
-        <p>총 기록 수: <strong>${snap.size}</strong></p>
-        <p>자세한 기록은 기록 저장소에서 확인할 수 있습니다.</p>
-      `;
-    }
   </script>
 </body>
 </html>
