@@ -23,6 +23,14 @@ export function isAdmin(userData) {
   );
 }
 
+
+export function isOwner(userData) {
+  return userData && (
+    userData.role === "owner" ||
+    userData.role === "super_admin"
+  );
+}
+
 export function checkLogin(callback) {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {

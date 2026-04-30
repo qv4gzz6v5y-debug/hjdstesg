@@ -2,34 +2,87 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>회원 승인 관리</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-wrap { width:min(950px, calc(100% - 28px)); margin:34px auto; }
+    .admin-card { background:white; border-radius:22px; padding:24px; box-shadow:0 8px 20px rgba(0,0,0,.06); margin-bottom:20px; }
+    .card-title { font-size:34px; font-weight:900; margin-bottom:12px; }
+    .note { color:#666; line-height:1.6; }
+    .user-box { background:#f8f8f8; border:1px solid #e5e9f0; border-radius:16px; padding:16px; margin-top:12px; }
+    .user-top { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; }
+    .user-name { font-size:20px; font-weight:900; }
+    .role-badge { display:inline-block; border-radius:999px; padding:5px 10px; background:#e8f1ff; color:#1b65ba; font-size:13px; font-weight:900; }
+    .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .btn { border:none; border-radius:12px; padding:10px 14px; background:#1b65ba; color:white; font-weight:900; cursor:pointer; text-decoration:none; display:inline-block; }
+    .btn.sub { background:#666; }
+    .btn.green { background:#198754; }
+    .btn.orange { background:#c26b00; }
+    .btn.danger { background:#b00020; }
+    .hidden { display:none!important; }
+  </style>
 </head>
 <body>
-  <div class="page">
-    <div class="card-box">
-      <h2>회원 승인 관리</h2>
-      <p class="page-note">회원가입 신청한 유저를 승인하거나 거절할 수 있습니다.</p>
-      <a class="back-link" href="index.html">메인으로</a>
-      <div id="pendingUsers"></div>
+  <div class="admin-wrap">
+    <div class="admin-card">
+      <div class="card-title">회원 승인 관리</div>
+      <p id="adminNote" class="note">회원가입 신청한 유저를 승인하거나 거절할 수 있습니다.</p>
+      <a class="btn sub" href="index.html">메인으로</a>
+    </div>
+
+    <div class="admin-card">
+      <div class="card-title">승인 대기 유저</div>
+      <div id="pendingUsers"><p class="note">불러오는 중...</p></div>
+    </div>
+
+    <div id="roleManageCard" class="admin-card hidden">
+      <div class="card-title">기록원 권한 관리</div>
+      <p class="note">이 권한은 owner/super_admin만 변경할 수 있습니다.</p>
+      <div id="approvedUsers"><p class="note">불러오는 중...</p></div>
     </div>
   </div>
 
   <script type="module">
     import { db } from "./firebase-config.js";
-    import { checkLogin, isAdmin } from "./auth.js";
+    import { checkLogin, isAdmin, isOwner } from "./auth.js";
     import { collection, getDocs, query, where, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const pendingUsers = document.getElementById("pendingUsers");
+    const approvedUsers = document.getElementById("approvedUsers");
+    const roleManageCard = document.getElementById("roleManageCard");
+    const adminNote = document.getElementById("adminNote");
+
+    let me = null;
+    let ownerMode = false;
 
     checkLogin(async (user, userData) => {
+      me = userData;
+      ownerMode = isOwner(userData);
+
       if (!isAdmin(userData)) {
         alert("관리자만 접근할 수 있습니다.");
         location.href = "index.html";
         return;
       }
-      loadPendingUsers();
+
+      if (ownerMode) {
+        roleManageCard.classList.remove("hidden");
+        adminNote.textContent = "회원 승인과 기록원 권한 관리를 할 수 있습니다.";
+      } else {
+        adminNote.textContent = "회원 승인만 가능합니다. 기록원 권한 변경은 owner만 가능합니다.";
+      }
+
+      await loadPendingUsers();
+      if (ownerMode) await loadApprovedUsers();
     });
+
+    function roleName(role) {
+      if (role === "owner" || role === "super_admin") return "소유자";
+      if (role === "admin") return "관리자";
+      if (role === "scorer") return "기록원";
+      return "선수";
+    }
 
     async function loadPendingUsers() {
       const q = query(collection(db, "users"), where("approved", "==", false));
@@ -37,39 +90,87 @@
       pendingUsers.innerHTML = "";
 
       if (snap.empty) {
-        pendingUsers.innerHTML = `<p class="page-note">승인 대기 중인 유저가 없습니다.</p>`;
+        pendingUsers.innerHTML = `<p class="note">승인 대기 중인 유저가 없습니다.</p>`;
         return;
       }
 
       snap.forEach((docu) => {
-        const user = docu.data();
+        const u = docu.data();
         const box = document.createElement("div");
-        box.className = "user-row";
-        box.style.marginTop = "16px";
-        box.style.padding = "18px";
-
+        box.className = "user-box";
         box.innerHTML = `
-          <h3>${user.nickname} #${user.number}</h3>
-          <p>역할: ${user.role}</p>
-          <button class="btn" onclick="approveUser('${docu.id}')">승인</button>
-          <button class="btn danger" onclick="rejectUser('${docu.id}')">거절</button>
+          <div class="user-top">
+            <div class="user-name">${u.nickname || "-"} #${u.number || "-"}</div>
+            <span class="role-badge">${roleName(u.role)}</span>
+          </div>
+          <div class="actions">
+            <button class="btn green" onclick="approveUser('${docu.id}', 'player')">선수로 승인</button>
+            ${ownerMode ? `<button class="btn orange" onclick="approveUser('${docu.id}', 'scorer')">기록원으로 승인</button>` : ""}
+            <button class="btn danger" onclick="rejectUser('${docu.id}')">거절</button>
+          </div>
         `;
         pendingUsers.appendChild(box);
       });
     }
 
-    window.approveUser = async function(uid) {
-      await updateDoc(doc(db, "users", uid), { approved: true });
+    async function loadApprovedUsers() {
+      const q = query(collection(db, "users"), where("approved", "==", true));
+      const snap = await getDocs(q);
+      approvedUsers.innerHTML = "";
+
+      if (snap.empty) {
+        approvedUsers.innerHTML = `<p class="note">승인된 유저가 없습니다.</p>`;
+        return;
+      }
+
+      snap.forEach((docu) => {
+        const u = docu.data();
+        const isSelf = u.uid === me.uid;
+        const protectedOwner = u.role === "owner" || u.role === "super_admin";
+        const box = document.createElement("div");
+        box.className = "user-box";
+        box.innerHTML = `
+          <div class="user-top">
+            <div class="user-name">${u.nickname || "-"} #${u.number || "-"}</div>
+            <span class="role-badge">${roleName(u.role)}</span>
+          </div>
+          <div class="actions">
+            <button class="btn green" ${protectedOwner ? "disabled" : ""} onclick="setRole('${docu.id}', 'player')">선수</button>
+            <button class="btn orange" ${protectedOwner ? "disabled" : ""} onclick="setRole('${docu.id}', 'scorer')">기록원</button>
+            <button class="btn" ${protectedOwner ? "disabled" : ""} onclick="setRole('${docu.id}', 'admin')">관리자</button>
+            ${isSelf ? `<span class="note">본인 계정</span>` : ""}
+          </div>
+        `;
+        approvedUsers.appendChild(box);
+      });
+    }
+
+    window.approveUser = async function(uid, role) {
+      if (role === "scorer" && !ownerMode) {
+        alert("기록원 권한은 소유자만 줄 수 있습니다.");
+        return;
+      }
+      await updateDoc(doc(db, "users", uid), { approved: true, role });
       alert("승인 완료");
-      loadPendingUsers();
+      await loadPendingUsers();
+      if (ownerMode) await loadApprovedUsers();
     };
 
     window.rejectUser = async function(uid) {
-      const ok = confirm("이 유저를 거절할까요?");
-      if (!ok) return;
+      if (!confirm("이 유저를 거절할까요?")) return;
       await deleteDoc(doc(db, "users", uid));
       alert("거절 완료");
-      loadPendingUsers();
+      await loadPendingUsers();
+    };
+
+    window.setRole = async function(uid, role) {
+      if (!ownerMode) {
+        alert("권한 변경은 소유자만 가능합니다.");
+        return;
+      }
+      await updateDoc(doc(db, "users", uid), { role });
+      alert("권한 변경 완료");
+      await loadApprovedUsers();
     };
   </script>
 </body>

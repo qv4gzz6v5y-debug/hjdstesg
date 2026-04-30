@@ -2,40 +2,45 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>기록실</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    .record-wrap { width: 95%; max-width: 1100px; margin: 34px auto; }
-    .record-card { background: white; border-radius: 18px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); margin-bottom: 22px; }
-    .card-title { font-size: 34px; font-weight: 800; margin-bottom: 16px; }
-    .record-note { color: #666; font-size: 15px; margin-bottom: 14px; line-height: 1.6; }
-    .record-tabs { display: flex; gap: 10px; margin-bottom: 16px; }
-    .tab-btn { padding: 10px 16px; border: none; border-radius: 999px; background: #e9ecef; color: #222; font-size: 14px; font-weight: 700; cursor: pointer; }
-    .tab-btn.active { background: #1b65ba; color: white; }
-    .record-box { background: #f8f8f8; border-radius: 14px; padding: 16px; margin-bottom: 14px; border-left: 6px solid #999; }
-    .record-box.practice { border-left-color: #1b65ba; }
-    .record-box.league { border-left-color: #c26b00; }
-    .record-top { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
-    .record-date { font-weight: 700; font-size: 18px; }
-    .record-result { padding: 6px 12px; border-radius: 999px; font-size: 14px; font-weight: 700; color: white; }
-    .record-result.win { background: #0a7a2f; }
-    .record-result.lose { background: #b00020; }
-    .record-result.draw { background: #666; }
-    .game-type-badge { display: inline-block; padding: 5px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; margin-bottom: 8px; background: #e8f1ff; color: #1b65ba; }
-    .game-type-badge.league { background: #fff3e8; color: #c26b00; }
-    .record-line { margin: 6px 0; line-height: 1.6; }
-    .empty-text { color: #666; }
-    .staff-link { display: inline-block; margin-top: 10px; text-decoration: none; color: #1b65ba; font-weight: 700; }
-    .hidden { display: none !important; }
+    .record-wrap { width: min(1100px, calc(100% - 28px)); margin: 34px auto; }
+    .record-card { background: white; border-radius: 22px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); margin-bottom: 22px; }
+    .card-title { font-size: 34px; font-weight: 900; margin-bottom: 14px; }
+    .record-note, .empty-text { color:#666; font-size:15px; line-height:1.6; }
+    .top-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+    .top-actions a { text-decoration:none; color:#1b65ba; font-weight:800; }
+    .record-tabs { display:flex; gap:10px; margin: 14px 0 18px; }
+    .tab-btn { padding:10px 16px; border:none; border-radius:999px; background:#e9ecef; color:#222; font-size:14px; font-weight:800; cursor:pointer; }
+    .tab-btn.active { background:#1b65ba; color:white; }
+    .record-box { background:#f8f8f8; border-radius:18px; padding:18px; margin-bottom:16px; border-left:6px solid #1b65ba; }
+    .record-box.league { border-left-color:#c26b00; }
+    .record-top { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+    .record-title { font-size:20px; font-weight:900; }
+    .record-result { padding:6px 12px; border-radius:999px; font-size:14px; font-weight:800; color:white; }
+    .record-result.win { background:#0a7a2f; }
+    .record-result.lose { background:#b00020; }
+    .record-result.draw { background:#666; }
+    .game-type-badge { display:inline-block; padding:5px 10px; border-radius:999px; font-size:13px; font-weight:800; margin-right:6px; background:#e8f1ff; color:#1b65ba; }
+    .game-type-badge.league { background:#fff3e8; color:#c26b00; }
+    .record-line { margin:7px 0; line-height:1.6; }
+    .mini-section { margin-top:14px; padding-top:12px; border-top:1px solid #e5e9f0; }
+    .mini-title { font-weight:900; margin-bottom:8px; }
+    .player-chip { display:inline-block; background:white; border:1px solid #e1e6ee; border-radius:12px; padding:7px 10px; margin:4px 4px 4px 0; font-size:13px; }
+    .hidden { display:none!important; }
   </style>
 </head>
 <body>
   <div class="record-wrap">
     <div class="record-card">
       <div class="card-title">기록실</div>
-      <p class="record-note">저장된 경기 기록을 확인할 수 있습니다.</p>
-      <a id="sheetLink" class="staff-link hidden" href="scoresheet.html">기록지로 이동</a>
-      <a class="staff-link" href="index.html">메인으로</a>
+      <p class="record-note">저장된 경기 기록지를 확인할 수 있습니다.</p>
+      <div class="top-actions">
+        <a href="index.html">메인으로</a>
+        <a id="sheetLink" class="hidden" href="scoresheet.html">기록지 작성</a>
+      </div>
     </div>
 
     <div class="record-card">
@@ -51,7 +56,7 @@
   <script type="module">
     import { db } from "./firebase-config.js";
     import { checkLogin, isStaff } from "./auth.js";
-    import { collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const recordList = document.getElementById("recordList");
     const sheetLink = document.getElementById("sheetLink");
@@ -59,44 +64,78 @@
     const leagueTab = document.getElementById("leagueTab");
 
     let currentType = "연습경기";
-    let allRecords = [];
+    let allSheets = [];
 
     checkLogin((user, userData) => {
       if (isStaff(userData)) sheetLink.classList.remove("hidden");
-      startRecordListener();
+      startScoresheetListener();
     });
 
     function getResultClass(result) {
-      if (result === "승") return "win";
-      if (result === "패") return "lose";
+      if (result === "승" || result === "승리") return "win";
+      if (result === "패" || result === "패배") return "lose";
       return "draw";
     }
 
-    function renderRecords(records) {
-      recordList.innerHTML = "";
-      const filteredRecords = records.filter(record => (record.gameType || "연습경기") === currentType);
+    function normalizeResult(result) {
+      if (result === "승리") return "승";
+      if (result === "패배") return "패";
+      if (result === "무승부") return "무";
+      return result || "-";
+    }
 
-      if (filteredRecords.length === 0) {
+    function sortSheets(list) {
+      return [...list].sort((a, b) => {
+        const aKey = a.createdAt || a.updatedAt || new Date(a.gameDate || a.date || 0).getTime();
+        const bKey = b.createdAt || b.updatedAt || new Date(b.gameDate || b.date || 0).getTime();
+        return bKey - aKey;
+      });
+    }
+
+    function renderRecords() {
+      recordList.innerHTML = "";
+      const filtered = sortSheets(allSheets).filter(sheet => (sheet.gameType || "연습경기") === currentType);
+
+      if (filtered.length === 0) {
         recordList.innerHTML = `<p class="empty-text">${currentType} 기록이 없습니다.</p>`;
         return;
       }
 
-      filteredRecords.forEach((record) => {
-        const resultClass = getResultClass(record.result);
-        const gameType = record.gameType || "연습경기";
-        const boxClass = gameType === "리그경기" ? "league" : "practice";
-        const badgeClass = gameType === "리그경기" ? "league" : "";
+      filtered.forEach((sheet) => {
+        const gameType = sheet.gameType || "연습경기";
+        const isLeague = gameType === "리그경기";
+        const result = normalizeResult(sheet.gameResult || sheet.result);
+        const resultClass = getResultClass(result);
+        const batters = sheet.batters || [];
+        const pitchers = sheet.pitchers || [];
+
+        const batterHtml = batters.length
+          ? batters.map(b => `<span class="player-chip">${b.order || "-"}. ${b.name || "-"} ${b.position || ""} / ${b.stats?.ab ?? 0}타수 ${b.stats?.h ?? 0}안타</span>`).join("")
+          : `<span class="empty-text">타자 기록 없음</span>`;
+
+        const pitcherHtml = pitchers.length
+          ? pitchers.map(p => `<span class="player-chip">${p.name || "-"} / ${p.inning || "0"}이닝 ${p.so || 0}K ${p.runs || 0}실점</span>`).join("")
+          : `<span class="empty-text">투수 기록 없음</span>`;
+
         const box = document.createElement("div");
-        box.className = `record-box ${boxClass}`;
+        box.className = `record-box ${isLeague ? "league" : "practice"}`;
         box.innerHTML = `
           <div class="record-top">
-            <div class="record-date">${record.date || "-"}</div>
-            <div class="record-result ${resultClass}">${record.result || "-"}</div>
+            <div class="record-title">${sheet.gameDate || sheet.date || "-"} ${sheet.gameTime || ""}</div>
+            <div class="record-result ${resultClass}">${result}</div>
           </div>
-          <div class="game-type-badge ${badgeClass}">${gameType}</div>
-          <div class="record-line"><strong>상대팀:</strong> ${record.opponent || "-"}</div>
-          <div class="record-line"><strong>스코어:</strong> ${record.score || "-"}</div>
-          <div class="record-line"><strong>메모:</strong> ${record.memo || "-"}</div>
+          <div class="game-type-badge ${isLeague ? "league" : ""}">${gameType}</div>
+          <div class="record-line"><strong>상대팀:</strong> ${sheet.opponent || "-"}</div>
+          <div class="record-line"><strong>홈/원정:</strong> ${sheet.homeAway || "-"}</div>
+          <div class="record-line"><strong>스코어:</strong> ${sheet.finalScore || sheet.score || "-"}</div>
+          <div class="mini-section">
+            <div class="mini-title">타자 기록</div>
+            ${batterHtml}
+          </div>
+          <div class="mini-section">
+            <div class="mini-title">투수 기록</div>
+            ${pitcherHtml}
+          </div>
         `;
         recordList.appendChild(box);
       });
@@ -106,23 +145,22 @@
       currentType = type;
       practiceTab.classList.toggle("active", type === "연습경기");
       leagueTab.classList.toggle("active", type === "리그경기");
-      renderRecords(allRecords);
+      renderRecords();
     }
 
     practiceTab.addEventListener("click", () => setActiveTab("연습경기"));
     leagueTab.addEventListener("click", () => setActiveTab("리그경기"));
 
-    function startRecordListener() {
-      const recordQuery = query(collection(db, "records"), orderBy("createdAt", "desc"));
-      onSnapshot(recordQuery, (snapshot) => {
-        allRecords = [];
+    function startScoresheetListener() {
+      onSnapshot(collection(db, "scoresheets"), (snapshot) => {
+        allSheets = [];
         snapshot.forEach((docu) => {
-          allRecords.push({ id: docu.id, ...docu.data() });
+          allSheets.push({ id: docu.id, ...docu.data() });
         });
-        renderRecords(allRecords);
+        renderRecords();
       }, (error) => {
         console.error(error);
-        recordList.innerHTML = `<p class="empty-text">기록을 불러오지 못했습니다.</p>`;
+        recordList.innerHTML = `<p class="empty-text">기록을 불러오지 못했습니다. Firebase 규칙 또는 콘솔 오류를 확인해주세요.</p>`;
       });
     }
   </script>
