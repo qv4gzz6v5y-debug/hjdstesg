@@ -8,6 +8,106 @@
   <style>
     .sheet-wrap{width:95%;max-width:1280px;margin:34px auto}.sheet-card{background:#fff;border-radius:22px;padding:24px;box-shadow:0 10px 24px rgba(0,0,0,.06);margin-bottom:22px}.card-title{font-size:34px;font-weight:900;margin-bottom:10px}.sheet-note,.empty-text{color:#666;font-size:15px;line-height:1.6}.sheet-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px}.sheet-input,.sheet-select,.cell-input{width:100%;padding:12px 14px;margin:8px 0;border-radius:14px;border:1px solid #d6dce5;box-sizing:border-box;font-size:15px;background:#fff}.cell-input{margin:0;padding:9px 10px;text-align:center;min-width:54px}.sheet-btn{padding:11px 18px;border-radius:12px;border:none;background:#111;color:white;cursor:pointer;margin-right:8px;margin-top:12px;font-size:15px;font-weight:800}.sheet-btn.sub{background:#666}.sheet-btn.delete{background:#b00020}.sheet-btn.small{padding:8px 11px;margin:2px;font-size:12px;border-radius:10px}.sheet-btn:disabled{opacity:.35;cursor:not-allowed;background:#999}.sheet-table-wrap{overflow-x:auto;margin-bottom:18px}.sheet-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;min-width:1040px;border:1px solid #e4e8ef;border-radius:16px;overflow:hidden}.sheet-table th,.sheet-table td{border-bottom:1px solid #e4e8ef;border-right:1px solid #e4e8ef;padding:10px;text-align:center;vertical-align:top}.sheet-table th:last-child,.sheet-table td:last-child{border-right:none}.sheet-table tr:last-child td{border-bottom:none}.sheet-table th{background:#f6f8fb;font-weight:900;font-size:14px}.section-title{font-size:22px;font-weight:900;margin-top:26px;margin-bottom:10px}.hidden{display:none!important}.menu-clean{display:flex;flex-wrap:wrap;gap:12px;padding:16px 0 0}.menu-clean a{text-decoration:none;padding:10px 14px;border-radius:14px;background:#fff;border:1px solid #d6d6d6;font-size:18px}.game-type-badge{display:inline-block;padding:5px 10px;border-radius:999px;background:#e8f1ff;color:#1b65ba;font-size:13px;font-weight:800;margin-right:6px}.sheet-box{background:#f8f8f8;border-radius:16px;padding:18px;margin-bottom:16px;border-left:6px solid #1b65ba}.sheet-top{font-size:20px;font-weight:900;margin-bottom:12px;line-height:1.6}.sub-row{background:#fcfcfc}
     .record-editor{min-width:430px;text-align:left}.record-compose,.pitcher-compose{background:#fff;border:1px solid #dfe5ee;border-radius:18px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.03);margin-bottom:12px}.token-area,.pitcher-token-area{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px}.token-area:empty,.pitcher-token-area:empty{display:none}.token-chip{display:inline-flex;align-items:center;gap:6px;background:#e8f1ff;color:#1b65ba;border:1px solid #bfd7ff;border-radius:999px;padding:7px 9px;font-size:12px;font-weight:900}.token-chip.out{background:#f1f3f5;color:#555;border-color:#d8dde3}.token-chip.warn{background:#fff3e8;color:#c26b00;border-color:#ffd8ad}.token-chip.plus{background:#eaf8ef;color:#198754;border-color:#c7ebd4}.token-x{border:none;background:rgba(255,255,255,.75);color:inherit;font-size:14px;line-height:1;cursor:pointer;padding:1px 5px;margin:0;border-radius:999px;font-weight:900}.manual-input{width:100%;min-height:46px;border:none;outline:none;resize:vertical;background:#f8fafc;border-radius:12px;padding:12px;font-family:inherit;font-size:14px;line-height:1.5}.manual-input:focus{background:#fff;box-shadow:inset 0 0 0 2px #bfd7ff}.quick-panel{background:#f8fafc;border:1px solid #e7edf5;border-radius:18px;padding:14px}.quick-group{margin-bottom:14px}.quick-group:last-child{margin-bottom:0}.quick-title{font-size:12px;font-weight:900;margin:0 0 8px;color:#555}.quick-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.quick-row.pitcher{grid-template-columns:repeat(3,1fr)}.quick-btn{padding:10px 7px;border:1px solid #d8e2ef;border-radius:12px;background:white;color:#222;font-size:12px;font-weight:900;cursor:pointer;margin:0}.quick-btn.hit{background:#edf5ff;color:#1b65ba;border-color:#bfd7ff}.quick-btn.out{background:#f4f5f7;color:#555;border-color:#d8dde3}.quick-btn.plus{background:#eefaf2;color:#198754;border-color:#c7ebd4}.quick-btn.warn{background:#fff6ed;color:#c26b00;border-color:#ffd8ad}.quick-btn.danger{background:#fff2f2;color:#b00020;border-color:#ffc9c9}.stat-summary,.pitcher-summary{min-width:210px;background:#fff;border:1px solid #e1e6ee;border-radius:18px;padding:12px;text-align:left}.summary-title{font-size:12px;font-weight:900;color:#555;margin-bottom:8px}.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stat-pill{background:#f8fafc;border:1px solid #e3e8ef;border-radius:12px;padding:9px 10px;font-size:12px;color:#666}.stat-pill b{display:block;font-size:16px;margin-top:3px;color:#111}.stat-pill.wide{grid-column:1/-1}.pitcher-card{min-width:460px;text-align:left}.pitcher-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.pitcher-fields label{font-size:12px;font-weight:900;color:#555}.pitcher-fields input{margin-top:4px}.pitcher-table{min-width:1080px}.delete-hint{display:block;font-size:11px;color:#777;margin-top:6px}@media(max-width:760px){.quick-row,.quick-row.pitcher,.pitcher-fields{grid-template-columns:repeat(2,1fr)}.record-editor,.pitcher-card{min-width:300px}.sheet-table{min-width:900px}}
+
+    /* 긴 표를 카드형 그리드로 정리 */
+    .batter-table,
+    .clean-pitcher-table {
+      min-width: 0 !important;
+      border: none !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+    }
+    .batter-table thead,
+    .clean-pitcher-table thead { display: none; }
+    .batter-table tbody,
+    .clean-pitcher-table tbody { display: grid; gap: 14px; }
+    .batter-table tr,
+    .clean-pitcher-table tr {
+      display: grid;
+      gap: 12px;
+      background: #fff;
+      border: 1px solid #e4eaf2;
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.035);
+      align-items: stretch;
+    }
+    .batter-table tr {
+      grid-template-columns: 70px minmax(130px,.8fr) 100px minmax(320px,2fr) minmax(190px,.9fr) 105px;
+    }
+    .clean-pitcher-table tr {
+      grid-template-columns: 150px minmax(430px,2fr) minmax(190px,.9fr) 105px;
+    }
+    .batter-table td,
+    .clean-pitcher-table td {
+      display: block;
+      border: none !important;
+      padding: 0 !important;
+      text-align: left !important;
+      background: transparent !important;
+    }
+    .batter-table td::before,
+    .clean-pitcher-table td::before {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .02em;
+      color: #6b7280;
+    }
+    .batter-table td:nth-child(1)::before { content: "타순"; }
+    .batter-table td:nth-child(2)::before { content: "선수명"; }
+    .batter-table td:nth-child(3)::before { content: "포지션"; }
+    .batter-table td:nth-child(4)::before { content: "기록 입력"; }
+    .batter-table td:nth-child(5)::before { content: "자동 계산"; }
+    .batter-table td:nth-child(6)::before { content: "기능"; }
+    .clean-pitcher-table td:nth-child(1)::before { content: "투수명"; }
+    .clean-pitcher-table td:nth-child(2)::before { content: "투수 기록"; }
+    .clean-pitcher-table td:nth-child(3)::before { content: "요약"; }
+    .clean-pitcher-table td:nth-child(4)::before { content: "기능"; }
+    .record-editor,
+    .pitcher-card,
+    .stat-summary,
+    .pitcher-summary { min-width: 0 !important; width: 100%; }
+    .record-compose,
+    .pitcher-compose,
+    .quick-panel,
+    .stat-summary,
+    .pitcher-summary { border-radius: 16px !important; }
+    .quick-panel { padding: 12px !important; background: #fbfcff !important; }
+    .quick-row { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+    .quick-row.pitcher { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+    .quick-btn { min-height: 38px; padding: 9px 6px !important; white-space: nowrap; }
+    .manual-input { min-height: 44px !important; }
+    .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .stat-pill { padding: 8px 9px !important; }
+    .stat-pill b { font-size: 15px !important; }
+    .pitcher-fields { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+    .pitcher-fields input { padding: 9px 10px !important; font-size: 13px !important; }
+    .batter-table .sheet-btn.small,
+    .clean-pitcher-table .sheet-btn.small { width: 100%; margin: 0 0 8px 0; }
+    @media (max-width: 1050px) {
+      .batter-table tr { grid-template-columns: 70px minmax(120px, 1fr) 90px; }
+      .batter-table td:nth-child(4),
+      .batter-table td:nth-child(5),
+      .batter-table td:nth-child(6) { grid-column: 1 / -1; }
+      .clean-pitcher-table tr { grid-template-columns: minmax(140px, .7fr) minmax(360px, 2fr); }
+      .clean-pitcher-table td:nth-child(3),
+      .clean-pitcher-table td:nth-child(4) { grid-column: 1 / -1; }
+    }
+    @media (max-width: 700px) {
+      .batter-table tr,
+      .clean-pitcher-table tr { grid-template-columns: 1fr; }
+      .batter-table td,
+      .clean-pitcher-table td { grid-column: 1 / -1 !important; }
+      .quick-row,
+      .quick-row.pitcher,
+      .pitcher-fields,
+      .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -26,8 +126,8 @@
         <div><label>결과</label><select id="gameResult" class="sheet-select"><option value="">선택</option><option value="승리">승리</option><option value="패배">패배</option><option value="무승부">무승부</option></select></div>
       </div><p id="lineupNotice" class="sheet-note">라인업 불러오기 대기 중...</p>
       <div class="section-title">이닝 점수</div><button type="button" id="addInningBtn" class="sheet-btn sub">연장 이닝 추가</button><button type="button" id="removeInningBtn" class="sheet-btn sub">마지막 이닝 삭제</button><div class="sheet-table-wrap"><table class="sheet-table"><thead id="inningHead"></thead><tbody id="inningBody"></tbody></table></div>
-      <div class="section-title">타자 기록</div><div class="sheet-table-wrap"><table class="sheet-table"><thead><tr><th>타순</th><th>선수명</th><th>포지션</th><th>기록 입력</th><th>자동 계산</th><th>기능</th></tr></thead><tbody id="battersBody"></tbody></table></div>
-      <div class="section-title">투수 기록</div><button type="button" id="addPitcherBtn" class="sheet-btn sub">투수 추가</button><div class="sheet-table-wrap"><table class="sheet-table pitcher-table"><thead><tr><th>선수명</th><th>기록 입력</th><th>요약</th><th>기능</th></tr></thead><tbody id="pitchersBody"></tbody></table></div>
+      <div class="section-title">타자 기록</div><div class="sheet-table-wrap"><table class="sheet-table batter-table"><thead><tr><th>타순</th><th>선수명</th><th>포지션</th><th>기록 입력</th><th>자동 계산</th><th>기능</th></tr></thead><tbody id="battersBody"></tbody></table></div>
+      <div class="section-title">투수 기록</div><button type="button" id="addPitcherBtn" class="sheet-btn sub">투수 추가</button><div class="sheet-table-wrap"><table class="sheet-table pitcher-table clean-pitcher-table"><thead><tr><th>선수명</th><th>기록 입력</th><th>요약</th><th>기능</th></tr></thead><tbody id="pitchersBody"></tbody></table></div>
       <button id="saveBtn" class="sheet-btn">저장</button><button id="resetBtn" class="sheet-btn sub">초기화</button>
     </div>
     <div class="sheet-card"><div class="card-title">저장된 기록지</div><div id="sheetList"><p class="empty-text">기록지를 불러오는 중...</p></div></div>
