@@ -2,299 +2,305 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>마이페이지</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    .mypage-wrap{width:95%;max-width:1100px;margin:34px auto}
-    .mypage-card{background:white;border-radius:18px;padding:24px;box-shadow:0 8px 20px rgba(0,0,0,.06);margin-bottom:22px}
-    .card-title{font-size:34px;font-weight:800;margin-bottom:16px}
-    .page-note,.empty-text{color:#666;font-size:15px;line-height:1.6}
-    .profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:10px}
-    .mypage-input{width:100%;padding:12px 14px;margin:8px 0;border-radius:12px;border:1px solid #ccc;box-sizing:border-box;font-size:16px;background:#fff}
-    .mypage-btn{padding:11px 18px;border-radius:10px;border:none;background:#111;color:white;cursor:pointer;margin-right:8px;margin-top:12px;font-size:15px}.mypage-btn.sub{background:#1b65ba}
-    .menu-clean{display:flex;flex-wrap:wrap;gap:12px;padding:16px 0 0}.menu-clean a{text-decoration:none;padding:10px 14px;border-radius:14px;background:#fff;border:1px solid #d6d6d6;font-size:18px}
-    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:12px}.stat-box{background:#f8f8f8;border-radius:14px;padding:14px;border-left:5px solid #1b65ba}.stat-label{font-size:13px;color:#666}.stat-value{font-size:24px;font-weight:800;margin-top:4px}
-    .record-table-wrap{overflow-x:auto;margin-top:12px}.record-table{width:100%;border-collapse:collapse;background:white;min-width:900px}.record-table th,.record-table td{border:1px solid #ddd;padding:9px;text-align:center}.record-table th{background:#f7f7f7}.section-title{font-size:22px;font-weight:800;margin-top:26px;margin-bottom:10px}.badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#e8f1ff;color:#1b65ba;font-size:13px;font-weight:700}
+    .mypage-wrap{width:95%;max-width:1100px;margin:34px auto}.mypage-card{background:#fff;border-radius:22px;padding:24px;box-shadow:0 10px 24px rgba(0,0,0,.06);margin-bottom:22px}.card-title{font-size:34px;font-weight:900;margin-bottom:10px}.page-note,.empty-text{color:#666;font-size:15px;line-height:1.6}.menu-clean{display:flex;flex-wrap:wrap;gap:12px;padding:16px 0 0}.menu-clean a{text-decoration:none;padding:10px 14px;border-radius:14px;background:#fff;border:1px solid #d6d6d6;font-size:18px}.profile-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}.profile-grid input{width:100%;padding:13px 14px;border:1px solid #d6dce5;border-radius:14px;font-size:15px}.profile-grid label{font-size:13px;font-weight:900;color:#555}.btn{border:none;border-radius:12px;padding:12px 16px;background:#111;color:#fff;font-weight:900;cursor:pointer}.tab-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.tab-btn{border:none;border-radius:999px;padding:10px 15px;background:#eef1f5;color:#222;font-weight:900;cursor:pointer}.tab-btn.active{background:#1b65ba;color:#fff}.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stat-box{background:#fbfcff;border:1px solid #e4eaf2;border-radius:16px;padding:14px}.stat-box span{display:block;color:#666;font-size:12px;font-weight:900}.stat-box b{display:block;font-size:22px;margin-top:5px}.section-title{font-size:24px;font-weight:900;margin:28px 0 14px}.game-card{border:1px solid #e4eaf2;border-radius:18px;padding:16px;margin-bottom:12px;background:#fbfcff}.game-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:900}.badge{display:inline-block;border-radius:999px;padding:4px 10px;background:#e8f1ff;color:#1b65ba;font-size:12px;font-weight:900}.badge.league{background:#fff3e8;color:#c26b00}.record-line{margin-top:8px;color:#444;line-height:1.6}.hidden{display:none!important}@media(max-width:760px){.profile-grid,.stats-grid{grid-template-columns:1fr 1fr}.profile-grid button{grid-column:1/-1}}@media(max-width:480px){.stats-grid{grid-template-columns:1fr}.card-title{font-size:28px}}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="top-title">
-      <h1>레이 마린스</h1>
-      <a class="top-link" href="index.html">메인으로</a>
-    </div>
+    <div class="top-title"><h1>레이 마린스</h1><a class="top-link" href="index.html">메인으로</a></div>
     <div class="menu-clean">
-      <a href="lineup.html">라인업</a>
-      <a href="record.html">기록실</a>
-      <a href="scoresheet.html">기록지</a>
-      <a href="mypage.html">마이페이지</a>
+      <a href="lineup.html">라인업</a><a href="record.html">기록실</a><a href="scoresheet.html">기록지</a><a href="mypage.html">마이페이지</a>
     </div>
   </div>
 
   <div class="mypage-wrap">
     <div class="mypage-card">
       <div class="card-title">마이페이지</div>
-      <p class="page-note">내 닉네임과 등번호를 확인하고, 기록지에 입력된 내 타자/투수 기록을 볼 수 있습니다.</p>
-
+      <p id="loginInfo" class="page-note">내 정보를 불러오는 중...</p>
       <div class="profile-grid">
-        <div>
-          <label for="nicknameInput">마인크래프트 닉네임</label>
-          <input id="nicknameInput" class="mypage-input" placeholder="닉네임">
-        </div>
-        <div>
-          <label for="numberInput">등번호</label>
-          <input id="numberInput" class="mypage-input" placeholder="등번호">
-        </div>
+        <div><label for="nicknameInput">마인크래프트 닉네임</label><input id="nicknameInput" placeholder="닉네임"></div>
+        <div><label for="numberInput">등번호</label><input id="numberInput" placeholder="등번호"></div>
+        <button id="saveProfileBtn" class="btn">정보 저장</button>
       </div>
-      <button id="saveProfileBtn" class="mypage-btn">내 정보 저장</button>
-      <p class="page-note">닉네임을 바꾸면 다음 로그인부터 새 닉네임으로 로그인해야 합니다.</p>
+      <p class="page-note">기록은 이 닉네임과 기록지의 선수명이 같을 때 자동으로 집계됩니다.</p>
     </div>
 
     <div class="mypage-card">
-      <div class="card-title">내 누적 기록</div>
-      <div id="summaryArea"><p class="empty-text">기록을 불러오는 중...</p></div>
+      <div class="card-title">내 시즌 기록</div>
+      <div class="tab-row">
+        <button id="allBtn" class="tab-btn active" type="button">전체</button>
+        <button id="practiceBtn" class="tab-btn" type="button">연습경기</button>
+        <button id="leagueBtn" class="tab-btn" type="button">리그경기</button>
+      </div>
+
+      <div class="section-title">타자 기록</div>
+      <div id="batterStats" class="stats-grid"></div>
+
+      <div class="section-title">투수 기록</div>
+      <div id="pitcherStats" class="stats-grid"></div>
     </div>
 
     <div class="mypage-card">
       <div class="card-title">내 경기별 기록</div>
-      <div id="detailArea"><p class="empty-text">기록을 불러오는 중...</p></div>
+      <div id="myGames"><p class="empty-text">기록을 불러오는 중...</p></div>
     </div>
   </div>
 
-  <script type="module">
-    import { auth, db } from "./firebase-config.js";
-    import { checkLogin, nicknameToEmail } from "./auth.js";
-    import { updateEmail } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+<script type="module">
+import { db } from './firebase-config.js';
+import { checkLogin } from './auth.js';
+import { collection, getDocs, query, orderBy, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
-    const nicknameInput = document.getElementById("nicknameInput");
-    const numberInput = document.getElementById("numberInput");
-    const saveProfileBtn = document.getElementById("saveProfileBtn");
-    const summaryArea = document.getElementById("summaryArea");
-    const detailArea = document.getElementById("detailArea");
+const $ = (id) => document.getElementById(id);
+const loginInfo = $('loginInfo');
+const nicknameInput = $('nicknameInput');
+const numberInput = $('numberInput');
+const saveProfileBtn = $('saveProfileBtn');
+const batterStatsBox = $('batterStats');
+const pitcherStatsBox = $('pitcherStats');
+const myGames = $('myGames');
+const allBtn = $('allBtn'), practiceBtn = $('practiceBtn'), leagueBtn = $('leagueBtn');
 
-    let currentUser = null;
-    let currentUserData = null;
+let currentUser = null;
+let currentUserData = null;
+let allSheets = [];
+let currentFilter = '전체';
 
-    checkLogin(async (user, userData) => {
-      currentUser = user;
-      currentUserData = userData;
-      nicknameInput.value = userData.nickname || "";
-      numberInput.value = userData.number || "";
-      await loadMyRecords();
+function normalizeName(name){
+  return String(name || '').trim().toLowerCase().replace(/\s+/g,'');
+}
+
+function n(value){
+  return Number(value) || 0;
+}
+
+function fmt3(value){
+  if (!isFinite(value) || value <= 0) return '0.000';
+  return value.toFixed(3);
+}
+
+function inningToOuts(value){
+  const str = String(value || '').trim();
+  if (!str) return 0;
+  if (!str.includes('.')) return (Number(str) || 0) * 3;
+  const [full, part] = str.split('.');
+  const outs = Math.min(Math.max(Number(part) || 0, 0), 2);
+  return (Number(full) || 0) * 3 + outs;
+}
+
+function outsToInning(outs){
+  const full = Math.floor((Number(outs)||0) / 3);
+  const rest = (Number(outs)||0) % 3;
+  return `${full}.${rest}`;
+}
+
+function statBox(label, value){
+  return `<div class="stat-box"><span>${label}</span><b>${value}</b></div>`;
+}
+
+function getFilteredSheets(){
+  if (currentFilter === '전체') return allSheets;
+  return allSheets.filter(s => (s.gameType || '연습경기') === currentFilter);
+}
+
+function calculateBatter(rows){
+  const sum = { g:0, ab:0, h:0, double:0, triple:0, hr:0, rbi:0, r:0, so:0, bb:0, hbp:0, e:0, runout:0 };
+  rows.forEach(r => {
+    const s = r.stats || {};
+    sum.g += 1;
+    sum.ab += n(s.ab);
+    sum.h += n(s.h);
+    sum.double += n(s.double);
+    sum.triple += n(s.triple);
+    sum.hr += n(s.hr);
+    sum.rbi += n(s.rbi);
+    sum.r += n(s.r);
+    sum.so += n(s.so);
+    sum.bb += n(s.bb);
+    sum.hbp += n(s.hbp);
+    sum.e += n(s.e);
+    sum.runout += n(s.runout);
+  });
+  const single = Math.max(sum.h - sum.double - sum.triple - sum.hr, 0);
+  const tb = single + sum.double * 2 + sum.triple * 3 + sum.hr * 4;
+  const avg = sum.ab ? sum.h / sum.ab : 0;
+  const obpDen = sum.ab + sum.bb + sum.hbp;
+  const obp = obpDen ? (sum.h + sum.bb + sum.hbp) / obpDen : 0;
+  const slg = sum.ab ? tb / sum.ab : 0;
+  const ops = obp + slg;
+  return { ...sum, avg, obp, slg, ops };
+}
+
+function calculatePitcher(rows){
+  const sum = { g:0, outs:0, runs:0, er:0, hits:0, hr:0, so:0, bb:0 };
+  rows.forEach(r => {
+    sum.g += 1;
+    sum.outs += inningToOuts(r.inning);
+    sum.runs += n(r.runs);
+    sum.er += n(r.er);
+    sum.hits += n(r.hits);
+    sum.hr += n(r.hr);
+    sum.so += n(r.so);
+    sum.bb += n(r.bb);
+  });
+  const innings = sum.outs / 3;
+  const era = innings ? (sum.er * 9) / innings : 0;
+  const whip = innings ? (sum.hits + sum.bb) / innings : 0;
+  const k9 = innings ? (sum.so * 9) / innings : 0;
+  return { ...sum, era, whip, k9 };
+}
+
+function collectMyRecords(){
+  const target = normalizeName(currentUserData?.nickname);
+  const batters = [];
+  const pitchers = [];
+  const games = [];
+
+  getFilteredSheets().forEach(sheet => {
+    const gameInfo = {
+      id: sheet.id,
+      gameType: sheet.gameType || '연습경기',
+      date: sheet.gameDate || '-',
+      opponent: sheet.opponent || '-',
+      score: sheet.finalScore || '-',
+      result: sheet.gameResult || '-'
+    };
+
+    (sheet.batters || []).forEach(b => {
+      if (normalizeName(b.name) === target) {
+        const item = { ...b, gameInfo };
+        batters.push(item);
+        games.push({ kind:'타자', data:item, gameInfo });
+      }
     });
 
-    saveProfileBtn.addEventListener("click", async () => {
-      const newNickname = nicknameInput.value.trim();
-      const newNumber = numberInput.value.trim();
-
-      if (!newNickname || !newNumber) {
-        alert("닉네임과 등번호를 입력해줘.");
-        return;
-      }
-
-      try {
-        if (newNickname !== currentUserData.nickname) {
-          await updateEmail(auth.currentUser, nicknameToEmail(newNickname));
-        }
-
-        await updateDoc(doc(db, "users", currentUser.uid), {
-          nickname: newNickname,
-          number: newNumber,
-          updatedAt: Date.now()
-        });
-
-        currentUserData.nickname = newNickname;
-        currentUserData.number = newNumber;
-
-        alert("내 정보가 저장됐어.");
-        await loadMyRecords();
-      } catch (error) {
-        console.error(error);
-        alert("저장 중 오류가 발생했어. 닉네임 변경 오류가 나면 로그아웃 후 다시 로그인한 뒤 시도해줘.");
+    (sheet.pitchers || []).forEach(p => {
+      if (normalizeName(p.name) === target) {
+        const item = { ...p, gameInfo };
+        pitchers.push(item);
+        games.push({ kind:'투수', data:item, gameInfo });
       }
     });
+  });
 
-    function inningsToOuts(value) {
-      const str = String(value || "").trim();
-      if (!str) return 0;
-      if (!str.includes(".")) return (Number(str) || 0) * 3;
-      const [whole, part] = str.split(".");
-      return (Number(whole) || 0) * 3 + (Number(part) || 0);
-    }
+  return { batters, pitchers, games };
+}
 
-    function outsToInnings(outs) {
-      const whole = Math.floor(outs / 3);
-      const part = outs % 3;
-      return `${whole}.${part}`;
-    }
+function renderStats(){
+  const { batters, pitchers, games } = collectMyRecords();
+  const b = calculateBatter(batters);
+  const p = calculatePitcher(pitchers);
 
-    function calcAvg(hit, ab) {
-      if (!ab) return "0.000";
-      return (hit / ab).toFixed(3);
-    }
+  batterStatsBox.innerHTML = [
+    statBox('경기수', b.g),
+    statBox('타율', fmt3(b.avg)),
+    statBox('출루율', fmt3(b.obp)),
+    statBox('장타율', fmt3(b.slg)),
+    statBox('OPS', fmt3(b.ops)),
+    statBox('타수 / 안타', `${b.ab} / ${b.h}`),
+    statBox('2루타 / 3루타', `${b.double} / ${b.triple}`),
+    statBox('홈런 / 타점', `${b.hr} / ${b.rbi}`),
+    statBox('득점 / 삼진', `${b.r} / ${b.so}`),
+    statBox('볼넷 / 사구', `${b.bb} / ${b.hbp}`),
+    statBox('실책', b.e),
+    statBox('주루사', b.runout)
+  ].join('');
 
-    function calcObp(hit, bb, hbp, ab, sf) {
-      const den = ab + bb + hbp + sf;
-      if (!den) return "0.000";
-      return ((hit + bb + hbp) / den).toFixed(3);
-    }
+  pitcherStatsBox.innerHTML = [
+    statBox('경기수', p.g),
+    statBox('이닝', outsToInning(p.outs)),
+    statBox('ERA', p.era.toFixed(2)),
+    statBox('WHIP', p.whip.toFixed(2)),
+    statBox('K/9', p.k9.toFixed(2)),
+    statBox('탈삼진', p.so),
+    statBox('실점 / 자책', `${p.runs} / ${p.er}`),
+    statBox('피안타 / 피홈런', `${p.hits} / ${p.hr}`),
+    statBox('사사구', p.bb)
+  ].join('');
 
-    function calcSlg(hit, doubleHit, tripleHit, hr, ab) {
-      if (!ab) return "0.000";
-      const single = Math.max(hit - doubleHit - tripleHit - hr, 0);
-      const tb = single + doubleHit * 2 + tripleHit * 3 + hr * 4;
-      return (tb / ab).toFixed(3);
-    }
+  renderGames(games);
+}
 
-    function calcOps(obp, slg) {
-      return (Number(obp) + Number(slg)).toFixed(3);
-    }
+function renderGames(games){
+  myGames.innerHTML = '';
+  if (!games.length) {
+    myGames.innerHTML = `<p class="empty-text">${currentFilter} 기준으로 ${currentUserData.nickname} 선수 기록이 없습니다.<br>기록지의 선수명과 마이페이지 닉네임이 정확히 같은지 확인해주세요.</p>`;
+    return;
+  }
 
-    function calcEra(er, outs) {
-      if (!outs) return "0.00";
-      return ((er * 9) / (outs / 3)).toFixed(2);
-    }
+  games.sort((a,b) => String(b.gameInfo.date).localeCompare(String(a.gameInfo.date)));
+  games.forEach(item => {
+    const g = item.gameInfo;
+    const box = document.createElement('div');
+    box.className = 'game-card';
+    const badgeClass = g.gameType === '리그경기' ? 'league' : '';
 
-    function calcWhip(hits, walks, outs) {
-      if (!outs) return "0.00";
-      return ((hits + walks) / (outs / 3)).toFixed(2);
-    }
-
-    function calcK9(so, outs) {
-      if (!outs) return "0.00";
-      return ((so * 9) / (outs / 3)).toFixed(2);
-    }
-
-    async function loadMyRecords() {
-      const nickname = currentUserData.nickname;
-      const snap = await getDocs(collection(db, "scoresheets"));
-
-      const batterGames = [];
-      const pitcherGames = [];
-
-      snap.forEach((docu) => {
-        const sheet = docu.data();
-        const gameInfo = {
-          id: docu.id,
-          gameType: sheet.gameType || "연습경기",
-          date: sheet.gameDate || "-",
-          opponent: sheet.opponent || "-",
-          score: sheet.finalScore || "-",
-          result: sheet.gameResult || "-"
-        };
-
-        (sheet.batters || []).forEach((b) => {
-          if ((b.name || "").trim() === nickname) {
-            batterGames.push({ ...gameInfo, ...b });
-          }
-        });
-
-        (sheet.pitchers || []).forEach((p) => {
-          if ((p.name || "").trim() === nickname) {
-            pitcherGames.push({ ...gameInfo, ...p });
-          }
-        });
-      });
-
-      renderSummary(batterGames, pitcherGames);
-      renderDetails(batterGames, pitcherGames);
-    }
-
-    function renderSummary(batterGames, pitcherGames) {
-      const b = { games: batterGames.length, ab: 0, h: 0, double: 0, triple: 0, hr: 0, rbi: 0, r: 0, so: 0, bb: 0, hbp: 0, sf: 0, e: 0, runout: 0 };
-      batterGames.forEach((g) => {
-        const s = g.stats || {};
-        b.ab += Number(s.ab) || 0;
-        b.h += Number(s.h) || 0;
-        b.double += Number(s.double) || 0;
-        b.triple += Number(s.triple) || 0;
-        b.hr += Number(s.hr) || 0;
-        b.rbi += Number(s.rbi) || 0;
-        b.r += Number(s.r) || 0;
-        b.so += Number(s.so) || 0;
-        b.bb += Number(s.bb) || 0;
-        b.hbp += Number(s.hbp) || 0;
-        b.sf += Number(s.sf) || 0;
-        b.e += Number(s.e) || 0;
-        b.runout += Number(s.runout) || 0;
-      });
-
-      const avg = calcAvg(b.h, b.ab);
-      const obp = calcObp(b.h, b.bb, b.hbp, b.ab, b.sf);
-      const slg = calcSlg(b.h, b.double, b.triple, b.hr, b.ab);
-      const ops = calcOps(obp, slg);
-
-      const p = { games: pitcherGames.length, outs: 0, runs: 0, er: 0, hits: 0, hr: 0, so: 0, bb: 0 };
-      pitcherGames.forEach((g) => {
-        p.outs += inningsToOuts(g.inning);
-        p.runs += Number(g.runs) || 0;
-        p.er += Number(g.er) || 0;
-        p.hits += Number(g.hits) || 0;
-        p.hr += Number(g.hr) || 0;
-        p.so += Number(g.so) || 0;
-        p.bb += Number(g.bb) || 0;
-      });
-
-      summaryArea.innerHTML = `
-        <div class="section-title">타자 시즌 누적</div>
-        <div class="summary-grid">
-          <div class="stat-box"><div class="stat-label">경기수</div><div class="stat-value">${b.games}</div></div>
-          <div class="stat-box"><div class="stat-label">타율</div><div class="stat-value">${avg}</div></div>
-          <div class="stat-box"><div class="stat-label">출루율</div><div class="stat-value">${obp}</div></div>
-          <div class="stat-box"><div class="stat-label">장타율</div><div class="stat-value">${slg}</div></div>
-          <div class="stat-box"><div class="stat-label">OPS</div><div class="stat-value">${ops}</div></div>
-          <div class="stat-box"><div class="stat-label">타수 / 안타</div><div class="stat-value">${b.ab} / ${b.h}</div></div>
-          <div class="stat-box"><div class="stat-label">2루타 / 3루타</div><div class="stat-value">${b.double} / ${b.triple}</div></div>
-          <div class="stat-box"><div class="stat-label">홈런</div><div class="stat-value">${b.hr}</div></div>
-          <div class="stat-box"><div class="stat-label">타점 / 득점</div><div class="stat-value">${b.rbi} / ${b.r}</div></div>
-          <div class="stat-box"><div class="stat-label">삼진</div><div class="stat-value">${b.so}</div></div>
-          <div class="stat-box"><div class="stat-label">실책 / 주루사</div><div class="stat-value">${b.e} / ${b.runout}</div></div>
-        </div>
-
-        <div class="section-title">투수 시즌 누적</div>
-        <div class="summary-grid">
-          <div class="stat-box"><div class="stat-label">경기수</div><div class="stat-value">${p.games}</div></div>
-          <div class="stat-box"><div class="stat-label">이닝</div><div class="stat-value">${outsToInnings(p.outs)}</div></div>
-          <div class="stat-box"><div class="stat-label">ERA</div><div class="stat-value">${calcEra(p.er, p.outs)}</div></div>
-          <div class="stat-box"><div class="stat-label">WHIP</div><div class="stat-value">${calcWhip(p.hits, p.bb, p.outs)}</div></div>
-          <div class="stat-box"><div class="stat-label">K/9</div><div class="stat-value">${calcK9(p.so, p.outs)}</div></div>
-          <div class="stat-box"><div class="stat-label">탈삼진</div><div class="stat-value">${p.so}</div></div>
-          <div class="stat-box"><div class="stat-label">실점 / 자책</div><div class="stat-value">${p.runs} / ${p.er}</div></div>
-          <div class="stat-box"><div class="stat-label">피안타 / 피홈런</div><div class="stat-value">${p.hits} / ${p.hr}</div></div>
-          <div class="stat-box"><div class="stat-label">사사구</div><div class="stat-value">${p.bb}</div></div>
-        </div>
+    if (item.kind === '타자') {
+      const s = item.data.stats || {};
+      box.innerHTML = `
+        <div class="game-top"><div>${g.date} vs ${g.opponent}</div><span class="badge ${badgeClass}">${g.gameType}</span></div>
+        <div class="record-line"><b>타자</b> | ${g.score} ${g.result}</div>
+        <div class="record-line">타수 ${s.ab ?? 0} · 안타 ${s.h ?? 0} · 2루타 ${s.double ?? 0} · 3루타 ${s.triple ?? 0} · 홈런 ${s.hr ?? 0} · 타점 ${s.rbi ?? 0} · 득점 ${s.r ?? 0} · 삼진 ${s.so ?? 0} · 실책 ${s.e ?? 0} · 주루사 ${s.runout ?? 0}</div>
+      `;
+    } else {
+      const p = item.data;
+      box.innerHTML = `
+        <div class="game-top"><div>${g.date} vs ${g.opponent}</div><span class="badge ${badgeClass}">${g.gameType}</span></div>
+        <div class="record-line"><b>투수</b> | ${g.score} ${g.result}</div>
+        <div class="record-line">이닝 ${p.inning || '0.0'} · 실점 ${p.runs || 0} · 자책 ${p.er || 0} · 피안타 ${p.hits || 0} · 피홈런 ${p.hr || 0} · 탈삼진 ${p.so || 0} · 사사구 ${p.bb || 0} · ERA ${p.era || '0.00'}</div>
       `;
     }
+    myGames.appendChild(box);
+  });
+}
 
-    function renderDetails(batterGames, pitcherGames) {
-      let html = "";
+async function loadSheets(){
+  myGames.innerHTML = '<p class="empty-text">기록을 불러오는 중...</p>';
+  const snap = await getDocs(query(collection(db, 'scoresheets'), orderBy('createdAt', 'desc')));
+  allSheets = [];
+  snap.forEach(d => allSheets.push({ id:d.id, ...d.data() }));
+  renderStats();
+}
 
-      html += `<div class="section-title">타자 경기별 기록</div>`;
-      if (batterGames.length === 0) {
-        html += `<p class="empty-text">타자 기록이 없습니다.</p>`;
-      } else {
-        html += `<div class="record-table-wrap"><table class="record-table"><thead><tr><th>날짜</th><th>종류</th><th>상대</th><th>스코어</th><th>타순</th><th>포지션</th><th>기록</th><th>타수</th><th>안타</th><th>홈런</th><th>타점</th><th>득점</th><th>실책</th><th>주루사</th></tr></thead><tbody>`;
-        batterGames.forEach((g) => {
-          const s = g.stats || {};
-          html += `<tr><td>${g.date}</td><td><span class="badge">${g.gameType}</span></td><td>${g.opponent}</td><td>${g.score}</td><td>${g.order || ""}</td><td>${g.position || ""}</td><td>${g.record || ""}</td><td>${s.ab ?? 0}</td><td>${s.h ?? 0}</td><td>${s.hr ?? 0}</td><td>${s.rbi ?? 0}</td><td>${s.r ?? 0}</td><td>${s.e ?? 0}</td><td>${s.runout ?? 0}</td></tr>`;
-        });
-        html += `</tbody></table></div>`;
-      }
+function setFilter(type){
+  currentFilter = type;
+  allBtn.classList.toggle('active', type === '전체');
+  practiceBtn.classList.toggle('active', type === '연습경기');
+  leagueBtn.classList.toggle('active', type === '리그경기');
+  renderStats();
+}
 
-      html += `<div class="section-title">투수 경기별 기록</div>`;
-      if (pitcherGames.length === 0) {
-        html += `<p class="empty-text">투수 기록이 없습니다.</p>`;
-      } else {
-        html += `<div class="record-table-wrap"><table class="record-table"><thead><tr><th>날짜</th><th>종류</th><th>상대</th><th>스코어</th><th>결과</th><th>이닝</th><th>실점</th><th>자책</th><th>피안타</th><th>피홈런</th><th>탈삼진</th><th>사사구</th><th>ERA</th></tr></thead><tbody>`;
-        pitcherGames.forEach((g) => {
-          html += `<tr><td>${g.date}</td><td><span class="badge">${g.gameType}</span></td><td>${g.opponent}</td><td>${g.score}</td><td>${g.decision || ""}</td><td>${g.inning || ""}</td><td>${g.runs || ""}</td><td>${g.er || ""}</td><td>${g.hits || ""}</td><td>${g.hr || ""}</td><td>${g.so || ""}</td><td>${g.bb || ""}</td><td>${g.era || "0.00"}</td></tr>`;
-        });
-        html += `</tbody></table></div>`;
-      }
+allBtn.onclick = () => setFilter('전체');
+practiceBtn.onclick = () => setFilter('연습경기');
+leagueBtn.onclick = () => setFilter('리그경기');
 
-      detailArea.innerHTML = html;
-    }
-  </script>
+saveProfileBtn.onclick = async () => {
+  const nickname = nicknameInput.value.trim();
+  const number = numberInput.value.trim();
+  if (!nickname || !number) {
+    alert('닉네임과 등번호를 입력해주세요.');
+    return;
+  }
+  await updateDoc(doc(db, 'users', currentUser.uid), { nickname, number });
+  currentUserData.nickname = nickname;
+  currentUserData.number = number;
+  loginInfo.textContent = `${nickname} #${number}`;
+  alert('내 정보가 저장되었습니다.');
+  renderStats();
+};
+
+checkLogin(async (user, userData) => {
+  currentUser = user;
+  currentUserData = userData;
+  nicknameInput.value = userData.nickname || '';
+  numberInput.value = userData.number || '';
+  loginInfo.textContent = `${userData.nickname || '-'} #${userData.number || '-'}`;
+  await loadSheets();
+});
+</script>
 </body>
 </html>
