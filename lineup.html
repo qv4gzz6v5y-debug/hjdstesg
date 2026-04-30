@@ -49,7 +49,6 @@
   <div class="lineup-wrap">
     <div class="lineup-card">
       <div class="card-title">라인업 작성</div>
-      <p class="lineup-note">경기 종류와 날짜를 맞춰 저장하면, 기록지에서 같은 경기 종류/날짜를 선택했을 때 자동으로 불러옵니다.</p>
 
       <div class="lineup-grid">
         <div>
@@ -65,11 +64,11 @@
         </div>
         <div>
           <label for="opponent">상대팀</label>
-          <input id="opponent" class="lineup-input" placeholder="예: 오버드라이브">
+          <input id="opponent" class="lineup-input">
         </div>
         <div>
           <label for="starterPitcher">선발 투수</label>
-          <input id="starterPitcher" class="lineup-input" placeholder="예: FlaneY2111">
+          <input id="starterPitcher" class="lineup-input">
         </div>
       </div>
 
@@ -88,7 +87,6 @@
 
     <div class="lineup-card">
       <div class="card-title">저장된 라인업</div>
-      <p class="lineup-note">날짜/경기종류 글씨나 선택 버튼을 누르면 상세 라인업지가 열립니다.</p>
       <div id="lineupList"><p class="empty-text">라인업을 불러오는 중...</p></div>
     </div>
   </div>
@@ -133,8 +131,8 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td><input class="cell-input" id="order${i}" value="${p.order || i}"></td>
-          <td><input class="cell-input" id="name${i}" value="${p.name || ""}" placeholder="선수명"></td>
-          <td><input class="cell-input" id="pos${i}" value="${p.position || ""}" placeholder="CF"></td>
+          <td><input class="cell-input" id="name${i}" value="${p.name || ""}"></td>
+          <td><input class="cell-input" id="pos${i}" value="${p.position || ""}"></td>
         `;
         lineupBody.appendChild(tr);
       }
@@ -156,7 +154,7 @@
       const gameType = gameTypeInput.value;
       const date = lineupDateInput.value;
       if (!date) {
-        alert("경기 날짜를 선택해줘.");
+        alert("경기 날짜를 선택해주세요.");
         return;
       }
 
