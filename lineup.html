@@ -39,7 +39,7 @@
     .suggest-box.show{display:block}
     .suggest-item{padding:9px 10px;border-radius:9px;cursor:pointer;font-size:14px}
     .suggest-item:hover{background:#eef3ff;color:#1b65ba;font-weight:700}
-    .role-note{margin-top:10px;padding:12px;border-radius:12px;background:#f5f7fb;color:#555;font-size:14px}.pos-stack{display:flex;flex-direction:column;gap:7px}.pos-stack select{margin:0}.row-actions{display:flex;flex-direction:column;gap:7px;align-items:center}.small-btn:disabled{opacity:.35;cursor:not-allowed;background:#999}.sub-row{background:#fcfcff}.position-change-btn{width:100%;margin-top:6px;background:#666}
+    .role-note{margin-top:10px;padding:12px;border-radius:12px;background:#f5f7fb;color:#555;font-size:14px}
     @media(max-width:700px){.card-title{font-size:28px}.lineup-table{min-width:620px}.lineup-card{padding:18px}}
   </style>
 </head>
@@ -94,7 +94,7 @@
       <div class="lineup-table-wrap">
         <table class="lineup-table">
           <thead>
-            <tr><th>타순</th><th>선수명</th><th>포지션</th><th>기능</th></tr>
+            <tr><th>타순</th><th>선수명</th><th>포지션</th></tr>
           </thead>
           <tbody id="lineupBody"></tbody>
         </table>
@@ -133,7 +133,6 @@
     let canEditLineup = false;
     let allPlayers = [];
     let allLineups = [];
-    let lineupRowCounter = 0;
 
     checkLogin(async (user, userData) => {
       currentUserData = userData;
@@ -208,129 +207,43 @@
       });
     }
 
-    function positionSelectHtml(rowId, index, value = "") {
+    function positionSelectHtml(id, value = "") {
       return `
-        <select class="cell-input pos-select" data-row-id="${rowId}" data-pos-index="${index}">
+        <select class="cell-input" id="pos${id}">
           <option value="">선택</option>
           ${POSITIONS.map(pos => `<option value="${pos}" ${pos === value ? "selected" : ""}>${pos}</option>`).join("")}
         </select>
       `;
     }
 
-    function normalizePositions(player = {}) {
-      if (Array.isArray(player.positions)) return player.positions.filter(Boolean);
-      if (Array.isArray(player.position)) return player.position.filter(Boolean);
-      if (typeof player.position === "string" && player.position.includes("→")) {
-        return player.position.split("→").map(v => v.trim()).filter(Boolean);
-      }
-      if (player.position) return [player.position];
-      return [""];
-    }
-
-    function createLineupRow(order, player = {}, isBase = true) {
-      lineupRowCounter += 1;
-      const rowId = lineupRowCounter;
-      const tr = document.createElement("tr");
-      tr.dataset.rowId = rowId;
-      tr.dataset.baseRow = isBase ? "true" : "false";
-      if (!isBase) tr.classList.add("sub-row");
-
-      const positions = normalizePositions(player);
-
-      tr.innerHTML = `
-        <td><input class="cell-input" id="order${rowId}" value="${player.order || order}"></td>
-        <td class="name-cell">
-          <input class="cell-input player-name-input" id="name${rowId}" value="${player.name || ""}" placeholder="선수명" autocomplete="off">
-          <div id="suggest${rowId}" class="suggest-box"></div>
-        </td>
-        <td>
-          <div id="posList${rowId}" class="pos-stack">
-            ${positions.map((pos, idx) => positionSelectHtml(rowId, idx, pos)).join("")}
-          </div>
-          <button type="button" class="small-btn sub position-change-btn" onclick="addPositionChange(${rowId})">포지션 교체</button>
-        </td>
-        <td>
-          <div class="row-actions">
-            <button type="button" class="small-btn sub" onclick="addSubPlayer(${rowId})">교체</button>
-            <button type="button" class="small-btn delete" ${isBase ? "disabled" : ""} onclick="deleteLineupRow(${rowId})">삭제</button>
-            ${isBase ? `<span class="empty-text" style="font-size:12px;">기본 1~9번은 삭제 불가</span>` : ""}
-          </div>
-        </td>
-      `;
-
-      lineupBody.appendChild(tr);
-      attachAutocomplete(document.getElementById(`name${rowId}`), document.getElementById(`suggest${rowId}`));
-      return tr;
-    }
-
     function renderRows(players = []) {
       lineupBody.innerHTML = "";
-      lineupRowCounter = 0;
-
       for (let i = 1; i <= 9; i++) {
-        createLineupRow(i, players[i - 1] || { order: i }, true);
+        const p = players[i - 1] || {};
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input class="cell-input" id="order${i}" value="${p.order || i}"></td>
+          <td class="name-cell">
+            <input class="cell-input player-name-input" id="name${i}" value="${p.name || ""}" placeholder="선수명" autocomplete="off">
+            <div id="suggest${i}" class="suggest-box"></div>
+          </td>
+          <td>${positionSelectHtml(i, p.position || "")}</td>
+        `;
+        lineupBody.appendChild(tr);
+        attachAutocomplete(document.getElementById(`name${i}`), document.getElementById(`suggest${i}`));
       }
-
-      if (players.length > 9) {
-        players.slice(9).forEach((p) => {
-          createLineupRow(p.order || "", p, false);
-        });
-      }
-
       attachAutocomplete(starterPitcherInput, document.getElementById("starterPitcherSuggest"));
     }
 
-    window.addPositionChange = function(rowId) {
-      const list = document.getElementById(`posList${rowId}`);
-      if (!list) return;
-      const index = list.querySelectorAll(".pos-select").length;
-      const temp = document.createElement("div");
-      temp.innerHTML = positionSelectHtml(rowId, index, "").trim();
-      list.appendChild(temp.firstElementChild);
-    };
-
-    window.addSubPlayer = function(rowId) {
-      const baseRow = lineupBody.querySelector(`tr[data-row-id="${rowId}"]`);
-      if (!baseRow) return;
-
-      const order = document.getElementById(`order${rowId}`).value.trim();
-      const newRow = createLineupRow(order, { order }, false);
-      baseRow.insertAdjacentElement("afterend", newRow);
-    };
-
-    window.deleteLineupRow = function(rowId) {
-      const row = lineupBody.querySelector(`tr[data-row-id="${rowId}"]`);
-      if (!row) return;
-
-      if (row.dataset.baseRow === "true") {
-        alert("1번부터 9번까지 기본 라인업은 삭제할 수 없어.");
-        return;
-      }
-
-      row.remove();
-    };
-
     function getPlayers() {
       const players = [];
-      const rows = [...lineupBody.querySelectorAll("tr[data-row-id]")];
-
-      rows.forEach((row) => {
-        const rowId = row.dataset.rowId;
-        const positions = [...row.querySelectorAll(".pos-select")]
-          .map(select => select.value.trim())
-          .filter(Boolean);
-
-        const positionText = positions.join(" → ");
-
+      for (let i = 1; i <= 9; i++) {
         players.push({
-          order: document.getElementById(`order${rowId}`).value.trim(),
-          name: document.getElementById(`name${rowId}`).value.trim(),
-          position: positionText,
-          positions,
-          isSub: row.dataset.baseRow !== "true"
+          order: document.getElementById(`order${i}`).value.trim(),
+          name: document.getElementById(`name${i}`).value.trim(),
+          position: document.getElementById(`pos${i}`).value.trim()
         });
-      });
-
+      }
       return players;
     }
 
@@ -384,16 +297,13 @@
       const box = document.createElement("div");
       box.className = `saved-box ${isToday ? "today-card" : ""}`;
 
-      const playersHtml = (lineup.players || []).map(p => {
-        const positionText = Array.isArray(p.positions) && p.positions.length ? p.positions.join(" → ") : (p.position || "");
-        return `
-          <tr class="${p.isSub ? "sub-row" : ""}">
-            <td>${p.order || ""}</td>
-            <td>${p.name || ""}${p.isSub ? " <span class='badge'>교체</span>" : ""}</td>
-            <td>${positionText}</td>
-          </tr>
-        `;
-      }).join("");
+      const playersHtml = (lineup.players || []).map(p => `
+        <tr>
+          <td>${p.order || ""}</td>
+          <td>${p.name || ""}</td>
+          <td>${p.position || ""}</td>
+        </tr>
+      `).join("");
 
       box.innerHTML = `
         ${isToday ? `<div class="today-label">오늘의 라인업</div>` : ""}
