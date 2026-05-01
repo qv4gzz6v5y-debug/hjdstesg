@@ -5,799 +5,245 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>라인업</title>
   <link rel="stylesheet" href="styles.css">
-
   <style>
-    .lineup-wrap {
-      width: 95%;
-      max-width: 1200px;
-      margin: 34px auto;
-    }
-
-    .lineup-card {
-      background: white;
-      border-radius: 22px;
-      padding: 24px;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
-      margin-bottom: 22px;
-    }
-
-    .card-title {
-      font-size: 34px;
-      font-weight: 900;
-      margin-bottom: 14px;
-    }
-
-    .lineup-note {
-      color: #666;
-      font-size: 15px;
-      line-height: 1.6;
-      margin-bottom: 16px;
-    }
-
-    .lineup-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .lineup-input,
-    .lineup-select {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid #d6dce5;
-      box-sizing: border-box;
-      font-size: 15px;
-      background: #fff;
-      font-family: inherit;
-    }
-
-    label {
-      font-weight: 800;
-      display: block;
-      margin-bottom: 7px;
-    }
-
-    .lineup-btn {
-      padding: 11px 18px;
-      border-radius: 12px;
-      border: none;
-      background: #111;
-      color: white;
-      cursor: pointer;
-      margin-right: 8px;
-      margin-top: 12px;
-      font-size: 15px;
-      font-weight: 800;
-    }
-
-    .lineup-btn.sub {
-      background: #666;
-    }
-
-    .lineup-btn.delete {
-      background: #b00020;
-    }
-
-    .lineup-btn.small {
-      padding: 8px 12px;
-      font-size: 13px;
-      border-radius: 10px;
-      margin-top: 0;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .lineup-table-wrap {
-      overflow-x: auto;
-      margin-top: 16px;
-    }
-
-    .lineup-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      min-width: 760px;
-    }
-
-    .lineup-table th,
-    .lineup-table td {
-      border: 1px solid #e1e6ee;
-      padding: 10px;
-      text-align: center;
-      vertical-align: top;
-    }
-
-    .lineup-table th {
-      background: #f6f8fb;
-      font-weight: 900;
-    }
-
-    .lineup-table input,
-    .lineup-table select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccd5e0;
-      border-radius: 12px;
-      text-align: center;
-      font-family: inherit;
-      background: white;
-    }
-
-    .readonly-lineup {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .readonly-row {
-      display: grid;
-      grid-template-columns: 60px 1fr 100px;
-      gap: 10px;
-      align-items: center;
-      padding: 12px;
-      border: 1px solid #e1e6ee;
-      border-radius: 14px;
-      background: #fafbfd;
-    }
-
-    .readonly-order {
-      font-weight: 900;
-      color: #1b65ba;
-      text-align: center;
-    }
-
-    .readonly-name {
-      font-weight: 800;
-    }
-
-    .readonly-pos {
-      text-align: center;
-      font-weight: 900;
-      background: #eef3ff;
-      color: #1b65ba;
-      border-radius: 999px;
-      padding: 6px 10px;
-    }
-
-    .lineup-box {
-      background: #f8f8f8;
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 16px;
-      border-left: 6px solid #1b65ba;
-    }
-
-    .lineup-top {
-      font-size: 20px;
-      font-weight: 900;
-      line-height: 1.6;
-      margin-bottom: 10px;
-      cursor: pointer;
-    }
-
-    .lineup-detail {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid #ddd;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: #e8f1ff;
-      color: #1b65ba;
-      font-size: 13px;
-      font-weight: 900;
-      margin-right: 6px;
-    }
-
-    .autocomplete-wrap {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .autocomplete-list {
-      position: relative;
-      margin-top: 6px;
-      width: 100%;
-      max-height: 190px;
-      overflow-y: auto;
-      background: #fff;
-      border: 1px solid #ccd5e0;
-      border-radius: 14px;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-      z-index: 20;
-    }
-
-    .autocomplete-item {
-      padding: 10px 12px;
-      cursor: pointer;
-      text-align: left;
-      font-size: 14px;
-    }
-
-    .autocomplete-item:hover,
-    .autocomplete-item.active {
-      background: #eaf1ff;
-      color: #1b65ba;
-      font-weight: 900;
-    }
-
-    .autocomplete-empty {
-      padding: 10px 12px;
-      color: #666;
-      font-size: 14px;
-      background: #f6f8fb;
-    }
-
-    .empty-text {
-      color: #666;
-    }
-
-    @media (max-width: 700px) {
-      .card-title {
-        font-size: 28px;
-      }
-
-      .readonly-row {
-        grid-template-columns: 44px 1fr 76px;
-      }
-    }
+    .lineup-wrap{width:95%;max-width:1200px;margin:34px auto}
+    .lineup-card{background:white;border-radius:22px;padding:24px;box-shadow:0 10px 24px rgba(0,0,0,.06);margin-bottom:22px}
+    .card-title{font-size:34px;font-weight:900;margin-bottom:14px}
+    .lineup-note,.empty-text{color:#666;font-size:15px;line-height:1.6;margin-bottom:16px}
+    .lineup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:18px}
+    .lineup-input,.lineup-select{width:100%;padding:12px 14px;border-radius:14px;border:1px solid #d6dce5;box-sizing:border-box;font-size:15px;background:#fff;font-family:inherit}
+    label{font-weight:800;display:block;margin-bottom:7px}
+    .lineup-btn{padding:11px 18px;border-radius:12px;border:none;background:#111;color:white;cursor:pointer;margin-right:8px;margin-top:12px;font-size:15px;font-weight:800}
+    .lineup-btn.sub{background:#666}.lineup-btn.delete{background:#b00020}.lineup-btn.small{padding:8px 12px;font-size:13px;border-radius:10px;margin-top:0}
+    .hidden{display:none!important}.lineup-table-wrap{overflow-x:auto;margin-top:16px}
+    .lineup-table{width:100%;border-collapse:collapse;background:#fff;min-width:760px}
+    .lineup-table th,.lineup-table td{border:1px solid #e1e6ee;padding:10px;text-align:center;vertical-align:top}
+    .lineup-table th{background:#f6f8fb;font-weight:900}
+    .lineup-table input,.lineup-table select{width:100%;padding:10px;border:1px solid #ccd5e0;border-radius:12px;text-align:center;font-family:inherit;background:white}
+    .readonly-lineup{display:grid;gap:10px;margin-top:14px}.readonly-row{display:grid;grid-template-columns:60px 1fr 100px;gap:10px;align-items:center;padding:12px;border:1px solid #e1e6ee;border-radius:14px;background:#fafbfd}
+    .readonly-order{font-weight:900;color:#1b65ba;text-align:center}.readonly-name{font-weight:800}.readonly-pos{text-align:center;font-weight:900;background:#eef3ff;color:#1b65ba;border-radius:999px;padding:6px 10px}
+    .lineup-box{background:#f8f8f8;border-radius:16px;padding:18px;margin-bottom:16px;border-left:6px solid #1b65ba}
+    .lineup-top{font-size:20px;font-weight:900;line-height:1.6;margin-bottom:10px;cursor:pointer}.lineup-detail{margin-top:12px;padding-top:12px;border-top:1px solid #ddd}
+    .badge{display:inline-block;padding:5px 10px;border-radius:999px;background:#e8f1ff;color:#1b65ba;font-size:13px;font-weight:900;margin-right:6px}
+    .autocomplete-wrap{position:relative;display:flex;flex-direction:column}.autocomplete-list{position:relative;margin-top:6px;width:100%;max-height:190px;overflow-y:auto;background:#fff;border:1px solid #ccd5e0;border-radius:14px;box-shadow:0 8px 18px rgba(0,0,0,.08);z-index:20}
+    .autocomplete-item{padding:10px 12px;cursor:pointer;text-align:left;font-size:14px}.autocomplete-item:hover,.autocomplete-item.active{background:#eaf1ff;color:#1b65ba;font-weight:900}
+    .autocomplete-empty{padding:10px 12px;color:#666;font-size:14px;background:#f6f8fb}
+    @media(max-width:700px){.card-title{font-size:28px}.readonly-row{grid-template-columns:44px 1fr 76px}}
   </style>
 </head>
-
 <body>
   <div class="wrap">
-    <div class="top-title">
-      <h1>레이 마린스</h1>
-      <a class="top-link" href="index.html">메인으로</a>
-    </div>
-
-    <div class="menu">
-      <a href="lineup.html">라인업</a>
-      <a href="record.html">기록실</a>
-      <a href="scoresheet.html">기록지</a>
-      <a href="mypage.html">마이페이지</a>
-    </div>
+    <div class="top-title"><h1>레이 마린스</h1><a class="top-link" href="index.html">메인으로</a></div>
+    <div class="menu"><a href="lineup.html">라인업</a><a href="record.html">기록실</a><a href="scoresheet.html">기록지</a><a href="mypage.html">마이페이지</a></div>
   </div>
 
   <div class="lineup-wrap">
     <div class="lineup-card">
       <div class="card-title">오늘의 라인업</div>
       <p class="lineup-note">오늘 날짜에 저장된 라인업을 확인할 수 있습니다.</p>
-      <div id="todayLineupBox">
-        <p class="empty-text">오늘의 라인업을 불러오는 중...</p>
-      </div>
+      <div id="todayLineupBox"><p class="empty-text">오늘의 라인업을 불러오는 중...</p></div>
     </div>
 
     <div id="editorCard" class="lineup-card hidden">
       <div class="card-title">라인업 작성 / 수정</div>
-      <p class="lineup-note">기록원과 관리진만 라인업을 작성할 수 있습니다.</p>
-
+      <p class="lineup-note">기록원과 관리진만 라인업을 작성할 수 있습니다. 같은 날짜에 여러 경기가 있으면 경기 시간을 다르게 입력하세요.</p>
       <div class="lineup-grid">
-        <div>
-          <label for="gameType">경기 종류</label>
-          <select id="gameType" class="lineup-select">
-            <option value="연습경기">연습경기</option>
-            <option value="리그경기">리그경기</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="gameDate">경기 날짜</label>
-          <input id="gameDate" type="date" class="lineup-input">
-        </div>
-
-        <div>
-          <label for="gameTime">경기 시간</label>
-          <input id="gameTime" class="lineup-input" placeholder="예: 20시">
-        </div>
-
-        <div>
-          <label for="opponent">상대팀</label>
-          <input id="opponent" class="lineup-input" placeholder="예: 오버드라이브">
-        </div>
-
-        <div>
-          <label for="startingPitcher">선발 투수</label>
-          <div class="autocomplete-wrap">
-            <input id="startingPitcher" class="lineup-input player-autocomplete" placeholder="선발 투수">
-            <div class="autocomplete-list hidden"></div>
-          </div>
-        </div>
+        <div><label for="gameType">경기 종류</label><select id="gameType" class="lineup-select"><option value="연습경기">연습경기</option><option value="리그경기">리그경기</option></select></div>
+        <div><label for="gameDate">경기 날짜</label><input id="gameDate" type="date" class="lineup-input"></div>
+        <div><label for="gameTime">경기 시간</label><input id="gameTime" class="lineup-input" placeholder="예: 20시"></div>
+        <div><label for="opponent">상대팀</label><input id="opponent" class="lineup-input" placeholder="예: 오버드라이브"></div>
+        <div><label for="startingPitcher">선발 투수</label><div class="autocomplete-wrap"><input id="startingPitcher" class="lineup-input player-autocomplete" placeholder="선발 투수"><div class="autocomplete-list hidden"></div></div></div>
       </div>
-
       <div class="lineup-table-wrap">
         <table class="lineup-table">
-          <thead>
-            <tr>
-              <th>타순</th>
-              <th>선수명</th>
-              <th>포지션</th>
-              <th>기능</th>
-            </tr>
-          </thead>
+          <thead><tr><th>타순</th><th>선수명</th><th>포지션</th><th>기능</th></tr></thead>
           <tbody id="lineupBody"></tbody>
         </table>
       </div>
-
       <button id="saveBtn" class="lineup-btn">라인업 저장</button>
       <button id="resetBtn" class="lineup-btn sub">초기화</button>
     </div>
 
     <div id="savedCard" class="lineup-card hidden">
       <div class="card-title">저장된 라인업</div>
-      <div id="savedLineups">
-        <p class="empty-text">라인업을 불러오는 중...</p>
-      </div>
+      <div id="savedLineups"><p class="empty-text">라인업을 불러오는 중...</p></div>
     </div>
   </div>
 
   <script type="module">
     import { db } from "./firebase-config.js";
     import { checkLogin, isStaff } from "./auth.js";
-    import {
-      collection,
-      getDocs,
-      getDoc,
-      setDoc,
-      deleteDoc,
-      doc,
-      query,
-      where,
-      orderBy,
-      onSnapshot
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { collection, getDocs, getDoc, setDoc, deleteDoc, doc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    const POSITIONS = ["SP", "C", "1B", "2B", "SS", "3B", "RF", "CF", "LF"];
+    const POSITIONS=["SP","C","1B","2B","SS","3B","RF","CF","LF"];
+    const $=id=>document.getElementById(id);
+    const editorCard=$("editorCard"),savedCard=$("savedCard"),todayLineupBox=$("todayLineupBox"),savedLineups=$("savedLineups"),lineupBody=$("lineupBody");
+    const gameTypeInput=$("gameType"),gameDateInput=$("gameDate"),gameTimeInput=$("gameTime"),opponentInput=$("opponent"),startingPitcherInput=$("startingPitcher"),saveBtn=$("saveBtn"),resetBtn=$("resetBtn");
+    let approvedNicknames=[],savedData=[],currentEditId=null;
 
-    const $ = (id) => document.getElementById(id);
+    function today(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`}
+    function lineupId(gameType,date,time){return `${gameType}_${date}_${String(time||"").trim()}`}
+    function positionOptions(selected=""){return `<option value="">선택</option>${POSITIONS.map(p=>`<option value="${p}" ${selected===p?"selected":""}>${p}</option>`).join("")}`}
 
-    const editorCard = $("editorCard");
-    const savedCard = $("savedCard");
-    const todayLineupBox = $("todayLineupBox");
-    const savedLineups = $("savedLineups");
-    const lineupBody = $("lineupBody");
-
-    const gameTypeInput = $("gameType");
-    const gameDateInput = $("gameDate");
-    const gameTimeInput = $("gameTime");
-    const opponentInput = $("opponent");
-    const startingPitcherInput = $("startingPitcher");
-    const saveBtn = $("saveBtn");
-    const resetBtn = $("resetBtn");
-
-    let currentUserData = null;
-    let canEdit = false;
-    let approvedNicknames = [];
-    let savedData = [];
-    let currentEditId = null;
-
-    function today() {
-      const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const dd = String(now.getDate()).padStart(2, "0");
-      return `${yyyy}-${mm}-${dd}`;
+    async function loadApprovedNicknames(){
+      const q=query(collection(db,"users"),where("approved","==",true));
+      const snap=await getDocs(q);
+      approvedNicknames=[];
+      snap.forEach(d=>{const u=d.data(); if(u.nickname) approvedNicknames.push(u.nickname);});
+      approvedNicknames.sort((a,b)=>a.localeCompare(b));
     }
 
-    function lineupId(gameType, date) {
-      return `${gameType}_${date}`;
-    }
-
-    function positionOptions(selected = "") {
-      return `
-        <option value="">선택</option>
-        ${POSITIONS.map(pos => `
-          <option value="${pos}" ${selected === pos ? "selected" : ""}>${pos}</option>
-        `).join("")}
-      `;
-    }
-
-    async function loadApprovedNicknames() {
-      const q = query(collection(db, "users"), where("approved", "==", true));
-      const snap = await getDocs(q);
-
-      approvedNicknames = [];
-
-      snap.forEach((docu) => {
-        const user = docu.data();
-        if (user.nickname) approvedNicknames.push(user.nickname);
-      });
-
-      approvedNicknames.sort((a, b) => a.localeCompare(b));
-    }
-
-    function setupAutocomplete(input) {
-      const wrap = input.closest(".autocomplete-wrap");
-      const list = wrap.querySelector(".autocomplete-list");
-      let activeIndex = -1;
-      let currentItems = [];
-
-      function render(keyword = "") {
-        const lower = keyword.toLowerCase();
-
-        currentItems = approvedNicknames.filter(name => {
-          if (!lower) return true;
-          return name.toLowerCase().startsWith(lower);
-        }).slice(0, 6);
-
-        activeIndex = currentItems.length > 0 ? 0 : -1;
-
-        if (currentItems.length === 0) {
-          list.innerHTML = `<div class="autocomplete-empty">일치하는 선수가 없습니다</div>`;
-          list.classList.remove("hidden");
-          return;
-        }
-
-        list.innerHTML = currentItems.map((name, idx) => `
-          <div class="autocomplete-item ${idx === activeIndex ? "active" : ""}" data-name="${name}" data-index="${idx}">
-            ${name}
-          </div>
-        `).join("");
-
+    function setupAutocomplete(input){
+      const wrap=input.closest(".autocomplete-wrap");
+      if(!wrap) return;
+      const list=wrap.querySelector(".autocomplete-list");
+      let activeIndex=-1,currentItems=[];
+      function render(keyword=""){
+        const lower=keyword.toLowerCase();
+        currentItems=approvedNicknames.filter(n=>!lower || n.toLowerCase().startsWith(lower)).slice(0,6);
+        activeIndex=currentItems.length?0:-1;
+        if(!currentItems.length){list.innerHTML=`<div class="autocomplete-empty">일치하는 선수가 없습니다</div>`;list.classList.remove("hidden");return;}
+        list.innerHTML=currentItems.map((n,i)=>`<div class="autocomplete-item ${i===activeIndex?"active":""}" data-name="${n}">${n}</div>`).join("");
         list.classList.remove("hidden");
       }
-
-      function refreshActive() {
-        const items = list.querySelectorAll(".autocomplete-item");
-        items.forEach((item, idx) => {
-          item.classList.toggle("active", idx === activeIndex);
-        });
-      }
-
-      function selectName(name) {
-        input.value = name;
-        list.classList.add("hidden");
-      }
-
-      input.addEventListener("focus", () => {
-        render(input.value.trim());
+      function refresh(){list.querySelectorAll(".autocomplete-item").forEach((it,i)=>it.classList.toggle("active",i===activeIndex));}
+      function selectName(name){input.value=name;list.classList.add("hidden");}
+      input.addEventListener("focus",()=>render(input.value.trim()));
+      input.addEventListener("input",()=>render(input.value.trim()));
+      input.addEventListener("keydown",e=>{
+        if(list.classList.contains("hidden")) return;
+        if(e.key==="ArrowDown"){e.preventDefault();if(currentItems.length){activeIndex=(activeIndex+1)%currentItems.length;refresh();}}
+        if(e.key==="ArrowUp"){e.preventDefault();if(currentItems.length){activeIndex=(activeIndex-1+currentItems.length)%currentItems.length;refresh();}}
+        if(e.key==="Enter"){e.preventDefault();if(activeIndex>=0&&currentItems[activeIndex])selectName(currentItems[activeIndex]);}
+        if(e.key==="Escape")list.classList.add("hidden");
       });
-
-      input.addEventListener("input", () => {
-        render(input.value.trim());
-      });
-
-      input.addEventListener("keydown", (e) => {
-        if (list.classList.contains("hidden")) return;
-
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          if (currentItems.length === 0) return;
-          activeIndex = (activeIndex + 1) % currentItems.length;
-          refreshActive();
-        }
-
-        if (e.key === "ArrowUp") {
-          e.preventDefault();
-          if (currentItems.length === 0) return;
-          activeIndex = (activeIndex - 1 + currentItems.length) % currentItems.length;
-          refreshActive();
-        }
-
-        if (e.key === "Enter") {
-          e.preventDefault();
-          if (activeIndex >= 0 && currentItems[activeIndex]) {
-            selectName(currentItems[activeIndex]);
-          }
-        }
-
-        if (e.key === "Escape") {
-          list.classList.add("hidden");
-        }
-      });
-
-      list.addEventListener("mousedown", (e) => {
-        const item = e.target.closest(".autocomplete-item");
-        if (!item) return;
-        selectName(item.dataset.name);
-      });
-
-      document.addEventListener("click", (e) => {
-        if (!wrap.contains(e.target)) {
-          list.classList.add("hidden");
-        }
-      });
+      list.addEventListener("mousedown",e=>{const item=e.target.closest(".autocomplete-item");if(item)selectName(item.dataset.name);});
+      document.addEventListener("click",e=>{if(!wrap.contains(e.target))list.classList.add("hidden");});
     }
 
-    function createRow(order, data = {}, isDefault = true) {
-      const tr = document.createElement("tr");
-      tr.dataset.default = isDefault ? "true" : "false";
-
-      tr.innerHTML = `
-        <td>
-          <input class="order-input" value="${data.order || order || ""}">
-        </td>
-
-        <td>
-          <div class="autocomplete-wrap">
-            <input class="player-input player-autocomplete" value="${data.name || ""}" placeholder="선수명">
-            <div class="autocomplete-list hidden"></div>
-          </div>
-        </td>
-
-        <td>
-          <select class="position-input">
-            ${positionOptions(data.position || "")}
-          </select>
-        </td>
-
-        <td>
-          <button type="button" class="lineup-btn small sub add-sub-btn">교체</button>
-          ${
-            isDefault
-              ? `<button type="button" class="lineup-btn small delete delete-btn hidden">삭제</button>
-                 <div class="empty-text" style="font-size:12px;"></div>`
-              : `<button type="button" class="lineup-btn small delete delete-btn">삭제</button>`
-          }
-        </td>
-      `;
-
+    function createRow(order,data={},isDefault=true){
+      const tr=document.createElement("tr");
+      tr.dataset.default=isDefault?"true":"false";
+      tr.innerHTML=`
+        <td><input class="order-input" value="${data.order||order||""}"></td>
+        <td><div class="autocomplete-wrap"><input class="player-input player-autocomplete" value="${data.name||""}" placeholder="선수명"><div class="autocomplete-list hidden"></div></div></td>
+        <td><select class="position-input">${positionOptions(data.position||"")}</select></td>
+        <td><button type="button" class="lineup-btn small sub add-sub-btn">교체</button>
+        ${isDefault ? `<div class="empty-text" style="font-size:12px;">기본 1~9번은 삭제 불가</div>` : `<button type="button" class="lineup-btn small delete delete-btn">삭제</button>`}</td>`;
       tr.querySelectorAll(".player-autocomplete").forEach(setupAutocomplete);
-
-      tr.querySelector(".add-sub-btn").addEventListener("click", () => {
-        const currentOrder = tr.querySelector(".order-input").value.trim();
-        const newRow = createRow(currentOrder, {
-          order: currentOrder,
-          name: "",
-          position: ""
-        }, false);
-
-        tr.insertAdjacentElement("afterend", newRow);
-      });
-
-      const deleteBtn = tr.querySelector(".delete-btn");
-      if (deleteBtn && !isDefault) {
-        deleteBtn.addEventListener("click", () => {
-          tr.remove();
-        });
-      }
-
+      tr.querySelector(".add-sub-btn").onclick=()=>{
+        const cur=tr.querySelector(".order-input").value.trim();
+        tr.after(createRow(cur,{order:cur,name:"",position:""},false));
+      };
+      const del=tr.querySelector(".delete-btn");
+      if(del) del.onclick=()=>tr.remove();
       return tr;
     }
 
-    function renderEditorRows(players = []) {
-      lineupBody.innerHTML = "";
-
-      for (let i = 1; i <= 9; i++) {
-        const player = players[i - 1] || {};
-        lineupBody.appendChild(createRow(i, {
-          order: player.order || i,
-          name: player.name || "",
-          position: player.position || ""
-        }, true));
+    function renderEditorRows(players=[]){
+      lineupBody.innerHTML="";
+      for(let i=1;i<=9;i++){
+        const p=players[i-1]||{};
+        lineupBody.appendChild(createRow(i,{order:p.order||i,name:p.name||"",position:p.position||""},true));
       }
-
-      if (players.length > 9) {
-        players.slice(9).forEach((player) => {
-          lineupBody.appendChild(createRow(player.order || "", player, false));
-        });
-      }
+      players.slice(9).forEach(p=>lineupBody.appendChild(createRow(p.order||"",p,false)));
     }
 
-    function getPlayersFromEditor() {
-      return [...lineupBody.querySelectorAll("tr")].map(row => ({
-        order: row.querySelector(".order-input").value.trim(),
-        name: row.querySelector(".player-input").value.trim(),
-        position: row.querySelector(".position-input").value
-      })).filter(player => player.name || player.position);
+    function getPlayersFromEditor(){
+      return [...lineupBody.querySelectorAll("tr")].map(row=>({
+        order:row.querySelector(".order-input").value.trim(),
+        name:row.querySelector(".player-input").value.trim(),
+        position:row.querySelector(".position-input").value
+      })).filter(p=>p.name||p.position);
     }
 
-    function renderReadonlyLineup(data) {
-      if (!data || !data.players || data.players.length === 0) {
-        return `<p class="empty-text">저장된 라인업이 없습니다.</p>`;
-      }
-
-      return `
-        <div class="readonly-lineup">
-          ${data.players.map(player => `
-            <div class="readonly-row">
-              <div class="readonly-order">${player.order || "-"}</div>
-              <div class="readonly-name">${player.name || "-"}</div>
-              <div class="readonly-pos">${player.position || "-"}</div>
-            </div>
-          `).join("")}
-        </div>
-      `;
+    function renderReadonlyLineup(data){
+      if(!data?.players?.length) return `<p class="empty-text">저장된 라인업이 없습니다.</p>`;
+      return `<div class="readonly-lineup">${data.players.map(p=>`<div class="readonly-row"><div class="readonly-order">${p.order||"-"}</div><div class="readonly-name">${p.name||"-"}</div><div class="readonly-pos">${p.position||"-"}</div></div>`).join("")}</div>`;
     }
 
-    async function loadTodayLineup() {
-      const date = today();
-
-      const practiceSnap = await getDoc(doc(db, "lineups", lineupId("연습경기", date)));
-      const leagueSnap = await getDoc(doc(db, "lineups", lineupId("리그경기", date)));
-
-      const lineups = [];
-
-      if (practiceSnap.exists()) {
-        lineups.push({
-          id: practiceSnap.id,
-          ...practiceSnap.data()
-        });
-      }
-
-      if (leagueSnap.exists()) {
-        lineups.push({
-          id: leagueSnap.id,
-          ...leagueSnap.data()
-        });
-      }
-
-      if (lineups.length === 0) {
-        todayLineupBox.innerHTML = `<p class="empty-text">오늘 저장된 라인업이 없습니다.</p>`;
-        return;
-      }
-
-      todayLineupBox.innerHTML = lineups.map(data => `
-        <div class="lineup-box">
-          <div class="lineup-top">
-            <span class="badge">${data.gameType || "-"}</span>
-            ${data.gameDate || "-"} ${data.gameTime || ""} vs ${data.opponent || "-"}
-          </div>
-          <div class="lineup-note">
-            선발투수: <strong>${data.pitcher || "-"}</strong>
-          </div>
-          ${renderReadonlyLineup(data)}
-        </div>
-      `).join("");
+    async function loadTodayLineup(){
+      const date=today();
+      const snap=await getDocs(query(collection(db,"lineups"),where("gameDate","==",date)));
+      const arr=[];
+      snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+      arr.sort((a,b)=>(a.gameTime||"").localeCompare(b.gameTime||""));
+      if(!arr.length){todayLineupBox.innerHTML=`<p class="empty-text">오늘 저장된 라인업이 없습니다.</p>`;return;}
+      todayLineupBox.innerHTML=arr.map(data=>`<div class="lineup-box"><div class="lineup-top"><span class="badge">${data.gameType||"-"}</span>${data.gameDate||"-"} ${data.gameTime||""} vs ${data.opponent||"-"}</div><div class="lineup-note">선발투수: <strong>${data.pitcher||"-"}</strong></div>${renderReadonlyLineup(data)}</div>`).join("");
     }
 
-    function renderSavedLineups() {
-      if (savedData.length === 0) {
-        savedLineups.innerHTML = `<p class="empty-text">저장된 라인업이 없습니다.</p>`;
-        return;
-      }
-
-      savedLineups.innerHTML = "";
-
-      savedData.forEach((data) => {
-        const box = document.createElement("div");
-        box.className = "lineup-box";
-
-        box.innerHTML = `
-          <div class="lineup-top">
-            <span class="badge">${data.gameType || "-"}</span>
-            ${data.gameDate || "-"} ${data.gameTime || ""} vs ${data.opponent || "-"}
-          </div>
-
-          <div class="lineup-note">
-            선발투수: <strong>${data.pitcher || "-"}</strong>
-          </div>
-
-          <div class="lineup-detail hidden">
-            ${renderReadonlyLineup(data)}
-          </div>
-
-          <button class="lineup-btn small sub select-btn" type="button">상세 보기</button>
-          <button class="lineup-btn small" type="button" data-edit="${data.id}">수정</button>
-          <button class="lineup-btn small delete" type="button" data-delete="${data.id}">삭제</button>
-        `;
-
-        const detail = box.querySelector(".lineup-detail");
-
-        box.querySelector(".lineup-top").addEventListener("click", () => {
-          detail.classList.toggle("hidden");
-        });
-
-        box.querySelector(".select-btn").addEventListener("click", () => {
-          detail.classList.toggle("hidden");
-        });
-
-        box.querySelector("[data-edit]").addEventListener("click", () => {
-          editLineup(data.id);
-        });
-
-        box.querySelector("[data-delete]").addEventListener("click", () => {
-          deleteLineup(data.id);
-        });
-
+    function renderSavedLineups(){
+      if(!savedData.length){savedLineups.innerHTML=`<p class="empty-text">저장된 라인업이 없습니다.</p>`;return;}
+      savedLineups.innerHTML="";
+      savedData.forEach(data=>{
+        const box=document.createElement("div"); box.className="lineup-box";
+        box.innerHTML=`<div class="lineup-top"><span class="badge">${data.gameType||"-"}</span>${data.gameDate||"-"} ${data.gameTime||""} vs ${data.opponent||"-"}</div>
+        <div class="lineup-note">선발투수: <strong>${data.pitcher||"-"}</strong></div>
+        <div class="lineup-detail hidden">${renderReadonlyLineup(data)}</div>
+        <button class="lineup-btn small sub select-btn" type="button">상세 보기</button>
+        <button class="lineup-btn small" type="button" data-edit="${data.id}">수정</button>
+        <button class="lineup-btn small delete" type="button" data-delete="${data.id}">삭제</button>`;
+        const detail=box.querySelector(".lineup-detail");
+        box.querySelector(".lineup-top").onclick=()=>detail.classList.toggle("hidden");
+        box.querySelector(".select-btn").onclick=()=>detail.classList.toggle("hidden");
+        box.querySelector("[data-edit]").onclick=()=>editLineup(data.id);
+        box.querySelector("[data-delete]").onclick=()=>deleteLineup(data.id);
         savedLineups.appendChild(box);
       });
     }
 
-    async function saveLineup() {
-      const gameType = gameTypeInput.value;
-      const gameDate = gameDateInput.value;
-      const gameTime = gameTimeInput.value.trim();
-      const opponent = opponentInput.value.trim();
-      const pitcher = startingPitcherInput.value.trim();
-      const players = getPlayersFromEditor();
-
-      if (!gameDate || !opponent) {
-        alert("경기 날짜와 상대팀은 꼭 입력해주세요.");
-        return;
-      }
-
-      const id = lineupId(gameType, gameDate);
-
-      await setDoc(doc(db, "lineups", id), {
-        id,
-        gameType,
-        gameDate,
-        gameTime,
-        opponent,
-        pitcher,
-        players,
-        updatedAt: Date.now()
-      });
-
+    async function saveLineup(){
+      const gameType=gameTypeInput.value, gameDate=gameDateInput.value, gameTime=gameTimeInput.value.trim();
+      const opponent=opponentInput.value.trim(), pitcher=startingPitcherInput.value.trim(), players=getPlayersFromEditor();
+      if(!gameDate||!gameTime||!opponent){alert("경기 날짜, 시간, 상대팀은 꼭 입력해줘.");return;}
+      const id=lineupId(gameType,gameDate,gameTime);
+      await setDoc(doc(db,"lineups",id),{id,gameType,gameDate,gameTime,opponent,pitcher,players,updatedAt:Date.now()});
       alert("라인업 저장 완료!");
-      currentEditId = id;
+      currentEditId=id;
       await loadTodayLineup();
     }
 
-    async function editLineup(id) {
-      const snap = await getDoc(doc(db, "lineups", id));
-
-      if (!snap.exists()) {
-        alert("라인업을 찾을 수 없습니다.");
-        return;
-      }
-
-      const data = snap.data();
-
-      currentEditId = id;
-      gameTypeInput.value = data.gameType || "연습경기";
-      gameDateInput.value = data.gameDate || today();
-      gameTimeInput.value = data.gameTime || "";
-      opponentInput.value = data.opponent || "";
-      startingPitcherInput.value = data.pitcher || "";
-
-      renderEditorRows(data.players || []);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    async function editLineup(id){
+      const snap=await getDoc(doc(db,"lineups",id));
+      if(!snap.exists()){alert("라인업을 찾을 수 없습니다.");return;}
+      const data=snap.data();
+      currentEditId=id;
+      gameTypeInput.value=data.gameType||"연습경기";
+      gameDateInput.value=data.gameDate||today();
+      gameTimeInput.value=data.gameTime||"";
+      opponentInput.value=data.opponent||"";
+      startingPitcherInput.value=data.pitcher||"";
+      renderEditorRows(data.players||[]);
+      window.scrollTo({top:0,behavior:"smooth"});
     }
 
-    async function deleteLineup(id) {
-      const ok = confirm("이 라인업을 삭제할까?");
-      if (!ok) return;
-
-      await deleteDoc(doc(db, "lineups", id));
+    async function deleteLineup(id){
+      if(!confirm("이 라인업을 삭제할까?"))return;
+      await deleteDoc(doc(db,"lineups",id));
       await loadTodayLineup();
     }
 
-    function resetForm() {
-      currentEditId = null;
-      gameTypeInput.value = "연습경기";
-      gameDateInput.value = today();
-      gameTimeInput.value = "";
-      opponentInput.value = "";
-      startingPitcherInput.value = "";
+    function resetForm(){
+      currentEditId=null;
+      gameTypeInput.value="연습경기";
+      gameDateInput.value=today();
+      gameTimeInput.value="";
+      opponentInput.value="";
+      startingPitcherInput.value="";
       renderEditorRows();
     }
 
-    checkLogin(async (user, userData) => {
-      currentUserData = userData;
-      canEdit = isStaff(userData);
-
+    checkLogin(async (user,userData)=>{
+      const canEdit=isStaff(userData);
       await loadApprovedNicknames();
       await loadTodayLineup();
-
-      if (canEdit) {
+      if(canEdit){
         editorCard.classList.remove("hidden");
         savedCard.classList.remove("hidden");
         resetForm();
-
         setupAutocomplete(startingPitcherInput);
-
-        const lineupQuery = query(collection(db, "lineups"), orderBy("updatedAt", "desc"));
-
-        onSnapshot(lineupQuery, (snapshot) => {
-          savedData = [];
-
-          snapshot.forEach((docu) => {
-            savedData.push({
-              id: docu.id,
-              ...docu.data()
-            });
-          });
-
+        onSnapshot(query(collection(db,"lineups"),orderBy("updatedAt","desc")),snapshot=>{
+          savedData=[]; snapshot.forEach(d=>savedData.push({id:d.id,...d.data()}));
           renderSavedLineups();
         });
       } else {
@@ -806,8 +252,8 @@
       }
     });
 
-    saveBtn.addEventListener("click", saveLineup);
-    resetBtn.addEventListener("click", resetForm);
+    saveBtn.addEventListener("click",saveLineup);
+    resetBtn.addEventListener("click",resetForm);
   </script>
 </body>
 </html>
