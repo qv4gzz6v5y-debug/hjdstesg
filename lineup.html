@@ -1,60 +1,268 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>라인업</title>
   <link rel="stylesheet" href="styles.css">
+
   <style>
-    .lineup-wrap{width:95%;max-width:1100px;margin:34px auto}
-    .lineup-card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 8px 20px rgba(0,0,0,.06);margin-bottom:22px}
-    .card-title{font-size:34px;font-weight:800;margin-bottom:16px}
-    .lineup-note,.empty-text{color:#666;font-size:15px;line-height:1.6}
-    .lineup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-    .lineup-input,.lineup-select,.cell-input{width:100%;padding:12px 14px;margin:8px 0;border-radius:12px;border:1px solid #ccc;box-sizing:border-box;font-size:16px;background:#fff}
-    .cell-input{margin:0;padding:8px 10px;text-align:center}
-    .lineup-table-wrap{overflow-x:auto;margin-top:18px}
-    .lineup-table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}
-    .lineup-table th,.lineup-table td{border:1px solid #ddd;padding:8px;text-align:center;vertical-align:top}
-    .lineup-table th{background:#f7f7f7}
-    .lineup-btn{padding:11px 18px;border-radius:10px;border:none;background:#111;color:#fff;cursor:pointer;margin-right:8px;margin-top:12px;font-weight:700}
-    .menu-clean{display:flex;flex-wrap:wrap;gap:12px;padding:16px 0 0}
-    .menu-clean a{text-decoration:none;padding:10px 14px;border-radius:14px;background:#fff;border:1px solid #d6d6d6;font-size:18px}
-    .saved-box{background:#f8f8f8;border-left:6px solid #1b65ba;border-radius:14px;padding:16px;margin-top:12px}
-    .saved-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
-    .saved-title{font-size:20px;font-weight:800;cursor:pointer;line-height:1.5}
-    .saved-title:hover{text-decoration:underline}
-    .saved-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .small-btn{padding:7px 10px;border-radius:8px;border:none;background:#111;color:#fff;cursor:pointer;font-size:13px}
-    .small-btn.sub{background:#1b65ba}
-    .small-btn.delete{background:#b00020}
-    .detail-box{display:none;margin-top:14px;background:#fff;border:1px solid #ddd;border-radius:12px;padding:12px}
-    .detail-box.show{display:block}
-    .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#e8f1ff;color:#1b65ba;font-size:13px;font-weight:700;margin-right:6px}
-    .hidden{display:none!important}
-    .today-card{border-left-color:#0a7a2f;background:#f7fff9}
-    .today-label{display:inline-block;padding:5px 11px;border-radius:999px;background:#eaf8ef;color:#0a7a2f;font-size:13px;font-weight:800;margin-bottom:8px}
-    .name-cell{position:relative}
-    .suggest-box{position:relative;width:100%;background:#fff;border:1px solid #cfd7e3;border-radius:12px;box-shadow:0 8px 18px rgba(0,0,0,.10);z-index:10;text-align:left;padding:6px;display:none;max-height:230px;overflow-y:auto;margin-top:6px}
-    .suggest-box.show{display:block}
-    .suggest-item{padding:9px 10px;border-radius:9px;cursor:pointer;font-size:14px}
-    .suggest-item:hover,.suggest-item.active{background:#eef3ff;color:#1b65ba;font-weight:700}
-    .suggest-item.info{cursor:default;color:#777;background:#f7f8fb;font-weight:600}
-    .suggest-item.info:hover{background:#f7f8fb;color:#777;font-weight:600}
-    .role-note{margin-top:10px;padding:12px;border-radius:12px;background:#f5f7fb;color:#555;font-size:14px}.pos-stack{display:flex;flex-direction:column;gap:7px}.pos-stack select{margin:0}.row-actions{display:flex;flex-direction:column;gap:7px;align-items:center}.small-btn:disabled{opacity:.35;cursor:not-allowed;background:#999}.sub-row{background:#fcfcff}
-    @media(max-width:700px){.card-title{font-size:28px}.lineup-table{min-width:620px}.lineup-card{padding:18px}}
+    .lineup-wrap {
+      width: 95%;
+      max-width: 1200px;
+      margin: 34px auto;
+    }
+
+    .lineup-card {
+      background: white;
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+      margin-bottom: 22px;
+    }
+
+    .card-title {
+      font-size: 34px;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .lineup-note {
+      color: #666;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .lineup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .lineup-input,
+    .lineup-select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid #d6dce5;
+      box-sizing: border-box;
+      font-size: 15px;
+      background: #fff;
+      font-family: inherit;
+    }
+
+    label {
+      font-weight: 800;
+      display: block;
+      margin-bottom: 7px;
+    }
+
+    .lineup-btn {
+      padding: 11px 18px;
+      border-radius: 12px;
+      border: none;
+      background: #111;
+      color: white;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-top: 12px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .lineup-btn.sub {
+      background: #666;
+    }
+
+    .lineup-btn.delete {
+      background: #b00020;
+    }
+
+    .lineup-btn.small {
+      padding: 8px 12px;
+      font-size: 13px;
+      border-radius: 10px;
+      margin-top: 0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .lineup-table-wrap {
+      overflow-x: auto;
+      margin-top: 16px;
+    }
+
+    .lineup-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      min-width: 760px;
+    }
+
+    .lineup-table th,
+    .lineup-table td {
+      border: 1px solid #e1e6ee;
+      padding: 10px;
+      text-align: center;
+      vertical-align: top;
+    }
+
+    .lineup-table th {
+      background: #f6f8fb;
+      font-weight: 900;
+    }
+
+    .lineup-table input,
+    .lineup-table select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccd5e0;
+      border-radius: 12px;
+      text-align: center;
+      font-family: inherit;
+      background: white;
+    }
+
+    .readonly-lineup {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .readonly-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 100px;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid #e1e6ee;
+      border-radius: 14px;
+      background: #fafbfd;
+    }
+
+    .readonly-order {
+      font-weight: 900;
+      color: #1b65ba;
+      text-align: center;
+    }
+
+    .readonly-name {
+      font-weight: 800;
+    }
+
+    .readonly-pos {
+      text-align: center;
+      font-weight: 900;
+      background: #eef3ff;
+      color: #1b65ba;
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+
+    .lineup-box {
+      background: #f8f8f8;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+      border-left: 6px solid #1b65ba;
+    }
+
+    .lineup-top {
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.6;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .lineup-detail {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #ddd;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #e8f1ff;
+      color: #1b65ba;
+      font-size: 13px;
+      font-weight: 900;
+      margin-right: 6px;
+    }
+
+    .autocomplete-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .autocomplete-list {
+      position: relative;
+      margin-top: 6px;
+      width: 100%;
+      max-height: 190px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ccd5e0;
+      border-radius: 14px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+      z-index: 20;
+    }
+
+    .autocomplete-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .autocomplete-item:hover,
+    .autocomplete-item.active {
+      background: #eaf1ff;
+      color: #1b65ba;
+      font-weight: 900;
+    }
+
+    .autocomplete-empty {
+      padding: 10px 12px;
+      color: #666;
+      font-size: 14px;
+      background: #f6f8fb;
+    }
+
+    .empty-text {
+      color: #666;
+    }
+
+    @media (max-width: 700px) {
+      .card-title {
+        font-size: 28px;
+      }
+
+      .readonly-row {
+        grid-template-columns: 44px 1fr 76px;
+      }
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="top-title">
       <h1>레이 마린스</h1>
       <a class="top-link" href="index.html">메인으로</a>
     </div>
-    <div class="menu-clean">
+
+    <div class="menu">
       <a href="lineup.html">라인업</a>
       <a href="record.html">기록실</a>
-      <a id="scoresheetMenu" class="hidden" href="scoresheet.html">기록지</a>
+      <a href="scoresheet.html">기록지</a>
       <a href="mypage.html">마이페이지</a>
     </div>
   </div>
@@ -62,13 +270,15 @@
   <div class="lineup-wrap">
     <div class="lineup-card">
       <div class="card-title">오늘의 라인업</div>
-      <p class="lineup-note">오늘 날짜로 저장된 라인업을 확인할 수 있습니다.</p>
-      <div id="todayLineupList"><p class="empty-text">오늘의 라인업을 불러오는 중...</p></div>
+      <p class="lineup-note">오늘 날짜에 저장된 라인업을 확인할 수 있습니다.</p>
+      <div id="todayLineupBox">
+        <p class="empty-text">오늘의 라인업을 불러오는 중...</p>
+      </div>
     </div>
 
     <div id="editorCard" class="lineup-card hidden">
-      <div class="card-title">라인업 작성</div>
-      <p class="lineup-note">선수명 칸을 누르면 회원가입한 닉네임이 뜨고, 한 글자를 입력하면 앞글자가 같은 선수만 표시됩니다.</p>
+      <div class="card-title">라인업 작성 / 수정</div>
+      <p class="lineup-note">기록원과 관리진만 라인업을 작성할 수 있습니다.</p>
 
       <div class="lineup-grid">
         <div>
@@ -78,467 +288,526 @@
             <option value="리그경기">리그경기</option>
           </select>
         </div>
+
         <div>
-          <label for="lineupDate">경기 날짜</label>
-          <input id="lineupDate" type="date" class="lineup-input">
+          <label for="gameDate">경기 날짜</label>
+          <input id="gameDate" type="date" class="lineup-input">
         </div>
+
+        <div>
+          <label for="gameTime">경기 시간</label>
+          <input id="gameTime" class="lineup-input" placeholder="예: 20시">
+        </div>
+
         <div>
           <label for="opponent">상대팀</label>
           <input id="opponent" class="lineup-input" placeholder="예: 오버드라이브">
         </div>
-        <div class="name-cell">
-          <label for="starterPitcher">선발 투수</label>
-          <input id="starterPitcher" class="lineup-input player-name-input" placeholder="예: FlaneY2111" autocomplete="off">
-          <div id="starterPitcherSuggest" class="suggest-box"></div>
+
+        <div>
+          <label for="startingPitcher">선발 투수</label>
+          <div class="autocomplete-wrap">
+            <input id="startingPitcher" class="lineup-input player-autocomplete" placeholder="선발 투수">
+            <div class="autocomplete-list hidden"></div>
+          </div>
         </div>
       </div>
 
       <div class="lineup-table-wrap">
         <table class="lineup-table">
           <thead>
-            <tr><th>타순</th><th>선수명</th><th>포지션</th><th>기능</th></tr>
+            <tr>
+              <th>타순</th>
+              <th>선수명</th>
+              <th>포지션</th>
+              <th>기능</th>
+            </tr>
           </thead>
           <tbody id="lineupBody"></tbody>
         </table>
       </div>
 
-      <button id="saveLineupBtn" class="lineup-btn">라인업 저장</button>
-      <button id="resetLineupBtn" class="lineup-btn">초기화</button>
+      <button id="saveBtn" class="lineup-btn">라인업 저장</button>
+      <button id="resetBtn" class="lineup-btn sub">초기화</button>
     </div>
 
     <div id="savedCard" class="lineup-card hidden">
       <div class="card-title">저장된 라인업</div>
-      <p class="lineup-note">날짜/경기종류 글씨나 선택 버튼을 누르면 상세 라인업지가 열립니다.</p>
-      <div id="lineupList"><p class="empty-text">라인업을 불러오는 중...</p></div>
+      <div id="savedLineups">
+        <p class="empty-text">라인업을 불러오는 중...</p>
+      </div>
     </div>
   </div>
 
   <script type="module">
     import { db } from "./firebase-config.js";
     import { checkLogin, isStaff } from "./auth.js";
-    import { doc, setDoc, deleteDoc, collection, getDocs, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import {
+      collection,
+      getDocs,
+      getDoc,
+      setDoc,
+      deleteDoc,
+      doc,
+      query,
+      where,
+      orderBy,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const POSITIONS = ["SP", "C", "1B", "2B", "SS", "3B", "RF", "CF", "LF"];
 
-    const gameTypeInput = document.getElementById("gameType");
-    const lineupDateInput = document.getElementById("lineupDate");
-    const opponentInput = document.getElementById("opponent");
-    const starterPitcherInput = document.getElementById("starterPitcher");
-    const lineupBody = document.getElementById("lineupBody");
-    const lineupList = document.getElementById("lineupList");
-    const todayLineupList = document.getElementById("todayLineupList");
-    const editorCard = document.getElementById("editorCard");
-    const savedCard = document.getElementById("savedCard");
-    const scoresheetMenu = document.getElementById("scoresheetMenu");
+    const $ = (id) => document.getElementById(id);
+
+    const editorCard = $("editorCard");
+    const savedCard = $("savedCard");
+    const todayLineupBox = $("todayLineupBox");
+    const savedLineups = $("savedLineups");
+    const lineupBody = $("lineupBody");
+
+    const gameTypeInput = $("gameType");
+    const gameDateInput = $("gameDate");
+    const gameTimeInput = $("gameTime");
+    const opponentInput = $("opponent");
+    const startingPitcherInput = $("startingPitcher");
+    const saveBtn = $("saveBtn");
+    const resetBtn = $("resetBtn");
 
     let currentUserData = null;
-    let canEditLineup = false;
-    let allPlayers = [];
-    let allLineups = [];
-    let lineupRowCounter = 0;
+    let canEdit = false;
+    let approvedNicknames = [];
+    let savedData = [];
+    let currentEditId = null;
 
-    checkLogin(async (user, userData) => {
-      currentUserData = userData;
-      canEditLineup = isStaff(userData);
-
-      if (canEditLineup) {
-        editorCard.classList.remove("hidden");
-        savedCard.classList.remove("hidden");
-        scoresheetMenu.classList.remove("hidden");
-      }
-
-      await loadPlayerNames();
-      init();
-      listenLineups();
-    });
-
-    function getDefaultDate() {
-      const n = new Date();
-      return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`;
+    function today() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
     }
 
-    function getLineupId(gameType, date) {
+    function lineupId(gameType, date) {
       return `${gameType}_${date}`;
     }
 
-    async function loadPlayerNames() {
-      const snap = await getDocs(collection(db, "users"));
-      allPlayers = [];
+    function positionOptions(selected = "") {
+      return `
+        <option value="">선택</option>
+        ${POSITIONS.map(pos => `
+          <option value="${pos}" ${selected === pos ? "selected" : ""}>${pos}</option>
+        `).join("")}
+      `;
+    }
+
+    async function loadApprovedNicknames() {
+      const q = query(collection(db, "users"), where("approved", "==", true));
+      const snap = await getDocs(q);
+
+      approvedNicknames = [];
+
       snap.forEach((docu) => {
-        const u = docu.data();
-        if (u.approved && u.nickname) allPlayers.push(u.nickname);
+        const user = docu.data();
+        if (user.nickname) approvedNicknames.push(user.nickname);
       });
-      allPlayers = [...new Set(allPlayers)].sort((a, b) => a.localeCompare(b));
+
+      approvedNicknames.sort((a, b) => a.localeCompare(b));
     }
 
-    function getMatchedPlayers(keyword) {
-      const key = String(keyword || "").trim().toLowerCase();
-      if (!key) return allPlayers;
-      return allPlayers.filter(name => name.toLowerCase().startsWith(key));
-    }
-
-    function attachAutocomplete(input, suggestBox) {
-      let visiblePlayers = [];
+    function setupAutocomplete(input) {
+      const wrap = input.closest(".autocomplete-wrap");
+      const list = wrap.querySelector(".autocomplete-list");
       let activeIndex = -1;
+      let currentItems = [];
 
-      function hideSuggest() {
-        suggestBox.classList.remove("show");
-        activeIndex = -1;
+      function render(keyword = "") {
+        const lower = keyword.toLowerCase();
+
+        currentItems = approvedNicknames.filter(name => {
+          if (!lower) return true;
+          return name.toLowerCase().startsWith(lower);
+        }).slice(0, 6);
+
+        activeIndex = currentItems.length > 0 ? 0 : -1;
+
+        if (currentItems.length === 0) {
+          list.innerHTML = `<div class="autocomplete-empty">일치하는 선수가 없습니다</div>`;
+          list.classList.remove("hidden");
+          return;
+        }
+
+        list.innerHTML = currentItems.map((name, idx) => `
+          <div class="autocomplete-item ${idx === activeIndex ? "active" : ""}" data-name="${name}" data-index="${idx}">
+            ${name}
+          </div>
+        `).join("");
+
+        list.classList.remove("hidden");
       }
 
-      function selectPlayer(index) {
-        const name = visiblePlayers[index];
-        if (!name) return;
-        input.value = name;
-        hideSuggest();
-      }
-
-      function updateActiveItem() {
-        const items = [...suggestBox.querySelectorAll(".suggest-item:not(.info)")];
+      function refreshActive() {
+        const items = list.querySelectorAll(".autocomplete-item");
         items.forEach((item, idx) => {
           item.classList.toggle("active", idx === activeIndex);
         });
-        const activeItem = items[activeIndex];
-        if (activeItem) {
-          activeItem.scrollIntoView({ block: "nearest" });
-        }
       }
 
-      function render() {
-        const matched = getMatchedPlayers(input.value);
-        suggestBox.innerHTML = "";
-        visiblePlayers = matched.slice(0, 6);
-        activeIndex = visiblePlayers.length ? 0 : -1;
-
-        if (matched.length === 0) {
-          suggestBox.innerHTML = `<div class="suggest-item info">일치하는 선수가 없습니다</div>`;
-          suggestBox.classList.add("show");
-          return;
-        }
-
-        visiblePlayers.forEach((name, idx) => {
-          const item = document.createElement("div");
-          item.className = "suggest-item";
-          item.textContent = name;
-          item.addEventListener("mousedown", (e) => {
-            e.preventDefault();
-            selectPlayer(idx);
-          });
-          item.addEventListener("mouseenter", () => {
-            activeIndex = idx;
-            updateActiveItem();
-          });
-          suggestBox.appendChild(item);
-        });
-
-        if (matched.length > visiblePlayers.length) {
-          const info = document.createElement("div");
-          info.className = "suggest-item info";
-          info.textContent = `검색 결과 ${matched.length}명 · 더 입력하면 좁혀져요`;
-          suggestBox.appendChild(info);
-        }
-
-        suggestBox.classList.add("show");
-        updateActiveItem();
+      function selectName(name) {
+        input.value = name;
+        list.classList.add("hidden");
       }
 
-      input.addEventListener("focus", render);
-      input.addEventListener("input", render);
+      input.addEventListener("focus", () => {
+        render(input.value.trim());
+      });
+
+      input.addEventListener("input", () => {
+        render(input.value.trim());
+      });
+
       input.addEventListener("keydown", (e) => {
-        if (!suggestBox.classList.contains("show")) {
-          if (e.key === "ArrowDown" || e.key === "Enter") {
-            render();
-            e.preventDefault();
-          }
-          return;
-        }
+        if (list.classList.contains("hidden")) return;
 
         if (e.key === "ArrowDown") {
           e.preventDefault();
-          if (visiblePlayers.length === 0) return;
-          activeIndex = (activeIndex + 1) % visiblePlayers.length;
-          updateActiveItem();
-        } else if (e.key === "ArrowUp") {
+          if (currentItems.length === 0) return;
+          activeIndex = (activeIndex + 1) % currentItems.length;
+          refreshActive();
+        }
+
+        if (e.key === "ArrowUp") {
           e.preventDefault();
-          if (visiblePlayers.length === 0) return;
-          activeIndex = (activeIndex - 1 + visiblePlayers.length) % visiblePlayers.length;
-          updateActiveItem();
-        } else if (e.key === "Enter") {
-          if (visiblePlayers.length > 0 && activeIndex >= 0) {
-            e.preventDefault();
-            selectPlayer(activeIndex);
+          if (currentItems.length === 0) return;
+          activeIndex = (activeIndex - 1 + currentItems.length) % currentItems.length;
+          refreshActive();
+        }
+
+        if (e.key === "Enter") {
+          e.preventDefault();
+          if (activeIndex >= 0 && currentItems[activeIndex]) {
+            selectName(currentItems[activeIndex]);
           }
-        } else if (e.key === "Escape") {
-          hideSuggest();
+        }
+
+        if (e.key === "Escape") {
+          list.classList.add("hidden");
         }
       });
-      input.addEventListener("blur", () => {
-        setTimeout(hideSuggest, 150);
+
+      list.addEventListener("mousedown", (e) => {
+        const item = e.target.closest(".autocomplete-item");
+        if (!item) return;
+        selectName(item.dataset.name);
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!wrap.contains(e.target)) {
+          list.classList.add("hidden");
+        }
       });
     }
 
-    function positionSelectHtml(rowId, index, value = "") {
-      return `
-        <select class="cell-input pos-select" data-row-id="${rowId}" data-pos-index="${index}">
-          <option value="">선택</option>
-          ${POSITIONS.map(pos => `<option value="${pos}" ${pos === value ? "selected" : ""}>${pos}</option>`).join("")}
-        </select>
-      `;
-    }
-
-    function normalizePositions(player = {}) {
-      if (Array.isArray(player.positions)) return player.positions.filter(Boolean);
-      if (Array.isArray(player.position)) return player.position.filter(Boolean);
-      if (typeof player.position === "string" && player.position.includes("→")) {
-        return player.position.split("→").map(v => v.trim()).filter(Boolean);
-      }
-      if (player.position) return [player.position];
-      return [""];
-    }
-
-    function createLineupRow(order, player = {}, isBase = true) {
-      lineupRowCounter += 1;
-      const rowId = lineupRowCounter;
+    function createRow(order, data = {}, isDefault = true) {
       const tr = document.createElement("tr");
-      tr.dataset.rowId = rowId;
-      tr.dataset.baseRow = isBase ? "true" : "false";
-      if (!isBase) tr.classList.add("sub-row");
-
-      const positions = normalizePositions(player);
+      tr.dataset.default = isDefault ? "true" : "false";
 
       tr.innerHTML = `
-        <td><input class="cell-input" id="order${rowId}" value="${player.order || order}"></td>
-        <td class="name-cell">
-          <input class="cell-input player-name-input" id="name${rowId}" value="${player.name || ""}" placeholder="선수명" autocomplete="off">
-          <div id="suggest${rowId}" class="suggest-box"></div>
-        </td>
         <td>
-          <div id="posList${rowId}" class="pos-stack">
-            ${positionSelectHtml(rowId, 0, positions[0] || "")}
+          <input class="order-input" value="${data.order || order || ""}">
+        </td>
+
+        <td>
+          <div class="autocomplete-wrap">
+            <input class="player-input player-autocomplete" value="${data.name || ""}" placeholder="선수명">
+            <div class="autocomplete-list hidden"></div>
           </div>
         </td>
+
         <td>
-          <div class="row-actions">
-            <button type="button" class="small-btn sub" onclick="addSubPlayer(${rowId})">교체</button>
-            <button type="button" class="small-btn delete" ${isBase ? "disabled" : ""} onclick="deleteLineupRow(${rowId})">삭제</button>
-            ${isBase ? `<span class="empty-text" style="font-size:12px;">기본 1~9번은 삭제 불가</span>` : ""}
-          </div>
+          <select class="position-input">
+            ${positionOptions(data.position || "")}
+          </select>
+        </td>
+
+        <td>
+          <button type="button" class="lineup-btn small sub add-sub-btn">교체</button>
+          ${
+            isDefault
+              ? `<button type="button" class="lineup-btn small delete delete-btn hidden">삭제</button>
+                 <div class="empty-text" style="font-size:12px;"></div>`
+              : `<button type="button" class="lineup-btn small delete delete-btn">삭제</button>`
+          }
         </td>
       `;
 
-      lineupBody.appendChild(tr);
-      attachAutocomplete(document.getElementById(`name${rowId}`), document.getElementById(`suggest${rowId}`));
+      tr.querySelectorAll(".player-autocomplete").forEach(setupAutocomplete);
+
+      tr.querySelector(".add-sub-btn").addEventListener("click", () => {
+        const currentOrder = tr.querySelector(".order-input").value.trim();
+        const newRow = createRow(currentOrder, {
+          order: currentOrder,
+          name: "",
+          position: ""
+        }, false);
+
+        tr.insertAdjacentElement("afterend", newRow);
+      });
+
+      const deleteBtn = tr.querySelector(".delete-btn");
+      if (deleteBtn && !isDefault) {
+        deleteBtn.addEventListener("click", () => {
+          tr.remove();
+        });
+      }
+
       return tr;
     }
 
-    function renderRows(players = []) {
+    function renderEditorRows(players = []) {
       lineupBody.innerHTML = "";
-      lineupRowCounter = 0;
 
       for (let i = 1; i <= 9; i++) {
-        createLineupRow(i, players[i - 1] || { order: i }, true);
+        const player = players[i - 1] || {};
+        lineupBody.appendChild(createRow(i, {
+          order: player.order || i,
+          name: player.name || "",
+          position: player.position || ""
+        }, true));
       }
 
       if (players.length > 9) {
-        players.slice(9).forEach((p) => {
-          createLineupRow(p.order || "", p, false);
+        players.slice(9).forEach((player) => {
+          lineupBody.appendChild(createRow(player.order || "", player, false));
         });
       }
-
-      attachAutocomplete(starterPitcherInput, document.getElementById("starterPitcherSuggest"));
     }
 
-    window.addSubPlayer = function(rowId) {
-      const baseRow = lineupBody.querySelector(`tr[data-row-id="${rowId}"]`);
-      if (!baseRow) return;
-
-      const order = document.getElementById(`order${rowId}`).value.trim();
-      const newRow = createLineupRow(order, { order }, false);
-      baseRow.insertAdjacentElement("afterend", newRow);
-    };
-
-    window.deleteLineupRow = function(rowId) {
-      const row = lineupBody.querySelector(`tr[data-row-id="${rowId}"]`);
-      if (!row) return;
-
-      if (row.dataset.baseRow === "true") {
-        alert("1번부터 9번까지 기본 라인업은 삭제할 수 없어.");
-        return;
-      }
-
-      row.remove();
-    };
-
-    function getPlayers() {
-      const players = [];
-      const rows = [...lineupBody.querySelectorAll("tr[data-row-id]")];
-
-      rows.forEach((row) => {
-        const rowId = row.dataset.rowId;
-        const positions = [...row.querySelectorAll(".pos-select")]
-          .map(select => select.value.trim())
-          .filter(Boolean);
-
-        const positionText = positions.join(" → ");
-
-        players.push({
-          order: document.getElementById(`order${rowId}`).value.trim(),
-          name: document.getElementById(`name${rowId}`).value.trim(),
-          position: positionText,
-          positions,
-          isSub: row.dataset.baseRow !== "true"
-        });
-      });
-
-      return players;
+    function getPlayersFromEditor() {
+      return [...lineupBody.querySelectorAll("tr")].map(row => ({
+        order: row.querySelector(".order-input").value.trim(),
+        name: row.querySelector(".player-input").value.trim(),
+        position: row.querySelector(".position-input").value
+      })).filter(player => player.name || player.position);
     }
 
-    document.getElementById("saveLineupBtn")?.addEventListener("click", async () => {
-      if (!canEditLineup) return;
-
-      const gameType = gameTypeInput.value;
-      const date = lineupDateInput.value;
-      if (!date) {
-        alert("경기 날짜를 선택해줘.");
-        return;
+    function renderReadonlyLineup(data) {
+      if (!data || !data.players || data.players.length === 0) {
+        return `<p class="empty-text">저장된 라인업이 없습니다.</p>`;
       }
 
-      const data = {
-        gameType,
-        date,
-        opponent: opponentInput.value.trim(),
-        pitcher: starterPitcherInput.value.trim(),
-        players: getPlayers(),
-        updatedAt: Date.now(),
-        createdBy: currentUserData?.nickname || ""
-      };
-
-      await setDoc(doc(db, "lineups", getLineupId(gameType, date)), data);
-      alert("라인업 저장 완료!");
-    });
-
-    document.getElementById("resetLineupBtn")?.addEventListener("click", () => {
-      if (!canEditLineup) return;
-      gameTypeInput.value = "연습경기";
-      lineupDateInput.value = getDefaultDate();
-      opponentInput.value = "";
-      starterPitcherInput.value = "";
-      renderRows();
-    });
-
-    window.toggleLineupDetail = function(id) {
-      const detail = document.getElementById(`detail_${id}`);
-      if (!detail) return;
-      detail.classList.toggle("show");
-    };
-
-    window.deleteLineup = async function(id) {
-      if (!canEditLineup) return;
-      if (!confirm("이 라인업을 삭제할까요?")) return;
-      await deleteDoc(doc(db, "lineups", id));
-      alert("삭제 완료");
-    };
-
-    function makeLineupBox(docId, lineup, isToday = false) {
-      const box = document.createElement("div");
-      box.className = `saved-box ${isToday ? "today-card" : ""}`;
-
-      const playersHtml = (lineup.players || []).map(p => {
-        const positionText = Array.isArray(p.positions) && p.positions.length ? p.positions.join(" → ") : (p.position || "");
-        return `
-          <tr class="${p.isSub ? "sub-row" : ""}">
-            <td>${p.order || ""}</td>
-            <td>${p.name || ""}${p.isSub ? " <span class='badge'>교체</span>" : ""}</td>
-            <td>${positionText}</td>
-          </tr>
-        `;
-      }).join("");
-
-      box.innerHTML = `
-        ${isToday ? `<div class="today-label">오늘의 라인업</div>` : ""}
-        <div class="saved-top">
-          <div class="saved-title" onclick="toggleLineupDetail('${docId}')">
-            <span class="badge">${lineup.gameType || "-"}</span>
-            ${lineup.date || "-"}<br>
-            <span style="font-size:15px;font-weight:500;color:#666;">상대팀: ${lineup.opponent || "-"} / 선발투수: ${lineup.pitcher || "-"}</span>
-          </div>
-          <div class="saved-actions">
-            <button class="small-btn sub" onclick="toggleLineupDetail('${docId}')">선택</button>
-            ${canEditLineup ? `<button class="small-btn delete" onclick="deleteLineup('${docId}')">삭제</button>` : ""}
-          </div>
-        </div>
-
-        <div id="detail_${docId}" class="detail-box ${isToday ? "show" : ""}">
-          <h3>상세 라인업지</h3>
-          <p><strong>경기 종류:</strong> ${lineup.gameType || "-"}</p>
-          <p><strong>날짜:</strong> ${lineup.date || "-"}</p>
-          <p><strong>상대팀:</strong> ${lineup.opponent || "-"}</p>
-          <p><strong>선발투수:</strong> ${lineup.pitcher || "-"}</p>
-          <div class="lineup-table-wrap">
-            <table class="lineup-table">
-              <thead><tr><th>타순</th><th>선수명</th><th>포지션</th></tr></thead>
-              <tbody>${playersHtml}</tbody>
-            </table>
-          </div>
+      return `
+        <div class="readonly-lineup">
+          ${data.players.map(player => `
+            <div class="readonly-row">
+              <div class="readonly-order">${player.order || "-"}</div>
+              <div class="readonly-name">${player.name || "-"}</div>
+              <div class="readonly-pos">${player.position || "-"}</div>
+            </div>
+          `).join("")}
         </div>
       `;
-
-      return box;
     }
 
-    function renderTodayLineups() {
-      const today = getDefaultDate();
-      const todayItems = allLineups.filter(item => item.data.date === today);
-      todayLineupList.innerHTML = "";
+    async function loadTodayLineup() {
+      const date = today();
 
-      if (todayItems.length === 0) {
-        todayLineupList.innerHTML = `<p class="empty-text">오늘 저장된 라인업이 없습니다.</p>`;
+      const practiceSnap = await getDoc(doc(db, "lineups", lineupId("연습경기", date)));
+      const leagueSnap = await getDoc(doc(db, "lineups", lineupId("리그경기", date)));
+
+      const lineups = [];
+
+      if (practiceSnap.exists()) {
+        lineups.push({
+          id: practiceSnap.id,
+          ...practiceSnap.data()
+        });
+      }
+
+      if (leagueSnap.exists()) {
+        lineups.push({
+          id: leagueSnap.id,
+          ...leagueSnap.data()
+        });
+      }
+
+      if (lineups.length === 0) {
+        todayLineupBox.innerHTML = `<p class="empty-text">오늘 저장된 라인업이 없습니다.</p>`;
         return;
       }
 
-      todayItems.forEach(item => {
-        todayLineupList.appendChild(makeLineupBox(`today_${item.id}`, item.data, true));
-      });
+      todayLineupBox.innerHTML = lineups.map(data => `
+        <div class="lineup-box">
+          <div class="lineup-top">
+            <span class="badge">${data.gameType || "-"}</span>
+            ${data.gameDate || "-"} ${data.gameTime || ""} vs ${data.opponent || "-"}
+          </div>
+          <div class="lineup-note">
+            선발투수: <strong>${data.pitcher || "-"}</strong>
+          </div>
+          ${renderReadonlyLineup(data)}
+        </div>
+      `).join("");
     }
 
     function renderSavedLineups() {
-      if (!canEditLineup) return;
-
-      lineupList.innerHTML = "";
-      if (allLineups.length === 0) {
-        lineupList.innerHTML = `<p class="empty-text">저장된 라인업이 없습니다.</p>`;
+      if (savedData.length === 0) {
+        savedLineups.innerHTML = `<p class="empty-text">저장된 라인업이 없습니다.</p>`;
         return;
       }
 
-      allLineups.forEach(item => {
-        lineupList.appendChild(makeLineupBox(item.id, item.data, false));
-      });
-    }
+      savedLineups.innerHTML = "";
 
-    function listenLineups() {
-      const lineupQuery = query(collection(db, "lineups"), orderBy("updatedAt", "desc"));
+      savedData.forEach((data) => {
+        const box = document.createElement("div");
+        box.className = "lineup-box";
 
-      onSnapshot(lineupQuery, (snapshot) => {
-        allLineups = [];
-        snapshot.forEach((docu) => {
-          allLineups.push({ id: docu.id, data: docu.data() });
+        box.innerHTML = `
+          <div class="lineup-top">
+            <span class="badge">${data.gameType || "-"}</span>
+            ${data.gameDate || "-"} ${data.gameTime || ""} vs ${data.opponent || "-"}
+          </div>
+
+          <div class="lineup-note">
+            선발투수: <strong>${data.pitcher || "-"}</strong>
+          </div>
+
+          <div class="lineup-detail hidden">
+            ${renderReadonlyLineup(data)}
+          </div>
+
+          <button class="lineup-btn small sub select-btn" type="button">상세 보기</button>
+          <button class="lineup-btn small" type="button" data-edit="${data.id}">수정</button>
+          <button class="lineup-btn small delete" type="button" data-delete="${data.id}">삭제</button>
+        `;
+
+        const detail = box.querySelector(".lineup-detail");
+
+        box.querySelector(".lineup-top").addEventListener("click", () => {
+          detail.classList.toggle("hidden");
         });
 
-        renderTodayLineups();
-        renderSavedLineups();
-      }, (error) => {
-        console.error(error);
-        todayLineupList.innerHTML = `<p class="empty-text">라인업을 불러오지 못했습니다.</p>`;
-        if (canEditLineup) lineupList.innerHTML = `<p class="empty-text">라인업을 불러오지 못했습니다.</p>`;
+        box.querySelector(".select-btn").addEventListener("click", () => {
+          detail.classList.toggle("hidden");
+        });
+
+        box.querySelector("[data-edit]").addEventListener("click", () => {
+          editLineup(data.id);
+        });
+
+        box.querySelector("[data-delete]").addEventListener("click", () => {
+          deleteLineup(data.id);
+        });
+
+        savedLineups.appendChild(box);
       });
     }
 
-    function init() {
-      if (canEditLineup) {
-        lineupDateInput.value = getDefaultDate();
-        renderRows();
+    async function saveLineup() {
+      const gameType = gameTypeInput.value;
+      const gameDate = gameDateInput.value;
+      const gameTime = gameTimeInput.value.trim();
+      const opponent = opponentInput.value.trim();
+      const pitcher = startingPitcherInput.value.trim();
+      const players = getPlayersFromEditor();
+
+      if (!gameDate || !opponent) {
+        alert("경기 날짜와 상대팀은 꼭 입력해주세요.");
+        return;
       }
+
+      const id = lineupId(gameType, gameDate);
+
+      await setDoc(doc(db, "lineups", id), {
+        id,
+        gameType,
+        gameDate,
+        gameTime,
+        opponent,
+        pitcher,
+        players,
+        updatedAt: Date.now()
+      });
+
+      alert("라인업 저장 완료!");
+      currentEditId = id;
+      await loadTodayLineup();
     }
+
+    async function editLineup(id) {
+      const snap = await getDoc(doc(db, "lineups", id));
+
+      if (!snap.exists()) {
+        alert("라인업을 찾을 수 없습니다.");
+        return;
+      }
+
+      const data = snap.data();
+
+      currentEditId = id;
+      gameTypeInput.value = data.gameType || "연습경기";
+      gameDateInput.value = data.gameDate || today();
+      gameTimeInput.value = data.gameTime || "";
+      opponentInput.value = data.opponent || "";
+      startingPitcherInput.value = data.pitcher || "";
+
+      renderEditorRows(data.players || []);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function deleteLineup(id) {
+      const ok = confirm("이 라인업을 삭제할까?");
+      if (!ok) return;
+
+      await deleteDoc(doc(db, "lineups", id));
+      await loadTodayLineup();
+    }
+
+    function resetForm() {
+      currentEditId = null;
+      gameTypeInput.value = "연습경기";
+      gameDateInput.value = today();
+      gameTimeInput.value = "";
+      opponentInput.value = "";
+      startingPitcherInput.value = "";
+      renderEditorRows();
+    }
+
+    checkLogin(async (user, userData) => {
+      currentUserData = userData;
+      canEdit = isStaff(userData);
+
+      await loadApprovedNicknames();
+      await loadTodayLineup();
+
+      if (canEdit) {
+        editorCard.classList.remove("hidden");
+        savedCard.classList.remove("hidden");
+        resetForm();
+
+        setupAutocomplete(startingPitcherInput);
+
+        const lineupQuery = query(collection(db, "lineups"), orderBy("updatedAt", "desc"));
+
+        onSnapshot(lineupQuery, (snapshot) => {
+          savedData = [];
+
+          snapshot.forEach((docu) => {
+            savedData.push({
+              id: docu.id,
+              ...docu.data()
+            });
+          });
+
+          renderSavedLineups();
+        });
+      } else {
+        editorCard.classList.add("hidden");
+        savedCard.classList.add("hidden");
+      }
+    });
+
+    saveBtn.addEventListener("click", saveLineup);
+    resetBtn.addEventListener("click", resetForm);
   </script>
 </body>
 </html>
