@@ -6,12 +6,25 @@
   <title>마이페이지</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    .mypage-wrap{width:95%;max-width:1100px;margin:34px auto}.mypage-card{background:#fff;border-radius:22px;padding:26px;box-shadow:0 10px 24px rgba(0,0,0,.06);margin-bottom:22px}.card-title{font-size:34px;font-weight:900;margin-bottom:14px}.note{color:#666;font-size:15px;line-height:1.6}.profile-grid{display:grid;grid-template-columns:1fr 180px;gap:12px;align-items:end}.input{width:100%;padding:12px 14px;border:1px solid #d6dce5;border-radius:14px;font-size:15px}.btn{padding:11px 16px;border:0;border-radius:12px;background:#111;color:#fff;font-weight:800;cursor:pointer}.sub-btn{background:#666}.filter-row{display:grid;grid-template-columns:220px 1fr;gap:12px;align-items:end;margin:12px 0 18px}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.stat-box{background:#f6f8fb;border:1px solid #e2e8f0;border-radius:16px;padding:13px}.stat-box span{display:block;color:#666;font-size:12px;font-weight:800}.stat-box b{display:block;font-size:20px;margin-top:4px}.game-card{border:1px solid #dfe7f1;background:#fbfcff;border-radius:18px;padding:16px;margin:12px 0}.game-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}.game-title{font-size:18px;font-weight:900}.badge{display:inline-block;background:#e8f1ff;color:#1b65ba;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900}.badge.league{background:#fff3e8;color:#c26b00}.record-block{background:#fff;border:1px solid #e6edf5;border-radius:14px;padding:13px;margin-top:12px}.record-type{font-weight:900;margin-bottom:8px}.record-line{line-height:1.8;color:#222}.empty{color:#666;padding:18px 0}.top-link{display:inline-block;margin-bottom:12px;color:#1b65ba;font-weight:900;text-decoration:none}.type-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}.type-tab{border:0;border-radius:999px;padding:10px 16px;background:#eef1f5;color:#222;font-weight:900;cursor:pointer}.type-tab.active{background:#1b65ba;color:#fff}@media(max-width:650px){.profile-grid,.filter-row{grid-template-columns:1fr}.card-title{font-size:28px}}
+    .mypage-wrap{width:min(1200px, calc(100% - 64px));margin:34px auto}.mypage-card{background:#fff;border-radius:22px;padding:26px;box-shadow:0 10px 24px rgba(0,0,0,.06);margin-bottom:22px}.card-title{font-size:34px;font-weight:900;margin-bottom:14px}.note{color:#666;font-size:15px;line-height:1.6}.profile-grid{display:grid;grid-template-columns:1fr 180px;gap:12px;align-items:end}.input{width:100%;padding:12px 14px;border:1px solid #d6dce5;border-radius:14px;font-size:15px}.btn{padding:11px 16px;border:0;border-radius:12px;background:#111;color:#fff;font-weight:800;cursor:pointer}.sub-btn{background:#666}.filter-row{display:grid;grid-template-columns:220px 1fr;gap:12px;align-items:end;margin:12px 0 18px}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.stat-box{background:#f6f8fb;border:1px solid #e2e8f0;border-radius:16px;padding:13px}.stat-box span{display:block;color:#666;font-size:12px;font-weight:800}.stat-box b{display:block;font-size:20px;margin-top:4px}.game-card{border:1px solid #dfe7f1;background:#fbfcff;border-radius:18px;padding:16px;margin:12px 0}.game-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}.game-title{font-size:18px;font-weight:900}.badge{display:inline-block;background:#e8f1ff;color:#1b65ba;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900}.badge.league{background:#fff3e8;color:#c26b00}.record-block{background:#fff;border:1px solid #e6edf5;border-radius:14px;padding:13px;margin-top:12px}.record-type{font-weight:900;margin-bottom:8px}.record-line{line-height:1.8;color:#222}.empty{color:#666;padding:18px 0}.top-link{display:inline-block;margin-bottom:12px;color:#1b65ba;font-weight:900;text-decoration:none}.type-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}.type-tab{border:0;border-radius:999px;padding:10px 16px;background:#eef1f5;color:#222;font-weight:900;cursor:pointer}.type-tab.active{background:#1b65ba;color:#fff}@media(max-width:650px){.profile-grid,.filter-row{grid-template-columns:1fr}.card-title{font-size:28px}}
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="top-title">
+      <h1>레이 마린스</h1>
+      <a class="top-link" href="index.html">메인으로</a>
+    </div>
+
+    <div class="menu">
+      <a href="lineup.html">라인업</a>
+      <a href="record.html">기록실</a>
+      <a href="scoresheet.html">기록지</a>
+      <a href="mypage.html">마이페이지</a>
+    </div>
+  </div>
+
   <div class="mypage-wrap">
-    <a class="top-link" href="index.html">메인으로</a>
 
     <div class="mypage-card">
       <div class="card-title">마이페이지</div>
