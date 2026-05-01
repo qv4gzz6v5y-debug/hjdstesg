@@ -14,9 +14,9 @@
     .lineup-input,.lineup-select{width:100%;padding:12px 14px;border-radius:14px;border:1px solid #d6dce5;box-sizing:border-box;font-size:15px;background:#fff;font-family:inherit}
     label{font-weight:800;display:block;margin-bottom:7px}
     .lineup-btn{padding:11px 18px;border-radius:12px;border:none;background:#111;color:white;cursor:pointer;margin-right:8px;margin-top:12px;font-size:15px;font-weight:800}
-    .lineup-btn.sub{background:#666}.lineup-btn.delete{background:#b00020}.lineup-btn.small{padding:8px 12px;font-size:13px;border-radius:10px;margin-top:0}
+    .lineup-btn.sub{background:#666}.lineup-btn.delete{background:#b00020}.lineup-btn.edit{background:#1b65ba}.lineup-btn.small{padding:8px 12px;font-size:13px;border-radius:10px;margin-top:0}
     .hidden{display:none!important}.lineup-table-wrap{overflow-x:auto;margin-top:16px}
-    .lineup-table{width:100%;border-collapse:collapse;background:#fff;min-width:760px}
+    .lineup-table{width:100%;border-collapse:collapse;background:#fff;min-width:680px}
     .lineup-table th,.lineup-table td{border:1px solid #e1e6ee;padding:10px;text-align:center;vertical-align:top}
     .lineup-table th{background:#f6f8fb;font-weight:900}
     .lineup-table input,.lineup-table select{width:100%;padding:10px;border:1px solid #ccd5e0;border-radius:12px;text-align:center;font-family:inherit;background:white}
@@ -24,6 +24,7 @@
     .readonly-order{font-weight:900;color:#1b65ba;text-align:center}.readonly-name{font-weight:800}.readonly-pos{text-align:center;font-weight:900;background:#eef3ff;color:#1b65ba;border-radius:999px;padding:6px 10px}
     .lineup-box{background:#f8f8f8;border-radius:16px;padding:18px;margin-bottom:16px;border-left:6px solid #1b65ba}
     .lineup-top{font-size:20px;font-weight:900;line-height:1.6;margin-bottom:10px;cursor:pointer}.lineup-detail{margin-top:12px;padding-top:12px;border-top:1px solid #ddd}
+    .lineup-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
     .badge{display:inline-block;padding:5px 10px;border-radius:999px;background:#e8f1ff;color:#1b65ba;font-size:13px;font-weight:900;margin-right:6px}
     .autocomplete-wrap{position:relative;display:flex;flex-direction:column}.autocomplete-list{position:relative;margin-top:6px;width:100%;max-height:190px;overflow-y:auto;background:#fff;border:1px solid #ccd5e0;border-radius:14px;box-shadow:0 8px 18px rgba(0,0,0,.08);z-index:20}
     .autocomplete-item{padding:10px 12px;cursor:pointer;text-align:left;font-size:14px}.autocomplete-item:hover,.autocomplete-item.active{background:#eaf1ff;color:#1b65ba;font-weight:900}
@@ -56,7 +57,7 @@
       </div>
       <div class="lineup-table-wrap">
         <table class="lineup-table">
-          <thead><tr><th>타순</th><th>선수명</th><th>포지션</th><th>기능</th></tr></thead>
+          <thead><tr><th>타순</th><th>선수명</th><th>포지션</th></tr></thead>
           <tbody id="lineupBody"></tbody>
         </table>
       </div>
@@ -121,22 +122,13 @@
       document.addEventListener("click",e=>{if(!wrap.contains(e.target))list.classList.add("hidden");});
     }
 
-    function createRow(order,data={},isDefault=true){
+    function createRow(order,data={}){
       const tr=document.createElement("tr");
-      tr.dataset.default=isDefault?"true":"false";
       tr.innerHTML=`
         <td><input class="order-input" value="${data.order||order||""}"></td>
         <td><div class="autocomplete-wrap"><input class="player-input player-autocomplete" value="${data.name||""}" placeholder="선수명"><div class="autocomplete-list hidden"></div></div></td>
-        <td><select class="position-input">${positionOptions(data.position||"")}</select></td>
-        <td><button type="button" class="lineup-btn small sub add-sub-btn">교체</button>
-        ${isDefault ? `<div class="empty-text" style="font-size:12px;">기본 1~9번은 삭제 불가</div>` : `<button type="button" class="lineup-btn small delete delete-btn">삭제</button>`}</td>`;
+        <td><select class="position-input">${positionOptions(data.position||"")}</select></td>`;
       tr.querySelectorAll(".player-autocomplete").forEach(setupAutocomplete);
-      tr.querySelector(".add-sub-btn").onclick=()=>{
-        const cur=tr.querySelector(".order-input").value.trim();
-        tr.after(createRow(cur,{order:cur,name:"",position:""},false));
-      };
-      const del=tr.querySelector(".delete-btn");
-      if(del) del.onclick=()=>tr.remove();
       return tr;
     }
 
@@ -144,9 +136,8 @@
       lineupBody.innerHTML="";
       for(let i=1;i<=9;i++){
         const p=players[i-1]||{};
-        lineupBody.appendChild(createRow(i,{order:p.order||i,name:p.name||"",position:p.position||""},true));
+        lineupBody.appendChild(createRow(i,{order:p.order||i,name:p.name||"",position:p.position||""}));
       }
-      players.slice(9).forEach(p=>lineupBody.appendChild(createRow(p.order||"",p,false)));
     }
 
     function getPlayersFromEditor(){
@@ -180,9 +171,11 @@
         box.innerHTML=`<div class="lineup-top"><span class="badge">${data.gameType||"-"}</span>${data.gameDate||"-"} ${data.gameTime||""} vs ${data.opponent||"-"}</div>
         <div class="lineup-note">선발투수: <strong>${data.pitcher||"-"}</strong></div>
         <div class="lineup-detail hidden">${renderReadonlyLineup(data)}</div>
-        <button class="lineup-btn small sub select-btn" type="button">상세 보기</button>
-        <button class="lineup-btn small" type="button" data-edit="${data.id}">수정</button>
-        <button class="lineup-btn small delete" type="button" data-delete="${data.id}">삭제</button>`;
+        <div class="lineup-actions">
+          <button class="lineup-btn small sub select-btn" type="button">상세 보기</button>
+          <button class="lineup-btn small edit" type="button" data-edit="${data.id}">수정</button>
+          <button class="lineup-btn small delete" type="button" data-delete="${data.id}">삭제</button>
+        </div>`;
         const detail=box.querySelector(".lineup-detail");
         box.querySelector(".lineup-top").onclick=()=>detail.classList.toggle("hidden");
         box.querySelector(".select-btn").onclick=()=>detail.classList.toggle("hidden");
