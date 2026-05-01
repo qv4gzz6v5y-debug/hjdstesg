@@ -41,7 +41,7 @@
     .suggest-item:hover,.suggest-item.active{background:#eef3ff;color:#1b65ba;font-weight:700}
     .suggest-item.info{cursor:default;color:#777;background:#f7f8fb;font-weight:600}
     .suggest-item.info:hover{background:#f7f8fb;color:#777;font-weight:600}
-    .role-note{margin-top:10px;padding:12px;border-radius:12px;background:#f5f7fb;color:#555;font-size:14px}.pos-stack{display:flex;flex-direction:column;gap:7px}.pos-stack select{margin:0}.row-actions{display:flex;flex-direction:column;gap:7px;align-items:center}.small-btn:disabled{opacity:.35;cursor:not-allowed;background:#999}.sub-row{background:#fcfcff}.position-change-btn{width:100%;margin-top:6px;background:#666}
+    .role-note{margin-top:10px;padding:12px;border-radius:12px;background:#f5f7fb;color:#555;font-size:14px}.pos-stack{display:flex;flex-direction:column;gap:7px}.pos-stack select{margin:0}.row-actions{display:flex;flex-direction:column;gap:7px;align-items:center}.small-btn:disabled{opacity:.35;cursor:not-allowed;background:#999}.sub-row{background:#fcfcff}
     @media(max-width:700px){.card-title{font-size:28px}.lineup-table{min-width:620px}.lineup-card{padding:18px}}
   </style>
 </head>
@@ -314,9 +314,8 @@
         </td>
         <td>
           <div id="posList${rowId}" class="pos-stack">
-            ${positions.map((pos, idx) => positionSelectHtml(rowId, idx, pos)).join("")}
+            ${positionSelectHtml(rowId, 0, positions[0] || "")}
           </div>
-          <button type="button" class="small-btn sub position-change-btn" onclick="addPositionChange(${rowId})">포지션 교체</button>
         </td>
         <td>
           <div class="row-actions">
@@ -348,15 +347,6 @@
 
       attachAutocomplete(starterPitcherInput, document.getElementById("starterPitcherSuggest"));
     }
-
-    window.addPositionChange = function(rowId) {
-      const list = document.getElementById(`posList${rowId}`);
-      if (!list) return;
-      const index = list.querySelectorAll(".pos-select").length;
-      const temp = document.createElement("div");
-      temp.innerHTML = positionSelectHtml(rowId, index, "").trim();
-      list.appendChild(temp.firstElementChild);
-    };
 
     window.addSubPlayer = function(rowId) {
       const baseRow = lineupBody.querySelector(`tr[data-row-id="${rowId}"]`);

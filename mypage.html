@@ -6,7 +6,7 @@
   <title>마이페이지</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    .mypage-wrap{width:95%;max-width:1100px;margin:34px auto}.mypage-card{background:#fff;border-radius:22px;padding:26px;box-shadow:0 10px 24px rgba(0,0,0,.06);margin-bottom:22px}.card-title{font-size:34px;font-weight:900;margin-bottom:14px}.note{color:#666;font-size:15px;line-height:1.6}.profile-grid{display:grid;grid-template-columns:1fr 180px;gap:12px;align-items:end}.input{width:100%;padding:12px 14px;border:1px solid #d6dce5;border-radius:14px;font-size:15px}.btn{padding:11px 16px;border:0;border-radius:12px;background:#111;color:#fff;font-weight:800;cursor:pointer}.sub-btn{background:#666}.filter-row{display:grid;grid-template-columns:220px 1fr;gap:12px;align-items:end;margin:12px 0 18px}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.stat-box{background:#f6f8fb;border:1px solid #e2e8f0;border-radius:16px;padding:13px}.stat-box span{display:block;color:#666;font-size:12px;font-weight:800}.stat-box b{display:block;font-size:20px;margin-top:4px}.game-card{border:1px solid #dfe7f1;background:#fbfcff;border-radius:18px;padding:16px;margin:12px 0}.game-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}.game-title{font-size:18px;font-weight:900}.badge{display:inline-block;background:#e8f1ff;color:#1b65ba;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900}.badge.league{background:#fff3e8;color:#c26b00}.record-block{background:#fff;border:1px solid #e6edf5;border-radius:14px;padding:13px;margin-top:12px}.record-type{font-weight:900;margin-bottom:8px}.record-line{line-height:1.8;color:#222}.empty{color:#666;padding:18px 0}.top-link{display:inline-block;margin-bottom:12px;color:#1b65ba;font-weight:900;text-decoration:none}@media(max-width:650px){.profile-grid,.filter-row{grid-template-columns:1fr}.card-title{font-size:28px}}
+    .mypage-wrap{width:95%;max-width:1100px;margin:34px auto}.mypage-card{background:#fff;border-radius:22px;padding:26px;box-shadow:0 10px 24px rgba(0,0,0,.06);margin-bottom:22px}.card-title{font-size:34px;font-weight:900;margin-bottom:14px}.note{color:#666;font-size:15px;line-height:1.6}.profile-grid{display:grid;grid-template-columns:1fr 180px;gap:12px;align-items:end}.input{width:100%;padding:12px 14px;border:1px solid #d6dce5;border-radius:14px;font-size:15px}.btn{padding:11px 16px;border:0;border-radius:12px;background:#111;color:#fff;font-weight:800;cursor:pointer}.sub-btn{background:#666}.filter-row{display:grid;grid-template-columns:220px 1fr;gap:12px;align-items:end;margin:12px 0 18px}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.stat-box{background:#f6f8fb;border:1px solid #e2e8f0;border-radius:16px;padding:13px}.stat-box span{display:block;color:#666;font-size:12px;font-weight:800}.stat-box b{display:block;font-size:20px;margin-top:4px}.game-card{border:1px solid #dfe7f1;background:#fbfcff;border-radius:18px;padding:16px;margin:12px 0}.game-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}.game-title{font-size:18px;font-weight:900}.badge{display:inline-block;background:#e8f1ff;color:#1b65ba;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900}.badge.league{background:#fff3e8;color:#c26b00}.record-block{background:#fff;border:1px solid #e6edf5;border-radius:14px;padding:13px;margin-top:12px}.record-type{font-weight:900;margin-bottom:8px}.record-line{line-height:1.8;color:#222}.empty{color:#666;padding:18px 0}.top-link{display:inline-block;margin-bottom:12px;color:#1b65ba;font-weight:900;text-decoration:none}.type-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}.type-tab{border:0;border-radius:999px;padding:10px 16px;background:#eef1f5;color:#222;font-weight:900;cursor:pointer}.type-tab.active{background:#1b65ba;color:#fff}@media(max-width:650px){.profile-grid,.filter-row{grid-template-columns:1fr}.card-title{font-size:28px}}
   </style>
 </head>
 <body>
@@ -30,6 +30,16 @@
     </div>
 
     <div class="mypage-card">
+      <div class="card-title">기록 구분</div>
+      <div class="type-tabs">
+        <button class="type-tab active" data-type="전체">전체 기록</button>
+        <button class="type-tab" data-type="연습경기">연습경기 기록</button>
+        <button class="type-tab" data-type="리그경기">리그경기 기록</button>
+      </div>
+      <p class="note">선택한 경기 종류에 맞춰 시즌 누적 기록과 경기별 기록이 같이 바뀝니다.</p>
+    </div>
+
+    <div class="mypage-card">
       <div class="card-title">시즌 누적 기록</div>
       <h3>타자</h3>
       <div id="batterSummary" class="summary-grid"></div>
@@ -45,7 +55,7 @@
           <input id="dateFilter" type="date" class="input">
         </div>
         <div>
-          <button id="clearDateBtn" class="btn sub-btn">전체 보기</button>
+          <button id="clearDateBtn" class="btn sub-btn">날짜 초기화</button>
         </div>
       </div>
       <div id="gameRecordList"><p class="empty">기록을 불러오는 중...</p></div>
@@ -67,10 +77,12 @@
     const dateFilter = $('dateFilter');
     const clearDateBtn = $('clearDateBtn');
     const saveProfileBtn = $('saveProfileBtn');
+    const typeTabs = [...document.querySelectorAll('.type-tab')];
 
     let currentUser = null;
     let currentUserData = null;
     let myGameRecords = [];
+    let currentType = '전체';
 
     checkLogin(async (user, userData) => {
       currentUser = user;
@@ -91,6 +103,16 @@
       userText.textContent = `${nickname} #${number}`;
       alert('저장 완료');
       await loadMyRecords();
+    });
+
+    typeTabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentType = btn.dataset.type;
+        typeTabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderSeasonSummary();
+        renderGameRecords();
+      });
     });
 
     dateFilter.addEventListener('change', () => renderGameRecords());
@@ -122,6 +144,14 @@
       return { avg, obp, slg, ops: obp + slg };
     }
 
+    function getFilteredRecords(includeDate = false){
+      return myGameRecords.filter(({sheet}) => {
+        const typeOk = currentType === '전체' || (sheet.gameType || '연습경기') === currentType;
+        const dateOk = !includeDate || !dateFilter.value || sheet.gameDate === dateFilter.value;
+        return typeOk && dateOk;
+      });
+    }
+
     async function loadMyRecords(){
       gameRecordList.innerHTML = '<p class="empty">기록을 불러오는 중...</p>';
       const snap = await getDocs(query(collection(db, 'scoresheets'), orderBy('gameDate', 'desc')));
@@ -150,8 +180,9 @@
     function renderSeasonSummary(){
       const b = { games:0, ab:0, h:0, double:0, triple:0, hr:0, rbi:0, r:0, so:0, bb:0, hbp:0, ibb:0, sb:0, runout:0 };
       const p = { games:0, outs:0, runs:0, er:0, hits:0, hr:0, so:0, bb:0 };
+      const filtered = getFilteredRecords(false);
 
-      myGameRecords.forEach(({batters, pitchers}) => {
+      filtered.forEach(({batters, pitchers}) => {
         if (batters.length) b.games += 1;
         batters.forEach(x => {
           const s = x.stats || {};
@@ -181,11 +212,12 @@
     }
 
     function renderGameRecords(){
-      const selectedDate = dateFilter.value;
-      const filtered = selectedDate ? myGameRecords.filter(r => r.sheet.gameDate === selectedDate) : myGameRecords;
+      const filtered = getFilteredRecords(true);
 
       if (!filtered.length) {
-        gameRecordList.innerHTML = `<p class="empty">${selectedDate ? selectedDate + '의 기록이 없습니다.' : '아직 경기별 기록이 없습니다.'}</p>`;
+        const typeText = currentType === '전체' ? '전체 기록' : currentType;
+        const dateText = dateFilter.value ? `${dateFilter.value}의 ` : '';
+        gameRecordList.innerHTML = `<p class="empty">${dateText}${typeText}이 없습니다.</p>`;
         return;
       }
 
