@@ -35,22 +35,7 @@
       </div>
       <p id="lineupNotice" class="sheet-note">라인업 불러오기 대기 중...</p>
 
-      <div class="sheet-grid" style="margin-top:10px">
-        <div>
-          <label for="currentInning">현재 기록 이닝</label>
-          <select id="currentInning" class="sheet-select">
-            <option value="1">1회</option>
-          </select>
-        </div>
-        <div>
-          <label for="currentHalf">현재 공격/수비</label>
-          <select id="currentHalf" class="sheet-select">
-            <option value="초">초 공격</option>
-            <option value="말">말 공격</option>
-          </select>
-        </div>
-      </div>
-      <p id="inningGuide" class="sheet-note">홈/원정 선택에 따라 초·말 팀이 자동으로 정해집니다.</p>
+      <p id="inningGuide" class="sheet-note">홈/원정을 선택하면 초·말 공격 순서에 맞춰 득점/실점이 이닝 점수에 자동 반영됩니다.</p>
 
       <div class="section-title">이닝 점수</div>
       <div class="inning-actions"><button type="button" id="addInningBtn" class="sheet-btn sub">연장 이닝 추가</button><button type="button" id="removeInningBtn" class="sheet-btn sub">마지막 이닝 삭제</button></div>
@@ -75,21 +60,22 @@ import { collection, addDoc, updateDoc, deleteDoc, setDoc, doc, getDoc, onSnapsh
 const $=id=>document.getElementById(id);
 const gameTypeInput=$('gameType'), gameDateInput=$('gameDate'), gameTimeInput=$('gameTime'), opponentInput=$('opponent'), homeAwayInput=$('homeAway'), finalScoreInput=$('finalScore'), gameResultInput=$('gameResult');
 const saveBtn=$('saveBtn'), resetBtn=$('resetBtn'), addInningBtn=$('addInningBtn'), removeInningBtn=$('removeInningBtn'), addPitcherBtn=$('addPitcherBtn');
-const battersBody=$('battersBody'), pitchersBody=$('pitchersBody'), inningHead=$('inningHead'), inningBody=$('inningBody'), lineupNotice=$('lineupNotice'), currentInningInput=$('currentInning'), currentHalfInput=$('currentHalf'), inningGuide=$('inningGuide');
+const battersBody=$('battersBody'), pitchersBody=$('pitchersBody'), inningHead=$('inningHead'), inningBody=$('inningBody'), lineupNotice=$('lineupNotice'), inningGuide=$('inningGuide');
 let currentUserData=null, currentEditId=null, sheets=[], batterRowCounter=0, pitcherRowCounter=0, inningCount=9;
 
 checkLogin((user,userData)=>{ currentUserData=userData; if(!isStaff(userData)){ alert('기록지는 관리자 또는 기록원만 접근할 수 있습니다.'); location.href='record.html'; return; } init(); });
 function today(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`}
 function lineupId(){return `${gameTypeInput.value}_${gameDateInput.value}`}
-function renderCurrentInningOptions(){if(!currentInningInput)return;const prev=currentInningInput.value||'1';currentInningInput.innerHTML='';for(let i=1;i<=inningCount;i++){const opt=document.createElement('option');opt.value=String(i);opt.textContent=`${i}회`;currentInningInput.appendChild(opt)}currentInningInput.value=Number(prev)<=inningCount?prev:String(inningCount)}
 function getTopTeamLabel(){return homeAwayInput.value==='원정'?'우리팀 (초)':'상대팀 (초)'}
 function getBottomTeamLabel(){return homeAwayInput.value==='원정'?'상대팀 (말)':'우리팀 (말)'}
-function updateInningGuide(){if(!inningGuide)return;inningGuide.textContent=homeAwayInput.value==='원정'?'원정: 우리는 초 공격, 상대팀은 말 공격입니다. 득점은 우리팀 초, 실점은 상대팀 말에 자동 반영됩니다.':'홈: 상대팀은 초 공격, 우리는 말 공격입니다. 실점은 상대팀 초, 득점은 우리팀 말에 자동 반영됩니다.'}
-function renderInningTable(away=[],home=[]){let h='<tr><th>공격 순서</th>';for(let i=1;i<=inningCount;i++)h+=`<th>${i}</th>`;h+='</tr>';inningHead.innerHTML=h;let a=`<tr><th>${getTopTeamLabel()}</th>`, m=`<tr><th>${getBottomTeamLabel()}</th>`;for(let i=1;i<=inningCount;i++){a+=`<td><input id="away${i}" value="${away[i-1]||''}"></td>`;m+=`<td><input id="home${i}" value="${home[i-1]||''}"></td>`}inningBody.innerHTML=a+'</tr>'+m+'</tr>';renderCurrentInningOptions();updateInningGuide()}
+function updateInningGuide(){if(!inningGuide)return;inningGuide.textContent=homeAwayInput.value==='원정'?'원정: 우리는 초 공격, 상대팀은 말 공격입니다. 타자 득점은 우리팀 초 이닝에, 투수 실점은 상대팀 말 이닝에 자동 반영됩니다.':'홈: 상대팀은 초 공격, 우리는 말 공격입니다. 투수 실점은 상대팀 초 이닝에, 타자 득점은 우리팀 말 이닝에 자동 반영됩니다.'}
+function renderInningTable(away=[],home=[]){let h='<tr><th>공격 순서</th>';for(let i=1;i<=inningCount;i++)h+=`<th>${i}</th>`;h+='</tr>';inningHead.innerHTML=h;let a=`<tr><th>${getTopTeamLabel()}</th>`, m=`<tr><th>${getBottomTeamLabel()}</th>`;for(let i=1;i<=inningCount;i++){a+=`<td><input id="away${i}" value="${away[i-1]||''}"></td>`;m+=`<td><input id="home${i}" value="${home[i-1]||''}"></td>`}inningBody.innerHTML=a+'</tr>'+m+'</tr>';updateInningGuide()}
 function rowPrefixForTeam(team){if(team==='our')return homeAwayInput.value==='원정'?'away':'home';if(team==='opponent')return homeAwayInput.value==='원정'?'home':'away';return team}
-function halfForTeam(team){if(team==='our')return homeAwayInput.value==='원정'?'초':'말';if(team==='opponent')return homeAwayInput.value==='원정'?'말':'초';return currentHalfInput?.value||'초'}
-function addScore(team,amount=1){const inning=Number(currentInningInput?.value)||1;const prefix=rowPrefixForTeam(team);const target=$(`${prefix}${inning}`);if(!target)return;target.value=Math.max(0,(Number(target.value)||0)+amount);if(currentHalfInput&&(team==='our'||team==='opponent'))currentHalfInput.value=halfForTeam(team)}
-function updateCurrentInningByPitcherOuts(id){const outs=pVal(id,'inningOuts');if(!currentInningInput||!currentHalfInput)return;let inning=1,half='초';if(homeAwayInput.value==='원정'){if(outs===0){inning=1;half='초'}else if(outs%3===0){inning=Math.floor(outs/3)+1;half='초'}else{inning=Math.floor(outs/3)+1;half='말'}}else{if(outs===0){inning=1;half='초'}else if(outs%3===0){inning=Math.max(1,Math.floor(outs/3));half='말'}else{inning=Math.floor(outs/3)+1;half='초'}}if(inning>inningCount)inning=inningCount;currentInningInput.value=String(inning);currentHalfInput.value=half}
+function getTotalDefensiveOuts(){return [...pitchersBody.querySelectorAll('.pitcher-player-card')].reduce((sum,row)=>{const id=row.dataset.pitcherRowId;return sum+pVal(id,'inningOuts')},0)}
+function ensureInningExists(inning){while(inning>inningCount){const a=getInningRow('away'),h=getInningRow('home');inningCount++;renderInningTable(a,h)}}
+function getAutoScoreInning(team){const defensiveOuts=getTotalDefensiveOuts();if(team==='opponent')return Math.floor(defensiveOuts/3)+1;if(homeAwayInput.value==='원정')return Math.floor(defensiveOuts/3)+1;return Math.max(1,Math.floor(defensiveOuts/3))}
+function addScore(team,amount=1){const inning=getAutoScoreInning(team);ensureInningExists(inning);const prefix=rowPrefixForTeam(team);const target=$(`${prefix}${inning}`);if(!target)return;target.value=Math.max(0,(Number(target.value)||0)+amount)}
+function updateCurrentInningByPitcherOuts(id){const nextInning=Math.floor(getTotalDefensiveOuts()/3)+1;ensureInningExists(nextInning)}
 function getInningRow(prefix){return Array.from({length:inningCount},(_,i)=>$(`${prefix}${i+1}`).value.trim())}
 function tokenClass(v){if(['삼진','뜬공','땅볼','병살'].includes(v))return'out';if(['타점','득점','도루'].includes(v))return'plus';if(['볼넷','고의사구','주루사','실책'].includes(v))return'warn';return'hit'}
 function known(v){return ['안타','1루타','2루타','3루타','홈런','삼진','뜬공','땅볼','병살','볼넷','고의사구','타점','득점','주루사','도루','실책'].includes(v)}
@@ -116,7 +102,7 @@ function createPitchers(){pitchersBody.innerHTML='';pitcherRowCounter=0;pitchers
 function getBatters(){return[...battersBody.querySelectorAll('.batter-player-card')].map(row=>{const id=row.dataset.rowId,record=getRecordText(id),s=batterStats(record);return{order:$(`b_order_${id}`).value.trim(),name:$(`b_name_${id}`).value.trim(),position:getPositions(id),record,isSub:row.classList.contains('sub-row'),stats:{ab:s.ab,h:s.h,double:s.double,triple:s.triple,hr:s.hr,rbi:s.rbi,r:s.r,so:s.so,runout:s.runout,sb:s.sb,bb:s.bb,ibb:s.ibb}}}).filter(x=>x.name||x.position.length||x.record)}
 function getPitchers(){return[...pitchersBody.querySelectorAll('.pitcher-player-card')].map(row=>{const id=row.dataset.pitcherRowId;return{name:$(`p_name_${id}`).value.trim(),decision:$(`p_decision_${id}`).value.trim(),inning:$(`p_inning_${id}`).value.trim(),runs:$(`p_runs_${id}`).value.trim(),er:$(`p_er_${id}`).value.trim(),hits:$(`p_hits_${id}`).value.trim(),hr:$(`p_hr_${id}`).value.trim(),so:$(`p_so_${id}`).value.trim(),bb:$(`p_bb_${id}`).value.trim(),era:$(`p_era_${id}`).textContent}}).filter(x=>x.name)}
 async function loadLineup(){if(!gameDateInput.value||currentEditId)return;const snap=await getDoc(doc(db,'lineups',lineupId()));if(!snap.exists()){lineupNotice.textContent='해당 경기 종류/날짜로 저장된 라인업이 없습니다.';return}const l=snap.data();createBatters();(l.players||[]).forEach((p,i)=>{const row=battersBody.querySelectorAll('.batter-player-card')[i];if(!row)return;const id=row.dataset.rowId;$(`b_order_${id}`).value=p.order||i+1;$(`b_name_${id}`).value=p.name||'';setPositions(id,p.position||'')});createPitchers();if(l.pitcher){const id=pitchersBody.querySelector('.pitcher-player-card').dataset.pitcherRowId;$(`p_name_${id}`).value=l.pitcher}if(l.opponent&&!opponentInput.value)opponentInput.value=l.opponent;lineupNotice.textContent=`라인업 불러오기 완료: ${gameTypeInput.value} / ${gameDateInput.value}`}
-function resetForm(){currentEditId=null;gameTypeInput.value='연습경기';gameDateInput.value=today();gameTimeInput.value='';opponentInput.value='';homeAwayInput.value='';finalScoreInput.value='';gameResultInput.value='';inningCount=9;renderInningTable();if(currentInningInput)currentInningInput.value='1';if(currentHalfInput)currentHalfInput.value='초';createBatters();createPitchers();saveBtn.textContent='저장';loadLineup()}
+function resetForm(){currentEditId=null;gameTypeInput.value='연습경기';gameDateInput.value=today();gameTimeInput.value='';opponentInput.value='';homeAwayInput.value='';finalScoreInput.value='';gameResultInput.value='';inningCount=9;renderInningTable();createBatters();createPitchers();saveBtn.textContent='저장';loadLineup()}
 function buildSummary(data){return `${data.gameType||'연습경기'} / ${data.homeAway||'-'} / ${data.finalScore||'-'} / ${data.gameResult||'-'}`}async function syncRecord(id,data){await setDoc(doc(db,'records',id),{gameType:data.gameType,date:data.gameDate,opponent:data.opponent,result:data.gameResult==='승리'?'승':data.gameResult==='패배'?'패':'무',score:data.finalScore,memo:buildSummary(data),updatedAt:Date.now(),createdAt:data.createdAt})}
 async function saveSheet(){const now=Date.now(),header=Array.from({length:inningCount},(_,i)=>String(i+1));const data={gameType:gameTypeInput.value,gameDate:gameDateInput.value.trim(),gameTime:gameTimeInput.value.trim(),opponent:opponentInput.value.trim(),homeAway:homeAwayInput.value,finalScore:finalScoreInput.value.trim(),gameResult:gameResultInput.value,innings:{header,away:getInningRow('away'),home:getInningRow('home')},batters:getBatters(),pitchers:getPitchers(),createdBy:currentUserData?.nickname||'',updatedAt:now};if(!data.gameDate||!data.opponent||!data.finalScore||!data.gameResult){alert('경기 날짜, 상대팀, 최종 스코어, 결과는 꼭 입력해주세요.');return}saveBtn.disabled=true;try{if(currentEditId){await updateDoc(doc(db,'scoresheets',currentEditId),data);await syncRecord(currentEditId,{...data,createdAt:now});alert('기록지 수정 완료!')}else{const added=await addDoc(collection(db,'scoresheets'),{...data,createdAt:now});await syncRecord(added.id,{...data,createdAt:now});alert('기록지 저장 완료!')}resetForm()}catch(e){console.error(e);alert('기록지 저장 중 오류가 발생했습니다.')}finally{saveBtn.disabled=false;saveBtn.textContent='저장'}}
 function fillForm(s){gameTypeInput.value=s.gameType||'연습경기';gameDateInput.value=s.gameDate||'';gameTimeInput.value=s.gameTime||'';opponentInput.value=s.opponent||'';homeAwayInput.value=s.homeAway||'';finalScoreInput.value=s.finalScore||'';gameResultInput.value=s.gameResult||'';inningCount=(s.innings?.header||['1','2','3','4','5','6','7','8','9']).length;renderInningTable(s.innings?.away||[],s.innings?.home||[]);battersBody.innerHTML='';batterRowCounter=0;(s.batters||[]).forEach(b=>battersBody.appendChild(createBatterRow({order:b.order,name:b.name,position:b.position,record:b.record,isSub:b.isSub})));if(!battersBody.children.length)createBatters();pitchersBody.innerHTML='';pitcherRowCounter=0;(s.pitchers||[]).forEach(p=>pitchersBody.appendChild(createPitcherRow(p)));if(!pitchersBody.children.length)createPitchers();refreshDeletes()}
