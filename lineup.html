@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>라인업 작성</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>라인업</title>
   <link rel="stylesheet" href="styles.css">
   <style>
     .lineup-wrap{width:95%;max-width:1100px;margin:34px auto}
@@ -14,9 +15,9 @@
     .cell-input{margin:0;padding:8px 10px;text-align:center}
     .lineup-table-wrap{overflow-x:auto;margin-top:18px}
     .lineup-table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}
-    .lineup-table th,.lineup-table td{border:1px solid #ddd;padding:8px;text-align:center}
+    .lineup-table th,.lineup-table td{border:1px solid #ddd;padding:8px;text-align:center;vertical-align:top}
     .lineup-table th{background:#f7f7f7}
-    .lineup-btn{padding:11px 18px;border-radius:10px;border:none;background:#111;color:#fff;cursor:pointer;margin-right:8px;margin-top:12px}
+    .lineup-btn{padding:11px 18px;border-radius:10px;border:none;background:#111;color:#fff;cursor:pointer;margin-right:8px;margin-top:12px;font-weight:700}
     .menu-clean{display:flex;flex-wrap:wrap;gap:12px;padding:16px 0 0}
     .menu-clean a{text-decoration:none;padding:10px 14px;border-radius:14px;background:#fff;border:1px solid #d6d6d6;font-size:18px}
     .saved-box{background:#f8f8f8;border-left:6px solid #1b65ba;border-radius:14px;padding:16px;margin-top:12px}
@@ -30,6 +31,16 @@
     .detail-box{display:none;margin-top:14px;background:#fff;border:1px solid #ddd;border-radius:12px;padding:12px}
     .detail-box.show{display:block}
     .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#e8f1ff;color:#1b65ba;font-size:13px;font-weight:700;margin-right:6px}
+    .hidden{display:none!important}
+    .today-card{border-left-color:#0a7a2f;background:#f7fff9}
+    .today-label{display:inline-block;padding:5px 11px;border-radius:999px;background:#eaf8ef;color:#0a7a2f;font-size:13px;font-weight:800;margin-bottom:8px}
+    .name-cell{position:relative}
+    .suggest-box{position:absolute;left:8px;right:8px;top:45px;background:#fff;border:1px solid #cfd7e3;border-radius:12px;box-shadow:0 8px 18px rgba(0,0,0,.12);z-index:20;max-height:210px;overflow-y:auto;text-align:left;padding:6px;display:none}
+    .suggest-box.show{display:block}
+    .suggest-item{padding:9px 10px;border-radius:9px;cursor:pointer;font-size:14px}
+    .suggest-item:hover{background:#eef3ff;color:#1b65ba;font-weight:700}
+    .role-note{margin-top:10px;padding:12px;border-radius:12px;background:#f5f7fb;color:#555;font-size:14px}
+    @media(max-width:700px){.card-title{font-size:28px}.lineup-table{min-width:620px}.lineup-card{padding:18px}}
   </style>
 </head>
 <body>
@@ -41,14 +52,21 @@
     <div class="menu-clean">
       <a href="lineup.html">라인업</a>
       <a href="record.html">기록실</a>
-      <a href="scoresheet.html">기록지</a>
+      <a id="scoresheetMenu" class="hidden" href="scoresheet.html">기록지</a>
       <a href="mypage.html">마이페이지</a>
     </div>
   </div>
 
   <div class="lineup-wrap">
     <div class="lineup-card">
+      <div class="card-title">오늘의 라인업</div>
+      <p class="lineup-note">오늘 날짜로 저장된 라인업을 확인할 수 있습니다.</p>
+      <div id="todayLineupList"><p class="empty-text">오늘의 라인업을 불러오는 중...</p></div>
+    </div>
+
+    <div id="editorCard" class="lineup-card hidden">
       <div class="card-title">라인업 작성</div>
+      <p class="lineup-note">선수명 칸을 누르면 회원가입한 닉네임이 뜨고, 한 글자를 입력하면 앞글자가 같은 선수만 표시됩니다.</p>
 
       <div class="lineup-grid">
         <div>
@@ -64,11 +82,12 @@
         </div>
         <div>
           <label for="opponent">상대팀</label>
-          <input id="opponent" class="lineup-input">
+          <input id="opponent" class="lineup-input" placeholder="예: 오버드라이브">
         </div>
-        <div>
+        <div class="name-cell">
           <label for="starterPitcher">선발 투수</label>
-          <input id="starterPitcher" class="lineup-input">
+          <input id="starterPitcher" class="lineup-input player-name-input" placeholder="예: FlaneY2111" autocomplete="off">
+          <div id="starterPitcherSuggest" class="suggest-box"></div>
         </div>
       </div>
 
@@ -85,8 +104,9 @@
       <button id="resetLineupBtn" class="lineup-btn">초기화</button>
     </div>
 
-    <div class="lineup-card">
+    <div id="savedCard" class="lineup-card hidden">
       <div class="card-title">저장된 라인업</div>
+      <p class="lineup-note">날짜/경기종류 글씨나 선택 버튼을 누르면 상세 라인업지가 열립니다.</p>
       <div id="lineupList"><p class="empty-text">라인업을 불러오는 중...</p></div>
     </div>
   </div>
@@ -94,7 +114,9 @@
   <script type="module">
     import { db } from "./firebase-config.js";
     import { checkLogin, isStaff } from "./auth.js";
-    import { doc, setDoc, deleteDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { doc, setDoc, deleteDoc, collection, getDocs, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const POSITIONS = ["SP", "C", "1B", "2B", "SS", "3B", "RF", "CF", "LF"];
 
     const gameTypeInput = document.getElementById("gameType");
     const lineupDateInput = document.getElementById("lineupDate");
@@ -102,17 +124,29 @@
     const starterPitcherInput = document.getElementById("starterPitcher");
     const lineupBody = document.getElementById("lineupBody");
     const lineupList = document.getElementById("lineupList");
+    const todayLineupList = document.getElementById("todayLineupList");
+    const editorCard = document.getElementById("editorCard");
+    const savedCard = document.getElementById("savedCard");
+    const scoresheetMenu = document.getElementById("scoresheetMenu");
 
     let currentUserData = null;
+    let canEditLineup = false;
+    let allPlayers = [];
+    let allLineups = [];
 
-    checkLogin((user, userData) => {
+    checkLogin(async (user, userData) => {
       currentUserData = userData;
-      if (!isStaff(userData)) {
-        alert("라인업 작성은 관리자 또는 기록원만 가능합니다.");
-        location.href = "index.html";
-        return;
+      canEditLineup = isStaff(userData);
+
+      if (canEditLineup) {
+        editorCard.classList.remove("hidden");
+        savedCard.classList.remove("hidden");
+        scoresheetMenu.classList.remove("hidden");
       }
+
+      await loadPlayerNames();
       init();
+      listenLineups();
     });
 
     function getDefaultDate() {
@@ -124,6 +158,64 @@
       return `${gameType}_${date}`;
     }
 
+    async function loadPlayerNames() {
+      const snap = await getDocs(collection(db, "users"));
+      allPlayers = [];
+      snap.forEach((docu) => {
+        const u = docu.data();
+        if (u.approved && u.nickname) allPlayers.push(u.nickname);
+      });
+      allPlayers = [...new Set(allPlayers)].sort((a, b) => a.localeCompare(b));
+    }
+
+    function getMatchedPlayers(keyword) {
+      const key = String(keyword || "").trim().toLowerCase();
+      if (!key) return allPlayers;
+      return allPlayers.filter(name => name.toLowerCase().startsWith(key));
+    }
+
+    function attachAutocomplete(input, suggestBox) {
+      function render() {
+        const matched = getMatchedPlayers(input.value);
+        suggestBox.innerHTML = "";
+
+        if (matched.length === 0) {
+          suggestBox.innerHTML = `<div class="suggest-item">일치하는 선수가 없습니다</div>`;
+          suggestBox.classList.add("show");
+          return;
+        }
+
+        matched.slice(0, 20).forEach((name) => {
+          const item = document.createElement("div");
+          item.className = "suggest-item";
+          item.textContent = name;
+          item.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            input.value = name;
+            suggestBox.classList.remove("show");
+          });
+          suggestBox.appendChild(item);
+        });
+
+        suggestBox.classList.add("show");
+      }
+
+      input.addEventListener("focus", render);
+      input.addEventListener("input", render);
+      input.addEventListener("blur", () => {
+        setTimeout(() => suggestBox.classList.remove("show"), 150);
+      });
+    }
+
+    function positionSelectHtml(id, value = "") {
+      return `
+        <select class="cell-input" id="pos${id}">
+          <option value="">선택</option>
+          ${POSITIONS.map(pos => `<option value="${pos}" ${pos === value ? "selected" : ""}>${pos}</option>`).join("")}
+        </select>
+      `;
+    }
+
     function renderRows(players = []) {
       lineupBody.innerHTML = "";
       for (let i = 1; i <= 9; i++) {
@@ -131,11 +223,16 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td><input class="cell-input" id="order${i}" value="${p.order || i}"></td>
-          <td><input class="cell-input" id="name${i}" value="${p.name || ""}"></td>
-          <td><input class="cell-input" id="pos${i}" value="${p.position || ""}"></td>
+          <td class="name-cell">
+            <input class="cell-input player-name-input" id="name${i}" value="${p.name || ""}" placeholder="선수명" autocomplete="off">
+            <div id="suggest${i}" class="suggest-box"></div>
+          </td>
+          <td>${positionSelectHtml(i, p.position || "")}</td>
         `;
         lineupBody.appendChild(tr);
+        attachAutocomplete(document.getElementById(`name${i}`), document.getElementById(`suggest${i}`));
       }
+      attachAutocomplete(starterPitcherInput, document.getElementById("starterPitcherSuggest"));
     }
 
     function getPlayers() {
@@ -150,11 +247,13 @@
       return players;
     }
 
-    document.getElementById("saveLineupBtn").addEventListener("click", async () => {
+    document.getElementById("saveLineupBtn")?.addEventListener("click", async () => {
+      if (!canEditLineup) return;
+
       const gameType = gameTypeInput.value;
       const date = lineupDateInput.value;
       if (!date) {
-        alert("경기 날짜를 선택해주세요.");
+        alert("경기 날짜를 선택해줘.");
         return;
       }
 
@@ -172,7 +271,8 @@
       alert("라인업 저장 완료!");
     });
 
-    document.getElementById("resetLineupBtn").addEventListener("click", () => {
+    document.getElementById("resetLineupBtn")?.addEventListener("click", () => {
+      if (!canEditLineup) return;
       gameTypeInput.value = "연습경기";
       lineupDateInput.value = getDefaultDate();
       opponentInput.value = "";
@@ -187,67 +287,108 @@
     };
 
     window.deleteLineup = async function(id) {
+      if (!canEditLineup) return;
       if (!confirm("이 라인업을 삭제할까요?")) return;
       await deleteDoc(doc(db, "lineups", id));
       alert("삭제 완료");
     };
 
-    const lineupQuery = query(collection(db, "lineups"), orderBy("updatedAt", "desc"));
+    function makeLineupBox(docId, lineup, isToday = false) {
+      const box = document.createElement("div");
+      box.className = `saved-box ${isToday ? "today-card" : ""}`;
 
-    onSnapshot(lineupQuery, (snapshot) => {
+      const playersHtml = (lineup.players || []).map(p => `
+        <tr>
+          <td>${p.order || ""}</td>
+          <td>${p.name || ""}</td>
+          <td>${p.position || ""}</td>
+        </tr>
+      `).join("");
+
+      box.innerHTML = `
+        ${isToday ? `<div class="today-label">오늘의 라인업</div>` : ""}
+        <div class="saved-top">
+          <div class="saved-title" onclick="toggleLineupDetail('${docId}')">
+            <span class="badge">${lineup.gameType || "-"}</span>
+            ${lineup.date || "-"}<br>
+            <span style="font-size:15px;font-weight:500;color:#666;">상대팀: ${lineup.opponent || "-"} / 선발투수: ${lineup.pitcher || "-"}</span>
+          </div>
+          <div class="saved-actions">
+            <button class="small-btn sub" onclick="toggleLineupDetail('${docId}')">선택</button>
+            ${canEditLineup ? `<button class="small-btn delete" onclick="deleteLineup('${docId}')">삭제</button>` : ""}
+          </div>
+        </div>
+
+        <div id="detail_${docId}" class="detail-box ${isToday ? "show" : ""}">
+          <h3>상세 라인업지</h3>
+          <p><strong>경기 종류:</strong> ${lineup.gameType || "-"}</p>
+          <p><strong>날짜:</strong> ${lineup.date || "-"}</p>
+          <p><strong>상대팀:</strong> ${lineup.opponent || "-"}</p>
+          <p><strong>선발투수:</strong> ${lineup.pitcher || "-"}</p>
+          <div class="lineup-table-wrap">
+            <table class="lineup-table">
+              <thead><tr><th>타순</th><th>선수명</th><th>포지션</th></tr></thead>
+              <tbody>${playersHtml}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      return box;
+    }
+
+    function renderTodayLineups() {
+      const today = getDefaultDate();
+      const todayItems = allLineups.filter(item => item.data.date === today);
+      todayLineupList.innerHTML = "";
+
+      if (todayItems.length === 0) {
+        todayLineupList.innerHTML = `<p class="empty-text">오늘 저장된 라인업이 없습니다.</p>`;
+        return;
+      }
+
+      todayItems.forEach(item => {
+        todayLineupList.appendChild(makeLineupBox(`today_${item.id}`, item.data, true));
+      });
+    }
+
+    function renderSavedLineups() {
+      if (!canEditLineup) return;
+
       lineupList.innerHTML = "";
-      if (snapshot.empty) {
+      if (allLineups.length === 0) {
         lineupList.innerHTML = `<p class="empty-text">저장된 라인업이 없습니다.</p>`;
         return;
       }
 
-      snapshot.forEach((docu) => {
-        const l = docu.data();
-        const box = document.createElement("div");
-        box.className = "saved-box";
-
-        const playersHtml = (l.players || []).map(p => `
-          <tr>
-            <td>${p.order || ""}</td>
-            <td>${p.name || ""}</td>
-            <td>${p.position || ""}</td>
-          </tr>
-        `).join("");
-
-        box.innerHTML = `
-          <div class="saved-top">
-            <div class="saved-title" onclick="toggleLineupDetail('${docu.id}')">
-              <span class="badge">${l.gameType || "-"}</span>
-              ${l.date || "-"}<br>
-              <span style="font-size:15px;font-weight:500;color:#666;">상대팀: ${l.opponent || "-"} / 선발투수: ${l.pitcher || "-"}</span>
-            </div>
-            <div class="saved-actions">
-              <button class="small-btn sub" onclick="toggleLineupDetail('${docu.id}')">선택</button>
-              <button class="small-btn delete" onclick="deleteLineup('${docu.id}')">삭제</button>
-            </div>
-          </div>
-
-          <div id="detail_${docu.id}" class="detail-box">
-            <h3>상세 라인업지</h3>
-            <p><strong>경기 종류:</strong> ${l.gameType || "-"}</p>
-            <p><strong>날짜:</strong> ${l.date || "-"}</p>
-            <p><strong>상대팀:</strong> ${l.opponent || "-"}</p>
-            <p><strong>선발투수:</strong> ${l.pitcher || "-"}</p>
-            <div class="lineup-table-wrap">
-              <table class="lineup-table">
-                <thead><tr><th>타순</th><th>선수명</th><th>포지션</th></tr></thead>
-                <tbody>${playersHtml}</tbody>
-              </table>
-            </div>
-          </div>
-        `;
-        lineupList.appendChild(box);
+      allLineups.forEach(item => {
+        lineupList.appendChild(makeLineupBox(item.id, item.data, false));
       });
-    });
+    }
+
+    function listenLineups() {
+      const lineupQuery = query(collection(db, "lineups"), orderBy("updatedAt", "desc"));
+
+      onSnapshot(lineupQuery, (snapshot) => {
+        allLineups = [];
+        snapshot.forEach((docu) => {
+          allLineups.push({ id: docu.id, data: docu.data() });
+        });
+
+        renderTodayLineups();
+        renderSavedLineups();
+      }, (error) => {
+        console.error(error);
+        todayLineupList.innerHTML = `<p class="empty-text">라인업을 불러오지 못했습니다.</p>`;
+        if (canEditLineup) lineupList.innerHTML = `<p class="empty-text">라인업을 불러오지 못했습니다.</p>`;
+      });
+    }
 
     function init() {
-      lineupDateInput.value = getDefaultDate();
-      renderRows();
+      if (canEditLineup) {
+        lineupDateInput.value = getDefaultDate();
+        renderRows();
+      }
     }
   </script>
 </body>
