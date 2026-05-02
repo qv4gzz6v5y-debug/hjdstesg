@@ -42,11 +42,7 @@
 
       <p id="inningGuide" class="sheet-note">홈/원정을 선택하면 초·말 공격 순서에 맞춰 득점/실점이 이닝 점수에 자동 반영됩니다.</p>
 
-      <div id="inningSection">
-      <div class="section-title">이닝 점수</div>
-      <div class="inning-actions"><button type="button" id="addInningBtn" class="sheet-btn sub">연장 이닝 추가</button><button type="button" id="removeInningBtn" class="sheet-btn sub">마지막 이닝 삭제</button></div>
-      <div class="inning-table-wrap"><table class="inning-table"><thead id="inningHead"></thead><tbody id="inningBody"></tbody></table></div>
-      </div>
+      
 
       <div class="record-section-tabs">
         <button type="button" class="record-section-tab active" data-section="all">전체</button>
@@ -55,7 +51,13 @@
         <button type="button" class="record-section-tab" data-section="pitchers">투수 기록</button>
       </div>
 
-      <div id="battersSection">
+      
+      <div id="inningSection">
+      <div class="section-title">이닝 점수</div>
+      <div class="inning-actions"><button type="button" id="addInningBtn" class="sheet-btn sub">연장 이닝 추가</button><button type="button" id="removeInningBtn" class="sheet-btn sub">마지막 이닝 삭제</button></div>
+      <div class="inning-table-wrap"><table class="inning-table"><thead id="inningHead"></thead><tbody id="inningBody"></tbody></table></div>
+      </div>
+<div id="battersSection">
         <div class="section-title">타자 기록</div>
         <div id="battersBody" class="player-list"></div>
       </div>
