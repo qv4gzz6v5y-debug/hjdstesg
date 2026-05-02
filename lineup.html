@@ -190,8 +190,16 @@
       const opponent=opponentInput.value.trim(), pitcher=startingPitcherInput.value.trim(), players=getPlayersFromEditor();
       if(!gameDate||!gameTime||!opponent){alert("경기 날짜, 시간, 상대팀은 꼭 입력해줘.");return;}
       const id=lineupId(gameType,gameDate,gameTime);
-      await setDoc(doc(db,"lineups",id),{id,gameType,gameDate,gameTime,opponent,pitcher,players,updatedAt:Date.now()});
-      alert("라인업 저장 완료!");
+      const data={id,gameType,gameDate,gameTime,opponent,pitcher,players,updatedAt:Date.now()};
+
+      if(currentEditId && currentEditId !== id){
+        await setDoc(doc(db,"lineups",id),data);
+        await deleteDoc(doc(db,"lineups",currentEditId));
+      } else {
+        await setDoc(doc(db,"lineups",id),data);
+      }
+
+      alert(currentEditId ? "라인업 수정 완료!" : "라인업 저장 완료!");
       currentEditId=id;
       await loadTodayLineup();
     }
