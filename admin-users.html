@@ -6,172 +6,203 @@
   <title>회원 승인 관리</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    .admin-wrap { width:min(950px, calc(100% - 28px)); margin:34px auto; }
-    .admin-card { background:white; border-radius:22px; padding:24px; box-shadow:0 8px 20px rgba(0,0,0,.06); margin-bottom:20px; }
-    .card-title { font-size:34px; font-weight:900; margin-bottom:12px; }
-    .note { color:#666; line-height:1.6; }
-    .user-box { background:#f8f8f8; border:1px solid #e5e9f0; border-radius:16px; padding:16px; margin-top:12px; }
-    .user-top { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; }
-    .user-name { font-size:20px; font-weight:900; }
-    .role-badge { display:inline-block; border-radius:999px; padding:5px 10px; background:#e8f1ff; color:#1b65ba; font-size:13px; font-weight:900; }
-    .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-    .btn { border:none; border-radius:12px; padding:10px 14px; background:#1b65ba; color:white; font-weight:900; cursor:pointer; text-decoration:none; display:inline-block; }
-    .btn.sub { background:#666; }
-    .btn.green { background:#198754; }
-    .btn.orange { background:#c26b00; }
-    .btn.danger { background:#b00020; }
-    .hidden { display:none!important; }
+    .admin-wrap{width:95%;max-width:1200px;margin:34px auto}
+    .admin-card{background:#fff;border-radius:22px;padding:24px;box-shadow:0 10px 24px rgba(0,0,0,.06);margin-bottom:22px}
+    .card-title{font-size:34px;font-weight:900;margin-bottom:12px}
+    .note{color:#666;line-height:1.6}
+    .user-table-wrap{overflow-x:auto}
+    .user-table{width:100%;border-collapse:separate;border-spacing:0;min-width:920px;border:1px solid #e1e6ee;border-radius:16px;overflow:hidden}
+    .user-table th,.user-table td{border-right:1px solid #e1e6ee;border-bottom:1px solid #e1e6ee;padding:11px 12px;text-align:center;white-space:nowrap}
+    .user-table th{background:#f6f8fb;font-weight:900}
+    .user-table tr:last-child td{border-bottom:none}.user-table th:last-child,.user-table td:last-child{border-right:none}
+    .name{text-align:left!important;font-weight:900}
+    .badge{display:inline-block;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900;background:#eef3ff;color:#1b65ba}
+    .badge.pending{background:#fff3e8;color:#c26b00}
+    .badge.out{background:#f1f3f5;color:#666}
+    .badge.merc{background:#fff0f0;color:#b00020}
+    .btn{border:none;border-radius:10px;padding:8px 11px;font-weight:900;cursor:pointer;margin:2px;background:#1b65ba;color:#fff}
+    .btn.gray{background:#666}.btn.red{background:#b00020}.btn.dark{background:#111}.btn.green{background:#198754}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+    .hidden{display:none!important}
+    select{padding:8px 10px;border-radius:10px;border:1px solid #ccd5e0}
   </style>
 </head>
 <body>
-  <div class="admin-wrap">
-    <div class="admin-card">
-      <div class="card-title">회원 승인 관리</div>
-      <p id="adminNote" class="note">회원가입 신청한 유저를 승인하거나 거절할 수 있습니다.</p>
-      <a class="btn sub" href="index.html">메인으로</a>
-    </div>
-
-    <div class="admin-card">
-      <div class="card-title">승인 대기 유저</div>
-      <div id="pendingUsers"><p class="note">불러오는 중...</p></div>
-    </div>
-
-    <div id="roleManageCard" class="admin-card hidden">
-      <div class="card-title">기록원 권한 관리</div>
-      <p class="note">이 권한은 owner/super_admin만 변경할 수 있습니다.</p>
-      <div id="approvedUsers"><p class="note">불러오는 중...</p></div>
+  <div class="wrap">
+    <div class="top-title"><h1>레이 마린스</h1><a class="top-link" href="index.html">메인으로</a></div>
+    <div class="menu">
+      <a href="lineup.html">라인업</a>
+      <a href="record.html">기록실</a>
+      <a href="scoresheet.html">기록지</a>
+      <a href="mypage.html">마이페이지</a>
     </div>
   </div>
 
-  <script type="module">
-    import { db } from "./firebase-config.js";
-    import { checkLogin, isAdmin, isOwner } from "./auth.js";
-    import { collection, getDocs, query, where, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  <div class="admin-wrap">
+    <div class="admin-card">
+      <div class="card-title">회원 승인 관리</div>
+      <p class="note">
+        이 페이지는 <strong>구단주(owner/super_admin)만</strong> 볼 수 있습니다.<br>
+        승인 대기 유저, 승인된 선수, 제외 선수, 용병을 모두 등번호순으로 관리합니다.
+      </p>
 
-    const pendingUsers = document.getElementById("pendingUsers");
-    const approvedUsers = document.getElementById("approvedUsers");
-    const roleManageCard = document.getElementById("roleManageCard");
-    const adminNote = document.getElementById("adminNote");
+      <div class="controls">
+        <button id="allBtn" class="btn dark">전체</button>
+        <button id="pendingBtn" class="btn gray">승인 대기</button>
+        <button id="activeBtn" class="btn gray">활동 선수</button>
+        <button id="outBtn" class="btn gray">제외 선수</button>
+        <button id="mercBtn" class="btn gray">용병</button>
+      </div>
 
-    let me = null;
-    let ownerMode = false;
+      <div class="user-table-wrap">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>등번호</th>
+              <th>닉네임</th>
+              <th>상태</th>
+              <th>권한</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="userBody">
+            <tr><td colspan="5">불러오는 중...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-    checkLogin(async (user, userData) => {
-      me = userData;
-      ownerMode = isOwner(userData);
+<script type="module">
+import { db } from './firebase-config.js';
+import { checkLogin } from './auth.js';
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc
+} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
-      if (!isAdmin(userData)) {
-        alert("관리자만 접근할 수 있습니다.");
-        location.href = "index.html";
-        return;
-      }
+const userBody = document.getElementById('userBody');
+let users = [];
+let currentFilter = 'all';
 
-      if (ownerMode) {
-        roleManageCard.classList.remove("hidden");
-        adminNote.textContent = "회원 승인과 기록원 권한 관리를 할 수 있습니다.";
-      } else {
-        adminNote.textContent = "회원 승인만 가능합니다. 기록원 권한 변경은 owner만 가능합니다.";
-      }
+function isOwner(userData){
+  return userData && (userData.role === 'owner' || userData.role === 'super_admin');
+}
 
-      await loadPendingUsers();
-      if (ownerMode) await loadApprovedUsers();
-    });
+function numberValue(v){
+  const n = Number(String(v || '').replace(/[^0-9]/g,''));
+  return Number.isFinite(n) && n > 0 ? n : 9999;
+}
 
-    function roleName(role) {
-      if (role === "owner" || role === "super_admin") return "소유자";
-      if (role === "admin") return "관리자";
-      if (role === "scorer") return "기록원";
-      return "선수";
-    }
+function statusBadge(u){
+  if(!u.approved) return `<span class="badge pending">승인 대기</span>`;
+  if(u.mercenary) return `<span class="badge merc">용병</span>`;
+  if(u.active === false) return `<span class="badge out">제외</span>`;
+  return `<span class="badge">활동</span>`;
+}
 
-    async function loadPendingUsers() {
-      const q = query(collection(db, "users"), where("approved", "==", false));
-      const snap = await getDocs(q);
-      pendingUsers.innerHTML = "";
+function filteredUsers(){
+  return users.filter(u=>{
+    if(currentFilter === 'pending') return !u.approved;
+    if(currentFilter === 'active') return u.approved && u.active !== false && !u.mercenary;
+    if(currentFilter === 'out') return u.active === false;
+    if(currentFilter === 'merc') return !!u.mercenary;
+    return true;
+  });
+}
 
-      if (snap.empty) {
-        pendingUsers.innerHTML = `<p class="note">승인 대기 중인 유저가 없습니다.</p>`;
-        return;
-      }
+function renderUsers(){
+  const list = filteredUsers().sort((a,b)=>numberValue(a.number)-numberValue(b.number) || String(a.nickname||'').localeCompare(String(b.nickname||'')));
 
-      snap.forEach((docu) => {
-        const u = docu.data();
-        const box = document.createElement("div");
-        box.className = "user-box";
-        box.innerHTML = `
-          <div class="user-top">
-            <div class="user-name">${u.nickname || "-"} #${u.number || "-"}</div>
-            <span class="role-badge">${roleName(u.role)}</span>
-          </div>
-          <div class="actions">
-            <button class="btn green" onclick="approveUser('${docu.id}', 'player')">선수로 승인</button>
-            ${ownerMode ? `<button class="btn orange" onclick="approveUser('${docu.id}', 'scorer')">기록원으로 승인</button>` : ""}
-            <button class="btn danger" onclick="rejectUser('${docu.id}')">거절</button>
-          </div>
-        `;
-        pendingUsers.appendChild(box);
-      });
-    }
+  if(!list.length){
+    userBody.innerHTML = `<tr><td colspan="5">표시할 유저가 없습니다.</td></tr>`;
+    return;
+  }
 
-    async function loadApprovedUsers() {
-      const q = query(collection(db, "users"), where("approved", "==", true));
-      const snap = await getDocs(q);
-      approvedUsers.innerHTML = "";
+  userBody.innerHTML = list.map(u=>`
+    <tr>
+      <td>${u.number || '-'}</td>
+      <td class="name">${u.nickname || '-'}</td>
+      <td>${statusBadge(u)}</td>
+      <td>
+        <select onchange="changeRole('${u.id}', this.value)">
+          <option value="player" ${u.role === 'player' ? 'selected' : ''}>선수</option>
+          <option value="scorer" ${u.role === 'scorer' ? 'selected' : ''}>기록원</option>
+          <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>관리자</option>
+          <option value="owner" ${u.role === 'owner' || u.role === 'super_admin' ? 'selected' : ''}>구단주</option>
+        </select>
+      </td>
+      <td>
+        ${!u.approved ? `<button class="btn green" onclick="approveUser('${u.id}')">승인</button>` : ''}
+        ${u.active === false ? `<button class="btn" onclick="restoreUser('${u.id}')">복귀</button>` : `<button class="btn gray" onclick="outUser('${u.id}')">선수 제외</button>`}
+        ${u.mercenary ? `<button class="btn" onclick="unsetMerc('${u.id}')">용병 해제</button>` : `<button class="btn gray" onclick="setMerc('${u.id}')">용병 지정</button>`}
+        <button class="btn red" onclick="deleteUserDoc('${u.id}')">문서 삭제</button>
+      </td>
+    </tr>
+  `).join('');
+}
 
-      if (snap.empty) {
-        approvedUsers.innerHTML = `<p class="note">승인된 유저가 없습니다.</p>`;
-        return;
-      }
+async function loadUsers(){
+  const snap = await getDocs(collection(db,'users'));
+  users = [];
+  snap.forEach(d=>users.push({id:d.id, ...d.data()}));
+  renderUsers();
+}
 
-      snap.forEach((docu) => {
-        const u = docu.data();
-        const isSelf = u.uid === me.uid;
-        const protectedOwner = u.role === "owner" || u.role === "super_admin";
-        const box = document.createElement("div");
-        box.className = "user-box";
-        box.innerHTML = `
-          <div class="user-top">
-            <div class="user-name">${u.nickname || "-"} #${u.number || "-"}</div>
-            <span class="role-badge">${roleName(u.role)}</span>
-          </div>
-          <div class="actions">
-            <button class="btn green" ${protectedOwner ? "disabled" : ""} onclick="setRole('${docu.id}', 'player')">선수</button>
-            <button class="btn orange" ${protectedOwner ? "disabled" : ""} onclick="setRole('${docu.id}', 'scorer')">기록원</button>
-            <button class="btn" ${protectedOwner ? "disabled" : ""} onclick="setRole('${docu.id}', 'admin')">관리자</button>
-            ${isSelf ? `<span class="note">본인 계정</span>` : ""}
-          </div>
-        `;
-        approvedUsers.appendChild(box);
-      });
-    }
+window.approveUser = async (id)=>{
+  await updateDoc(doc(db,'users',id), {approved:true, active:true, mercenary:false});
+  await loadUsers();
+};
 
-    window.approveUser = async function(uid, role) {
-      if (role === "scorer" && !ownerMode) {
-        alert("기록원 권한은 소유자만 줄 수 있습니다.");
-        return;
-      }
-      await updateDoc(doc(db, "users", uid), { approved: true, role });
-      alert("승인 완료");
-      await loadPendingUsers();
-      if (ownerMode) await loadApprovedUsers();
-    };
+window.outUser = async (id)=>{
+  if(!confirm('이 선수를 라인업 자동완성과 타율 순위에서 제외할까요?')) return;
+  await updateDoc(doc(db,'users',id), {active:false});
+  await loadUsers();
+};
 
-    window.rejectUser = async function(uid) {
-      if (!confirm("이 유저를 거절할까요?")) return;
-      await deleteDoc(doc(db, "users", uid));
-      alert("거절 완료");
-      await loadPendingUsers();
-    };
+window.restoreUser = async (id)=>{
+  await updateDoc(doc(db,'users',id), {active:true});
+  await loadUsers();
+};
 
-    window.setRole = async function(uid, role) {
-      if (!ownerMode) {
-        alert("권한 변경은 소유자만 가능합니다.");
-        return;
-      }
-      await updateDoc(doc(db, "users", uid), { role });
-      alert("권한 변경 완료");
-      await loadApprovedUsers();
-    };
-  </script>
+window.setMerc = async (id)=>{
+  await updateDoc(doc(db,'users',id), {approved:true, active:true, mercenary:true});
+  await loadUsers();
+};
+
+window.unsetMerc = async (id)=>{
+  await updateDoc(doc(db,'users',id), {mercenary:false});
+  await loadUsers();
+};
+
+window.changeRole = async (id, role)=>{
+  await updateDoc(doc(db,'users',id), {role});
+  await loadUsers();
+};
+
+window.deleteUserDoc = async (id)=>{
+  if(!confirm('users 문서를 삭제할까요? Auth 계정 자체는 삭제되지 않을 수 있습니다.')) return;
+  await deleteDoc(doc(db,'users',id));
+  await loadUsers();
+};
+
+document.getElementById('allBtn').onclick=()=>{currentFilter='all';renderUsers()};
+document.getElementById('pendingBtn').onclick=()=>{currentFilter='pending';renderUsers()};
+document.getElementById('activeBtn').onclick=()=>{currentFilter='active';renderUsers()};
+document.getElementById('outBtn').onclick=()=>{currentFilter='out';renderUsers()};
+document.getElementById('mercBtn').onclick=()=>{currentFilter='merc';renderUsers()};
+
+checkLogin(async (user,userData)=>{
+  if(!isOwner(userData)){
+    alert('구단주만 접근할 수 있습니다.');
+    location.href='index.html';
+    return;
+  }
+  await loadUsers();
+});
+</script>
 </body>
 </html>
