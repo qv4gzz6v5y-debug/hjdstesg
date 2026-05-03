@@ -15,7 +15,61 @@
     .record-section-tab.active{background:#1b65ba;color:#fff}
 
     @media(max-width:1020px){.player-main,.pitcher-main{grid-template-columns:1fr}.card-actions{flex-direction:row;align-items:center}.quick-row{grid-template-columns:repeat(3,1fr)}.quick-row.pitcher,.pitcher-fields{grid-template-columns:repeat(2,1fr)}}@media(max-width:640px){.player-head,.pitcher-head{grid-template-columns:1fr}.quick-row,.quick-row.pitcher,.pitcher-fields,.stat-grid{grid-template-columns:repeat(2,1fr)}.sheet-card{padding:18px}.card-title{font-size:28px}}
-  </style>
+  
+/* ===== layout emergency fix ===== */
+.record-section-tabs{
+  position: static !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 24px 0 18px !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+.record-section-tab{
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 10px 16px !important;
+  border-radius: 999px !important;
+  writing-mode: horizontal-tb !important;
+  transform: none !important;
+  white-space: nowrap !important;
+}
+#inningSection,#battersSection,#pitchersSection{
+  position: static !important;
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+#inningSection.hidden,#battersSection.hidden,#pitchersSection.hidden{
+  display: none !important;
+}
+.player-list{
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  width: 100% !important;
+  align-items: stretch !important;
+}
+.player-card{
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -49,17 +103,12 @@
       <p id="lineupNotice" class="sheet-note">라인업 불러오기 대기 중...</p>
 
       <p id="inningGuide" class="sheet-note">홈/원정을 선택하면 초·말 공격 순서에 맞춰 득점/실점이 이닝 점수에 자동 반영됩니다.</p>
-
-      
-
-      <div class="record-section-tabs">
+<div class="record-section-tabs">
         <button type="button" class="record-section-tab active" data-section="all">전체</button>
-        <button type="button" class="record-section-tab" data-section="inning">이닝 점수</button>
         <button type="button" class="record-section-tab" data-section="batters">타자 기록</button>
         <button type="button" class="record-section-tab" data-section="pitchers">투수 기록</button>
+        <button type="button" class="record-section-tab" data-section="inning">이닝 점수</button>
       </div>
-
-      
       <div id="inningSection">
       <div class="section-title">이닝 점수</div>
       <div class="inning-actions"><button type="button" id="addInningBtn" class="sheet-btn sub">연장 이닝 추가</button><button type="button" id="removeInningBtn" class="sheet-btn sub">마지막 이닝 삭제</button></div>
@@ -286,6 +335,7 @@ function switchRecordSection(section){
   document.querySelectorAll('.record-section-tab').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.section===section);
   });
+
   if(inningSection) inningSection.classList.toggle('hidden', !(section==='all'||section==='inning'));
   if(battersSection) battersSection.classList.toggle('hidden', !(section==='all'||section==='batters'));
   if(pitchersSection) pitchersSection.classList.toggle('hidden', !(section==='all'||section==='pitchers'));
