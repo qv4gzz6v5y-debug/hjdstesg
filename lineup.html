@@ -47,12 +47,13 @@
 
     <div id="editorCard" class="lineup-card hidden">
       <div class="card-title">라인업 작성 / 수정</div>
-      <p class="lineup-note">기록원과 관리진만 라인업을 작성할 수 있습니다. 용병은 선수명 뒤에 -용병을 붙여 입력하세요. 예: Steve-용병</p>
+      <p class="lineup-note">기록원과 관리진만 라인업을 작성할 수 있습니다. 용병은 선수명 뒤에 -용병을 붙여 입력하세요. 청백전처럼 팀을 나눌 때는 주장/팀명 칸에 예: 0sx_xy0팀처럼 적으면 됩니다.</p>
       <div class="lineup-grid">
         <div><label for="gameType">경기 종류</label><select id="gameType" class="lineup-select"><option value="연습경기">연습경기</option><option value="리그경기">리그경기</option><option value="청백전">청백전</option></select></div>
         <div><label for="gameDate">경기 날짜</label><input id="gameDate" type="date" class="lineup-input"></div>
         <div><label for="gameTime">경기 시간</label><input id="gameTime" class="lineup-input" placeholder="예: 20시"></div>
         <div><label for="opponent">상대팀</label><input id="opponent" class="lineup-input" placeholder="예: 오버드라이브"></div>
+        <div><label for="captainName">주장 / 팀명</label><input id="captainName" class="lineup-input" placeholder="예: 0sx_xy0팀"></div>
         <div><label for="startingPitcher">선발 투수</label><div class="autocomplete-wrap"><input id="startingPitcher" class="lineup-input player-autocomplete" placeholder="선발 투수"><div class="autocomplete-list hidden"></div></div></div>
       </div>
       <div class="lineup-table-wrap">
@@ -79,7 +80,7 @@
     const POSITIONS=["SP","C","1B","2B","SS","3B","RF","CF","LF"];
     const $=id=>document.getElementById(id);
     const editorCard=$("editorCard"),savedCard=$("savedCard"),todayLineupBox=$("todayLineupBox"),savedLineups=$("savedLineups"),lineupBody=$("lineupBody");
-    const gameTypeInput=$("gameType"),gameDateInput=$("gameDate"),gameTimeInput=$("gameTime"),opponentInput=$("opponent"),startingPitcherInput=$("startingPitcher"),saveBtn=$("saveBtn"),resetBtn=$("resetBtn");
+    const gameTypeInput=$("gameType"),gameDateInput=$("gameDate"),gameTimeInput=$("gameTime"),opponentInput=$("opponent"),captainNameInput=$("captainName"),startingPitcherInput=$("startingPitcher"),saveBtn=$("saveBtn"),resetBtn=$("resetBtn");
     let approvedNicknames=[],savedData=[],currentEditId=null;
 
     function today(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`}
@@ -169,7 +170,7 @@ function normalizeMercenaryName(name){
       snap.forEach(d=>arr.push({id:d.id,...d.data()}));
       arr.sort((a,b)=>(a.gameTime||"").localeCompare(b.gameTime||""));
       if(!arr.length){todayLineupBox.innerHTML=`<p class="empty-text">오늘 저장된 라인업이 없습니다.</p>`;return;}
-      todayLineupBox.innerHTML=arr.map(data=>`<div class="lineup-box"><div class="lineup-top"><span class="badge">${data.gameType||"-"}</span>${data.gameDate||"-"} ${data.gameTime||""} vs ${data.opponent||"-"}</div><div class="lineup-note">선발투수: <strong>${data.pitcher||"-"}</strong></div>${renderReadonlyLineup(data)}</div>`).join("");
+      todayLineupBox.innerHTML=arr.map(data=>`<div class="lineup-box"><div class="lineup-top"><span class="badge">${data.gameType||"-"}</span>${data.gameDate||"-"} ${data.gameTime||""} vs ${data.opponent||"-"}</div><div class="lineup-note">주장/팀명: <strong>${data.captainName||"-"}</strong><br>선발투수: <strong>${data.pitcher||"-"}</strong></div>${renderReadonlyLineup(data)}</div>`).join("");
     }
 
     function renderSavedLineups(){
@@ -178,7 +179,7 @@ function normalizeMercenaryName(name){
       savedData.forEach(data=>{
         const box=document.createElement("div"); box.className="lineup-box";
         box.innerHTML=`<div class="lineup-top"><span class="badge">${data.gameType||"-"}</span>${data.gameDate||"-"} ${data.gameTime||""} vs ${data.opponent||"-"}</div>
-        <div class="lineup-note">선발투수: <strong>${data.pitcher||"-"}</strong></div>
+        <div class="lineup-note">주장/팀명: <strong>${data.captainName||"-"}</strong><br>선발투수: <strong>${data.pitcher||"-"}</strong></div>
         <div class="lineup-detail hidden">${renderReadonlyLineup(data)}</div>
         <div class="lineup-actions">
           <button class="lineup-btn small sub select-btn" type="button">상세 보기</button>
@@ -196,10 +197,10 @@ function normalizeMercenaryName(name){
 
     async function saveLineup(){
       const gameType=gameTypeInput.value, gameDate=gameDateInput.value, gameTime=gameTimeInput.value.trim();
-      const opponent=opponentInput.value.trim(), pitcher=normalizeMercenaryName(startingPitcherInput.value), players=getPlayersFromEditor();
+      const opponent=opponentInput.value.trim(), captainName=captainNameInput.value.trim(), pitcher=normalizeMercenaryName(startingPitcherInput.value), players=getPlayersFromEditor();
       if(!gameDate||!gameTime||!opponent){alert("경기 날짜, 시간, 상대팀은 꼭 입력해줘.");return;}
       const id=lineupId(gameType,gameDate,gameTime);
-      const data={id,gameType,gameDate,gameTime,opponent,pitcher,players,updatedAt:Date.now()};
+      const data={id,gameType,gameDate,gameTime,opponent,captainName,pitcher,players,updatedAt:Date.now()};
 
       if(currentEditId && currentEditId !== id){
         await setDoc(doc(db,"lineups",id),data);
@@ -222,6 +223,7 @@ function normalizeMercenaryName(name){
       gameDateInput.value=data.gameDate||today();
       gameTimeInput.value=data.gameTime||"";
       opponentInput.value=data.opponent||"";
+      captainNameInput.value=data.captainName||"";
       startingPitcherInput.value=data.pitcher||"";
       renderEditorRows(data.players||[]);
       window.scrollTo({top:0,behavior:"smooth"});
@@ -239,6 +241,7 @@ function normalizeMercenaryName(name){
       gameDateInput.value=today();
       gameTimeInput.value="";
       opponentInput.value="";
+      captainNameInput.value="";
       startingPitcherInput.value="";
       renderEditorRows();
     }
