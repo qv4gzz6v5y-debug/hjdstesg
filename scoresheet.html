@@ -33,7 +33,13 @@
         <div><label for="gameType">경기 종류</label><select id="gameType" class="sheet-select"><option value="연습경기">연습경기</option><option value="리그경기">리그경기</option><option value="청백전">청백전</option></select></div>
         <div><label for="gameDate">경기 날짜</label><input id="gameDate" type="date" class="sheet-select"></div>
         <div><label for="gameTime">경기 시간</label><input id="gameTime" class="sheet-input" placeholder="예: 20시"></div>
-        <div><label for="opponent">상대팀</label><input id="opponent" class="sheet-input" placeholder="예: 오버드라이브"></div>
+        <div>
+          <label for="opponent">상대팀</label>
+          <input id="opponent" class="sheet-input" placeholder="예: 오버드라이브">
+          <select id="cheongTeamSelect" class="sheet-select hidden">
+            <option value="">팀장 선택</option>
+          </select>
+        </div>
         <div>
           
         <div><label for="homeAway">홈 / 원정</label><select id="homeAway" class="sheet-select"><option value="">선택</option><option value="홈">홈</option><option value="원정">원정</option></select></div>
@@ -80,7 +86,7 @@ import { checkLogin, isStaff } from './auth.js';
 import { collection, addDoc, updateDoc, deleteDoc, setDoc, doc, getDoc, getDocs, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
 const $=id=>document.getElementById(id);
-const gameTypeInput=$('gameType'), gameDateInput=$('gameDate'), gameTimeInput=$('gameTime'), opponentInput=$('opponent'), homeAwayInput=$('homeAway'), finalScoreInput=$('finalScore'), gameResultInput=$('gameResult');
+const gameTypeInput=$('gameType'), gameDateInput=$('gameDate'), gameTimeInput=$('gameTime'), opponentInput=$('opponent'), cheongTeamSelect=$('cheongTeamSelect'), homeAwayInput=$('homeAway'), finalScoreInput=$('finalScore'), gameResultInput=$('gameResult');
 const saveBtn=$('saveBtn'), resetBtn=$('resetBtn'), addInningBtn=$('addInningBtn'), removeInningBtn=$('removeInningBtn'), addPitcherBtn=$('addPitcherBtn');
 const battersBody=$('battersBody'), pitchersBody=$('pitchersBody'), inningHead=$('inningHead'), inningBody=$('inningBody'), lineupNotice=$('lineupNotice'), inningGuide=$('inningGuide');
 const inningSection=$('inningSection'), battersSection=$('battersSection'), pitchersSection=$('pitchersSection');
@@ -98,8 +104,8 @@ function normalizeMercenaryName(name){
 
 function today(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`}
 function lineupId(){
-  if(gameTypeInput.value==='청백전' && lineupTeamSelect?.value){
-    return lineupTeamSelect.value;
+  if(gameTypeInput.value==='청백전' && cheongTeamSelect?.selectedOptions?.[0]?.dataset?.lineupId){
+    return cheongTeamSelect.selectedOptions[0].dataset.lineupId;
   }
   return `${gameTypeInput.value}_${gameDateInput.value}_${gameTimeInput.value.trim()}`;
 }
@@ -195,52 +201,86 @@ async function refreshLineupTeamOptions(){
 }
 
 
-async function loadCheongTeams(){
-  if(gameTypeInput.value!=='청백전') return;
-  if(!gameDateInput.value||!gameTimeInput.value.trim()) return;
 
-  opponentInput.innerHTML = '<option value="">팀 선택</option>';
+
+
+async function loadCheongTeams(){
+  if(!cheongTeamSelect || !opponentInput) return;
+
+  const isCheong = gameTypeInput.value === '청백전';
+  opponentInput.classList.toggle('hidden', isCheong);
+  cheongTeamSelect.classList.toggle('hidden', !isCheong);
+
+  if(!isCheong){
+    return;
+  }
+
+  cheongTeamSelect.innerHTML = '<option value="">팀장 선택</option>';
+
+  if(!gameDateInput.value || !gameTimeInput.value.trim()){
+    return;
+  }
 
   const snap = await getDocs(query(collection(db,'lineups')));
-  const list=[];
+  const list = [];
+
   snap.forEach(d=>{
-    const l=d.data();
-    if(l.gameType==='청백전' && l.gameDate===gameDateInput.value && String(l.gameTime||'').trim()===gameTimeInput.value.trim()){
-      list.push(l.captainName);
+    const l = d.data();
+    if(
+      l.gameType === '청백전' &&
+      l.gameDate === gameDateInput.value &&
+      String(l.gameTime || '').trim() === gameTimeInput.value.trim()
+    ){
+      list.push({
+        id:d.id,
+        captainName:l.captainName || '',
+        teamSide:l.teamSide || ''
+      });
     }
   });
 
-  list.forEach(name=>{
+  list.sort((a,b)=>{
+    const sideOrder = v => v === '홈팀' ? 0 : v === '원정팀' ? 1 : 2;
+    return sideOrder(a.teamSide) - sideOrder(b.teamSide) ||
+      String(a.captainName).localeCompare(String(b.captainName));
+  });
+
+  list.forEach(item=>{
     const opt=document.createElement('option');
-    opt.value=name;
-    opt.textContent=name;
-    opponentInput.appendChild(opt);
+    opt.value=item.captainName;
+    opt.dataset.lineupId=item.id;
+    opt.textContent=`${item.captainName || '무명팀'}${item.teamSide ? ' ('+item.teamSide+')' : ''}`;
+    cheongTeamSelect.appendChild(opt);
   });
 }
 
-async function loadLineup(){if(!gameDateInput.value||!gameTimeInput.value.trim()||currentEditId){lineupNotice.textContent='경기 날짜와 시간을 입력하면 라인업을 불러옵니다.';return;}await refreshLineupTeamOptions();if(gameTypeInput.value==='청백전'&&!lineupTeamSelect.value){lineupNotice.textContent='청백전은 불러올 팀장을 선택해주세요.';return;}
-if(gameTypeInput.value==='청백전'){
-  const snapAll = await getDocs(query(collection(db,'lineups')));
-  let found=null;
-  snapAll.forEach(d=>{
-    const l=d.data();
-    if(l.gameType==='청백전' && l.gameDate===gameDateInput.value && String(l.gameTime||'').trim()===gameTimeInput.value.trim() && l.captainName===opponentInput.value){
-      found=d;
-    }
-  });
-  if(!found){lineupNotice.textContent='라인업 없음';return;}
-  var snap={exists:()=>true,data:()=>found.data()};
-}else{
-  var snap=await getDoc(doc(db,'lineups',lineupId()));
-}
-if(!snap.exists()){lineupNotice.textContent='해당 경기 종류/날짜/시간으로 저장된 라인업이 없습니다.';return}const l=snap.data();createBatters();(l.players||[]).forEach((p,i)=>{const row=battersBody.querySelectorAll('.batter-player-card')[i];if(!row)return;const id=row.dataset.rowId;$(`b_order_${id}`).value=p.order||i+1;$(`b_name_${id}`).value=normalizeMercenaryName(p.name||'');setPositions(id,p.position||'')});createPitchers();if(l.pitcher){const id=pitchersBody.querySelector('.pitcher-player-card').dataset.pitcherRowId;$(`p_name_${id}`).value=normalizeMercenaryName(l.pitcher)}if(l.opponent&&!opponentInput.value)opponentInput.value=l.opponent;lineupNotice.textContent=`라인업 불러오기 완료: ${gameTypeInput.value} / ${gameDateInput.value} / ${gameTimeInput.value.trim()} / ${l.captainName||''} ${l.teamSide||''}`}
+async function loadLineup(){
+  if(!gameDateInput.value || !gameTimeInput.value.trim() || currentEditId){
+    lineupNotice.textContent='경기 날짜와 시간을 입력하면 라인업을 불러옵니다.';
+    await loadCheongTeams();
+    return;
+  }
+
+  await loadCheongTeams();
+
+  if(gameTypeInput.value==='청백전' && !cheongTeamSelect.value){
+    lineupNotice.textContent='청백전은 상대팀 칸에서 팀장을 선택해주세요.';
+    return;
+  }
+
+  const snap=await getDoc(doc(db,'lineups',lineupId()));
+  if(!snap.exists()){
+    lineupNotice.textContent='해당 조건으로 저장된 라인업이 없습니다.';
+    return;
+  }
+  const l=snap.data();createBatters();(l.players||[]).forEach((p,i)=>{const row=battersBody.querySelectorAll('.batter-player-card')[i];if(!row)return;const id=row.dataset.rowId;$(`b_order_${id}`).value=p.order||i+1;$(`b_name_${id}`).value=normalizeMercenaryName(p.name||'');setPositions(id,p.position||'')});createPitchers();if(l.pitcher){const id=pitchersBody.querySelector('.pitcher-player-card').dataset.pitcherRowId;$(`p_name_${id}`).value=normalizeMercenaryName(l.pitcher)}if(l.opponent&&!opponentInput.value)opponentInput.value=l.opponent;lineupNotice.textContent=`라인업 불러오기 완료: ${gameTypeInput.value} / ${gameDateInput.value} / ${gameTimeInput.value.trim()} / ${l.captainName||''} ${l.teamSide||''}`}
 function resetForm(){currentEditId=null;gameTypeInput.value='연습경기';gameDateInput.value=today();gameTimeInput.value='';opponentInput.value='';homeAwayInput.value='';finalScoreInput.value='';gameResultInput.value='';inningCount=9;renderInningTable();createBatters();createPitchers();saveBtn.textContent='저장';loadLineup()}
 function buildSummary(data){return `${data.gameType||'연습경기'} / ${data.homeAway||'-'} / ${data.finalScore||'-'} / ${data.gameResult||'-'}`}async function syncRecord(id,data){await setDoc(doc(db,'records',id),{gameType:data.gameType,date:data.gameDate,opponent:data.opponent,result:data.gameResult==='승리'?'승':data.gameResult==='패배'?'패':'무',score:data.finalScore,memo:buildSummary(data),updatedAt:Date.now(),createdAt:data.createdAt})}
 async function saveSheet(){const now=Date.now(),header=Array.from({length:inningCount},(_,i)=>String(i+1));const data={gameType:gameTypeInput.value,gameDate:gameDateInput.value.trim(),gameTime:gameTimeInput.value.trim(),opponent:opponentInput.value.trim(),homeAway:homeAwayInput.value,finalScore:finalScoreInput.value.trim(),gameResult:gameResultInput.value,innings:{header,away:getInningRow('away'),home:getInningRow('home')},batters:getBatters(),pitchers:getPitchers(),createdBy:currentUserData?.nickname||'',updatedAt:now};if(!data.gameDate||!data.opponent||!data.finalScore||!data.gameResult){alert('경기 날짜, 상대팀, 최종 스코어, 결과는 꼭 입력해주세요.');return}saveBtn.disabled=true;try{if(currentEditId){await updateDoc(doc(db,'scoresheets',currentEditId),data);await syncRecord(currentEditId,{...data,createdAt:now});alert('기록지 수정 완료!')}else{const added=await addDoc(collection(db,'scoresheets'),{...data,createdAt:now});await syncRecord(added.id,{...data,createdAt:now});alert('기록지 저장 완료!')}resetForm()}catch(e){console.error(e);alert('기록지 저장 중 오류가 발생했습니다.')}finally{saveBtn.disabled=false;saveBtn.textContent='저장'}}
 function fillForm(s){gameTypeInput.value=s.gameType||'연습경기';gameDateInput.value=s.gameDate||'';gameTimeInput.value=s.gameTime||'';opponentInput.value=s.opponent||'';homeAwayInput.value=s.homeAway||'';finalScoreInput.value=s.finalScore||'';gameResultInput.value=s.gameResult||'';inningCount=(s.innings?.header||['1','2','3','4','5','6','7','8','9']).length;renderInningTable(s.innings?.away||[],s.innings?.home||[]);battersBody.innerHTML='';batterRowCounter=0;(s.batters||[]).forEach(b=>battersBody.appendChild(createBatterRow({order:b.order,name:b.name,position:b.position,record:b.record,isSub:b.isSub})));if(!battersBody.children.length)createBatters();pitchersBody.innerHTML='';pitcherRowCounter=0;(s.pitchers||[]).forEach(p=>pitchersBody.appendChild(createPitcherRow(p)));if(!pitchersBody.children.length)createPitchers();refreshDeletes()}
 const params=new URLSearchParams(location.search);const editId=params.get('edit');
 window.addSubRow=id=>{const base=battersBody.querySelector(`.batter-player-card[data-row-id="${id}"]`);if(!base)return;base.after(createBatterRow({order:$(`b_order_${id}`).value.trim(),isSub:true}));};window.removeBatterRow=id=>{const row=battersBody.querySelector(`.batter-player-card[data-row-id="${id}"]`);if(row?.dataset.base==='1')return;row?.remove();};window.removePitcherRow=id=>{if(pitchersBody.querySelectorAll('.pitcher-player-card').length<=1){alert('투수는 최소 1명은 남아 있어야 합니다.');return}pitchersBody.querySelector(`.pitcher-player-card[data-pitcher-row-id="${id}"]`)?.remove();refreshDeletes()};
-addInningBtn.onclick=()=>{const a=getInningRow('away'),h=getInningRow('home');inningCount++;renderInningTable(a,h)};removeInningBtn.onclick=()=>{if(inningCount<=9)return;const a=getInningRow('away').slice(0,-1),h=getInningRow('home').slice(0,-1);inningCount--;renderInningTable(a,h)};addPitcherBtn.onclick=()=>{pitchersBody.appendChild(createPitcherRow());refreshDeletes()};saveBtn.onclick=saveSheet;resetBtn.onclick=resetForm;gameDateInput.onchange=()=>{loadCheongTeams();loadLineup();};gameTimeInput.onchange=()=>{loadCheongTeams();loadLineup();};gameTypeInput.onchange=loadLineup;if(lineupTeamSelect) lineupTeamSelect.onchange=loadLineup;homeAwayInput.onchange=()=>{const a=getInningRow('away'),h=getInningRow('home');renderInningTable(a,h)};
+addInningBtn.onclick=()=>{const a=getInningRow('away'),h=getInningRow('home');inningCount++;renderInningTable(a,h)};removeInningBtn.onclick=()=>{if(inningCount<=9)return;const a=getInningRow('away').slice(0,-1),h=getInningRow('home').slice(0,-1);inningCount--;renderInningTable(a,h)};addPitcherBtn.onclick=()=>{pitchersBody.appendChild(createPitcherRow());refreshDeletes()};saveBtn.onclick=saveSheet;resetBtn.onclick=resetForm;gameDateInput.onchange=()=>{loadCheongTeams();loadLineup();};gameTimeInput.onchange=()=>{loadCheongTeams();loadLineup();};gameTypeInput.onchange=()=>{loadCheongTeams();loadLineup();};if(cheongTeamSelect) cheongTeamSelect.onchange=loadLineup;if(lineupTeamSelect) lineupTeamSelect.onchange=loadLineup;homeAwayInput.onchange=()=>{const a=getInningRow('away'),h=getInningRow('home');renderInningTable(a,h)};
 
 function switchRecordSection(section){
   document.querySelectorAll('.record-section-tab').forEach(btn=>{

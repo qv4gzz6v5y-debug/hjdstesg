@@ -273,7 +273,7 @@ function normalizeMercenaryName(name){
       if(canEdit){
         editorCard.classList.remove("hidden");
         savedCard.classList.remove("hidden");
-        resetForm();
+        resetForm();toggleCheongFields();
         setupAutocomplete(startingPitcherInput);
         onSnapshot(query(collection(db,"lineups"),orderBy("updatedAt","desc")),snapshot=>{
           savedData=[]; snapshot.forEach(d=>savedData.push({id:d.id,...d.data()}));
