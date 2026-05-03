@@ -109,7 +109,7 @@
     saveProfileBtn.addEventListener('click', async () => {
       const nickname = nicknameInput.value.trim();
       const number = numberInput.value.trim();
-      if (!nickname || !number) return alert('닉네임과 등번호를 입력해줘.');
+      if (!nickname || !number) return alert('닉네임과 등번호를 입력해주세요.');
       await updateDoc(doc(db, 'users', currentUser.uid), { nickname, number });
       currentUserData.nickname = nickname;
       currentUserData.number = number;

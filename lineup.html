@@ -47,9 +47,9 @@
 
     <div id="editorCard" class="lineup-card hidden">
       <div class="card-title">라인업 작성 / 수정</div>
-      <p class="lineup-note">기록원과 관리진만 라인업을 작성할 수 있습니다. 같은 날짜에 여러 경기가 있으면 경기 시간을 다르게 입력하세요.</p>
+      <p class="lineup-note">기록원과 관리진만 라인업을 작성할 수 있습니다. 용병은 선수명 뒤에 -용병을 붙여 입력하세요. 예: Steve-용병</p>
       <div class="lineup-grid">
-        <div><label for="gameType">경기 종류</label><select id="gameType" class="lineup-select"><option value="연습경기">연습경기</option><option value="리그경기">리그경기</option></select></div>
+        <div><label for="gameType">경기 종류</label><select id="gameType" class="lineup-select"><option value="연습경기">연습경기</option><option value="리그경기">리그경기</option><option value="청백전">청백전</option></select></div>
         <div><label for="gameDate">경기 날짜</label><input id="gameDate" type="date" class="lineup-input"></div>
         <div><label for="gameTime">경기 시간</label><input id="gameTime" class="lineup-input" placeholder="예: 20시"></div>
         <div><label for="opponent">상대팀</label><input id="opponent" class="lineup-input" placeholder="예: 오버드라이브"></div>
@@ -84,6 +84,15 @@
 
     function today(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`}
     function lineupId(gameType,date,time){return `${gameType}_${date}_${String(time||"").trim()}`}
+    
+function normalizeMercenaryName(name){
+  const raw = String(name || '').trim();
+  if(!raw) return '';
+  return raw
+    .replace(/\s*-\s*용병\s*$/,'-용병')
+    .replace(/\s+용병\s*$/,'-용병');
+}
+
     function positionOptions(selected=""){return `<option value="">선택</option>${POSITIONS.map(p=>`<option value="${p}" ${selected===p?"selected":""}>${p}</option>`).join("")}`}
 
     async function loadApprovedNicknames(){
@@ -126,7 +135,7 @@
       const tr=document.createElement("tr");
       tr.innerHTML=`
         <td><input class="order-input" value="${data.order||order||""}"></td>
-        <td><div class="autocomplete-wrap"><input class="player-input player-autocomplete" value="${data.name||""}" placeholder="선수명"><div class="autocomplete-list hidden"></div></div></td>
+        <td><div class="autocomplete-wrap"><input class="player-input player-autocomplete" value="${data.name||""}" placeholder="선수명 또는 선수명-용병"><div class="autocomplete-list hidden"></div></div></td>
         <td><select class="position-input">${positionOptions(data.position||"")}</select></td>`;
       tr.querySelectorAll(".player-autocomplete").forEach(setupAutocomplete);
       return tr;
@@ -143,7 +152,7 @@
     function getPlayersFromEditor(){
       return [...lineupBody.querySelectorAll("tr")].map(row=>({
         order:row.querySelector(".order-input").value.trim(),
-        name:row.querySelector(".player-input").value.trim(),
+        name:normalizeMercenaryName(row.querySelector(".player-input").value),
         position:row.querySelector(".position-input").value
       })).filter(p=>p.name||p.position);
     }
@@ -187,7 +196,7 @@
 
     async function saveLineup(){
       const gameType=gameTypeInput.value, gameDate=gameDateInput.value, gameTime=gameTimeInput.value.trim();
-      const opponent=opponentInput.value.trim(), pitcher=startingPitcherInput.value.trim(), players=getPlayersFromEditor();
+      const opponent=opponentInput.value.trim(), pitcher=normalizeMercenaryName(startingPitcherInput.value), players=getPlayersFromEditor();
       if(!gameDate||!gameTime||!opponent){alert("경기 날짜, 시간, 상대팀은 꼭 입력해줘.");return;}
       const id=lineupId(gameType,gameDate,gameTime);
       const data={id,gameType,gameDate,gameTime,opponent,pitcher,players,updatedAt:Date.now()};
