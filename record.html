@@ -142,6 +142,7 @@ import {
 const $ = (id) => document.getElementById(id);
 
 const allTypeBtn = $('allTypeBtn');
+const intraTypeBtn = $('intraTypeBtn');
 const practiceTypeBtn = $('practiceTypeBtn');
 const leagueTypeBtn = $('leagueTypeBtn');
 const dateSearch = $('dateSearch');
@@ -186,6 +187,7 @@ function setType(type) {
   allTypeBtn.classList.toggle('active', type === '전체');
   practiceTypeBtn.classList.toggle('active', type === '연습경기');
   leagueTypeBtn.classList.toggle('active', type === '리그경기');
+  if(intraTypeBtn) intraTypeBtn.classList.toggle('active', type === '청백전');
 
   renderSheets();
   renderBatterRanking();
@@ -445,6 +447,7 @@ checkLogin(async (user, userData) => {
 allTypeBtn.addEventListener('click', () => setType('전체'));
 practiceTypeBtn.addEventListener('click', () => setType('연습경기'));
 leagueTypeBtn.addEventListener('click', () => setType('리그경기'));
+if(intraTypeBtn) intraTypeBtn.addEventListener('click', () => setType('청백전'));
 dateSearch.addEventListener('change', () => {
   renderSheets();
   renderBatterRanking();
