@@ -35,7 +35,7 @@
     .ranking-table th,.player-table th{background:#f6f8fb;font-weight:900}
     .ranking-table tr:last-child td,.player-table tr:last-child td{border-bottom:none}.ranking-table th:last-child,.ranking-table td:last-child,.player-table th:last-child,.player-table td:last-child{border-right:none}
     .rank-num{font-weight:900;color:#1b65ba}.name-cell{text-align:left!important;font-weight:900}
-    .hidden{display:none!important}
+    .rename-box{display:flex;gap:6px;align-items:center;justify-content:center}.rename-box input{width:170px;padding:8px 10px;border-radius:10px;border:1px solid #ccd5e0}.hidden{display:none!important}
     @media(max-width:640px){.card-title{font-size:28px}.sheet-top{font-size:17px}}
   </style>
 </head>
@@ -90,11 +90,12 @@
                 <th>닉네임</th>
                 <th>상태</th>
                 <th>기록 등장</th>
+                <th>닉네임 수정</th>
                 <th>관리</th>
               </tr>
             </thead>
             <tbody id="playerManageBody">
-              <tr><td colspan="4">불러오는 중...</td></tr>
+              <tr><td colspan="5">불러오는 중...</td></tr>
             </tbody>
           </table>
         </div>
@@ -147,6 +148,7 @@ import {
   orderBy,
   deleteDoc,
   setDoc,
+  updateDoc,
   doc
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
@@ -276,7 +278,7 @@ function getAppearedPlayers(){
 
 function renderPlayerManage(){
   const players=getAppearedPlayers();
-  if(!players.length){playerManageBody.innerHTML='<tr><td colspan="4">기록지에 등장한 선수가 없습니다.</td></tr>';return}
+  if(!players.length){playerManageBody.innerHTML='<tr><td colspan="5">기록지에 등장한 선수가 없습니다.</td></tr>';return}
   playerManageBody.innerHTML=players.map(p=>{
     const st=getStatus(p.nickname);
     const status=st.released?'<span class="badge out">방출</span>':st.mercenary?'<span class="badge merc">용병</span>':'<span class="badge">일반</span>';
@@ -285,6 +287,12 @@ function renderPlayerManage(){
       <td>${status}</td>
       <td>${p.count}회</td>
       <td>
+        <div class="rename-box">
+          <input id="rename_${safeId(p.nickname)}" value="${p.nickname}" placeholder="올바른 닉네임">
+          <button class="record-btn green" onclick="renamePlayer('${encodeURIComponent(p.nickname)}')">수정</button>
+        </div>
+      </td>
+      <td>
         <button class="record-btn primary" onclick="setPlayerStatus('${encodeURIComponent(p.nickname)}','normal')">일반</button>
         <button class="record-btn danger" onclick="setPlayerStatus('${encodeURIComponent(p.nickname)}','mercenary')">용병</button>
         <button class="record-btn dark" onclick="setPlayerStatus('${encodeURIComponent(p.nickname)}','released')">방출</button>
@@ -292,6 +300,75 @@ function renderPlayerManage(){
     </tr>`;
   }).join('');
 }
+
+
+window.renamePlayer=async(encodedName)=>{
+  if(!isOwnerUser){alert('구단주만 가능합니다.');return}
+
+  const oldName=decodeURIComponent(encodedName).trim();
+  const input=document.getElementById(`rename_${safeId(oldName)}`);
+  const newName=(input?.value||'').trim();
+
+  if(!oldName||!newName){alert('닉네임을 입력해주세요.');return}
+  if(oldName===newName){alert('기존 닉네임과 같습니다.');return}
+
+  const ok=confirm(`기록지와 라인업에 적힌 "${oldName}"을(를) "${newName}"(으)로 전부 수정할까요?`);
+  if(!ok)return;
+
+  let sheetChanged=0;
+  let lineupChanged=0;
+
+  const sheetSnap=await getDocs(collection(db,'scoresheets'));
+  for(const d of sheetSnap.docs){
+    const data=d.data();
+    let changed=false;
+
+    const batters=(data.batters||[]).map(b=>{
+      if(cleanName(b.name)===oldName){changed=true;return {...b,name:newName};}
+      return b;
+    });
+
+    const pitchers=(data.pitchers||[]).map(p=>{
+      if(cleanName(p.name)===oldName){changed=true;return {...p,name:newName};}
+      return p;
+    });
+
+    if(changed){
+      await updateDoc(doc(db,'scoresheets',d.id),{batters,pitchers});
+      sheetChanged++;
+    }
+  }
+
+  const lineupSnap=await getDocs(collection(db,'lineups'));
+  for(const d of lineupSnap.docs){
+    const data=d.data();
+    let changed=false;
+
+    const players=(data.players||[]).map(p=>{
+      if(cleanName(p.name)===oldName){changed=true;return {...p,name:newName};}
+      return p;
+    });
+
+    const updateData={players};
+    if(cleanName(data.pitcher)===oldName){
+      updateData.pitcher=newName;
+      changed=true;
+    }
+
+    if(changed){
+      await updateDoc(doc(db,'lineups',d.id),updateData);
+      lineupChanged++;
+    }
+  }
+
+  const oldStatus=getStatus(oldName);
+  if(oldStatus && (oldStatus.mercenary||oldStatus.released)){
+    await setDoc(doc(db,'playerStatus',safeId(newName)),{...oldStatus,nickname:newName,updatedAt:Date.now()});
+    try{await deleteDoc(doc(db,'playerStatus',safeId(oldName)));}catch(e){}
+  }
+
+  alert(`닉네임 수정 완료! 기록지 ${sheetChanged}개, 라인업 ${lineupChanged}개가 수정되었습니다.`);
+};
 
 window.setPlayerStatus=async(encodedName,status)=>{
   if(!isOwnerUser){alert('구단주만 가능합니다.');return}
