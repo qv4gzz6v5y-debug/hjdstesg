@@ -43,6 +43,36 @@
   align-items:center;
   justify-content:center;
 }
+
+/* ===== mypage date search alignment fix ===== */
+.date-search-row,
+.date-search-wrap{
+  display:flex !important;
+  align-items:flex-end !important;
+  gap:12px !important;
+  flex-wrap:wrap !important;
+}
+.date-search-row > div,
+.date-search-wrap > div{
+  flex:1 1 260px !important;
+}
+.date-search-row input,
+.date-search-wrap input{
+  height:48px !important;
+  box-sizing:border-box !important;
+}
+.date-search-row button,
+.date-search-wrap button,
+#clearDateBtn{
+  height:48px !important;
+  margin-top:0 !important;
+  align-self:flex-end !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  white-space:nowrap !important;
+}
+
 </style>
 
 </head>
@@ -71,10 +101,8 @@
         <button id="leagueTab" class="tab-btn" type="button">리그경기 기록</button>
         <button id="intraTab" class="tab-btn" type="button">청백전 기록</button>
       </div>
-      <div class="filter-grid">
-        <div><label for="dateSearch">경기별 기록 날짜 검색</label><input id="dateSearch" class="input" type="date"></div>
-        <div><button id="clearDateBtn" class="btn" type="button">전체 날짜 보기</button></div>
-      </div>
+      <div class="filter-grid date-search-row"><div><label for="dateSearch">경기별 기록 날짜 검색</label><input id="dateSearch" class="input" type="date"></div>
+        <div><button id="clearDateBtn" class="btn" type="button">전체 날짜 보기</button></div></div>
       <div class="sub-title">시즌 누적 기록</div>
       <div id="seasonStats" class="stat-grid"></div>
     </div>
