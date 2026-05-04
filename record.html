@@ -16,22 +16,24 @@
     label{font-weight:900;display:block;margin-bottom:7px}
     .record-input,.record-select{width:100%;padding:12px 14px;border-radius:14px;border:1px solid #d6dce5;box-sizing:border-box;font-size:15px;background:#fff;font-family:inherit}
     .record-btn{border:none;border-radius:12px;background:#666;color:#fff;font-weight:900;padding:12px 16px;cursor:pointer}
-    .record-btn.primary{background:#1b65ba}.record-btn.danger{background:#b00020}.record-btn.sub{background:#111}
-    .record-tabs{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 18px}
-    .tab-btn{border:none;border-radius:999px;padding:10px 15px;background:#eef1f5;color:#222;font-weight:900;cursor:pointer}
-    .tab-btn.active{background:#1b65ba;color:#fff}
+    .record-btn.primary{background:#1b65ba}.record-btn.danger{background:#b00020}.record-btn.green{background:#198754}.record-btn.dark{background:#111}
+    .record-tabs,.main-tabs{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 18px}
+    .tab-btn,.main-tab-btn{border:none;border-radius:999px;padding:10px 15px;background:#eef1f5;color:#222;font-weight:900;cursor:pointer}
+    .tab-btn.active,.main-tab-btn.active{background:#1b65ba;color:#fff}
+    .main-tab-btn.owner{background:#fff3e8;color:#c26b00}
+    .main-tab-btn.owner.active{background:#c26b00;color:#fff}
     .day-title{font-size:24px;font-weight:900;margin:20px 0 12px;color:#1b65ba;background:#eef3ff;border-radius:14px;padding:12px 16px}
     .sheet-box{background:#fbfcff;border:1px solid #e4eaf2;border-radius:18px;padding:18px;margin-bottom:14px}
     .sheet-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;font-size:20px;font-weight:900;line-height:1.5}
     .badge{display:inline-block;border-radius:999px;padding:5px 10px;background:#e8f1ff;color:#1b65ba;font-size:12px;font-weight:900;margin-right:6px}
-    .badge.league{background:#fff3e8;color:#c26b00}.badge.intra{background:#eefaf2;color:#198754}
+    .badge.league{background:#fff3e8;color:#c26b00}.badge.intra{background:#eefaf2;color:#198754}.badge.out{background:#f1f3f5;color:#666}.badge.merc{background:#fff0f0;color:#b00020}
     .sheet-info{margin-top:8px;color:#444;line-height:1.7}
     .sheet-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-    .ranking-table-wrap{overflow-x:auto;margin-top:14px}
-    .ranking-table{width:100%;border-collapse:separate;border-spacing:0;min-width:900px;border:1px solid #e1e6ee;border-radius:16px;overflow:hidden}
-    .ranking-table th,.ranking-table td{border-right:1px solid #e1e6ee;border-bottom:1px solid #e1e6ee;padding:11px 12px;text-align:center;white-space:nowrap}
-    .ranking-table th{background:#f6f8fb;font-weight:900}
-    .ranking-table tr:last-child td{border-bottom:none}.ranking-table th:last-child,.ranking-table td:last-child{border-right:none}
+    .ranking-table-wrap,.player-table-wrap{overflow-x:auto;margin-top:14px}
+    .ranking-table,.player-table{width:100%;border-collapse:separate;border-spacing:0;min-width:900px;border:1px solid #e1e6ee;border-radius:16px;overflow:hidden}
+    .ranking-table th,.ranking-table td,.player-table th,.player-table td{border-right:1px solid #e1e6ee;border-bottom:1px solid #e1e6ee;padding:11px 12px;text-align:center;white-space:nowrap}
+    .ranking-table th,.player-table th{background:#f6f8fb;font-weight:900}
+    .ranking-table tr:last-child td,.player-table tr:last-child td{border-bottom:none}.ranking-table th:last-child,.ranking-table td:last-child,.player-table th:last-child,.player-table td:last-child{border-right:none}
     .rank-num{font-weight:900;color:#1b65ba}.name-cell{text-align:left!important;font-weight:900}
     .hidden{display:none!important}
     @media(max-width:640px){.card-title{font-size:28px}.sheet-top{font-size:17px}}
@@ -39,15 +41,9 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="top-title">
-      <h1>레이 마린스</h1>
-      <a class="top-link" href="index.html">메인으로</a>
-    </div>
+    <div class="top-title"><h1>레이 마린스</h1><a class="top-link" href="index.html">메인으로</a></div>
     <div class="menu-clean">
-      <a href="lineup.html">라인업</a>
-      <a href="record.html">기록실</a>
-      <a href="scoresheet.html">기록지</a>
-      <a href="mypage.html">마이페이지</a>
+      <a href="lineup.html">라인업</a><a href="record.html">기록실</a><a href="scoresheet.html">기록지</a><a href="mypage.html">마이페이지</a>
     </div>
   </div>
 
@@ -56,28 +52,58 @@
       <div class="card-title">기록실</div>
       <p class="record-note">저장된 기록지를 날짜별로 확인하고, 전체 타자 타율 순위를 볼 수 있습니다.</p>
 
-      <div class="record-tabs">
-        <button id="allTypeBtn" class="tab-btn active" type="button">전체 기록</button>
-        <button id="practiceTypeBtn" class="tab-btn" type="button">연습경기 기록</button>
-        <button id="leagueTypeBtn" class="tab-btn" type="button">리그경기 기록</button>
-        <button id="intraTypeBtn" class="tab-btn" type="button">청백전 기록</button>
+      <div class="main-tabs">
+        <button id="recordMainTab" class="main-tab-btn active" type="button">기록실</button>
+        <button id="ownerPlayerTab" class="main-tab-btn owner hidden" type="button">선수 관리</button>
       </div>
 
-      <div class="filter-grid">
-        <div>
-          <label for="dateSearch">날짜 검색</label>
-          <input id="dateSearch" class="record-input" type="date">
+      <div id="recordPanel">
+        <div class="record-tabs">
+          <button id="allTypeBtn" class="tab-btn active" type="button">전체 기록</button>
+          <button id="practiceTypeBtn" class="tab-btn" type="button">연습경기 기록</button>
+          <button id="leagueTypeBtn" class="tab-btn" type="button">리그경기 기록</button>
+          <button id="intraTypeBtn" class="tab-btn" type="button">청백전 기록</button>
         </div>
-        <div>
-          <button id="clearDateBtn" class="record-btn">전체 보기</button>
+
+        <div class="filter-grid">
+          <div>
+            <label for="dateSearch">날짜 검색</label>
+            <input id="dateSearch" class="record-input" type="date">
+          </div>
+          <div>
+            <button id="clearDateBtn" class="record-btn">전체 보기</button>
+          </div>
+        </div>
+        <p id="recordCount" class="record-note">기록을 불러오는 중...</p>
+      </div>
+
+      <div id="ownerPanel" class="hidden">
+        <p class="record-note">
+          이 탭은 구단주만 볼 수 있습니다. 기록지에 한 번 이상 등장한 선수들을 닉네임순으로 보여주고, 용병/방출 설정을 할 수 있습니다.
+          용병 또는 방출로 설정된 선수는 타율 순위에서 숨겨집니다.
+        </p>
+
+        <div class="player-table-wrap">
+          <table class="player-table">
+            <thead>
+              <tr>
+                <th>닉네임</th>
+                <th>상태</th>
+                <th>기록 등장</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="playerManageBody">
+              <tr><td colspan="4">불러오는 중...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <p id="recordCount" class="record-note">기록을 불러오는 중...</p>
     </div>
 
-    <div class="record-card">
+    <div id="rankingCard" class="record-card">
       <div class="card-title">전체 타자 타율 순위</div>
-      <p class="record-note">회원가입 승인된 모든 유저가 표시됩니다. 기록이 없는 선수는 0으로 표시됩니다.</p>
+      <p class="record-note">활동 선수만 표시됩니다. 용병/방출 선수는 순위에서 숨겨집니다.</p>
 
       <div class="filter-grid">
         <div>
@@ -94,23 +120,7 @@
         <table class="ranking-table">
           <thead>
             <tr>
-              <th>순위</th>
-              <th>등번호</th>
-              <th>선수명</th>
-              <th>타율</th>
-              <th>OPS</th>
-              <th>경기</th>
-              <th>타수</th>
-              <th>안타</th>
-              <th>2루타</th>
-              <th>3루타</th>
-              <th>홈런</th>
-              <th>타점</th>
-              <th>득점</th>
-              <th>도루</th>
-              <th>볼넷</th>
-              <th>고의사구</th>
-              <th>삼진</th>
+              <th>순위</th><th>등번호</th><th>선수명</th><th>타율</th><th>OPS</th><th>경기</th><th>타수</th><th>안타</th><th>2루타</th><th>3루타</th><th>홈런</th><th>타점</th><th>득점</th><th>도루</th><th>볼넷</th><th>고의사구</th><th>삼진</th>
             </tr>
           </thead>
           <tbody id="batterRankingBody">
@@ -120,7 +130,7 @@
       </div>
     </div>
 
-    <div class="record-card">
+    <div id="sheetsCard" class="record-card">
       <div class="card-title">저장된 기록지</div>
       <div id="sheetList"><p class="empty-text">기록지를 불러오는 중...</p></div>
     </div>
@@ -136,325 +146,203 @@ import {
   query,
   orderBy,
   deleteDoc,
+  setDoc,
   doc
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
-const $ = (id) => document.getElementById(id);
+const $=id=>document.getElementById(id);
 
-const allTypeBtn = $('allTypeBtn');
-const practiceTypeBtn = $('practiceTypeBtn');
-const leagueTypeBtn = $('leagueTypeBtn');
-const dateSearch = $('dateSearch');
-const clearDateBtn = $('clearDateBtn');
-const recordCount = $('recordCount');
-const sheetList = $('sheetList');
-const rankSort = $('rankSort');
-const batterRankingBody = $('batterRankingBody');
+const recordMainTab=$('recordMainTab'), ownerPlayerTab=$('ownerPlayerTab'), recordPanel=$('recordPanel'), ownerPanel=$('ownerPanel');
+const rankingCard=$('rankingCard'), sheetsCard=$('sheetsCard');
+const allTypeBtn=$('allTypeBtn'), practiceTypeBtn=$('practiceTypeBtn'), leagueTypeBtn=$('leagueTypeBtn'), intraTypeBtn=$('intraTypeBtn');
+const dateSearch=$('dateSearch'), clearDateBtn=$('clearDateBtn'), recordCount=$('recordCount'), sheetList=$('sheetList'), rankSort=$('rankSort'), batterRankingBody=$('batterRankingBody'), playerManageBody=$('playerManageBody');
 
-let currentType = '전체';
-let currentUserData = null;
-let canEdit = false;
-let sheets = [];
-let users = [];
+let currentType='전체', canEdit=false, isOwnerUser=false, sheets=[], users=[], playerStatus={};
 
-function num(v) {
-  return Number(v) || 0;
+function isOwner(userData){return userData && (userData.role==='owner'||userData.role==='super_admin')}
+function safeId(name){return encodeURIComponent(String(name||'').trim()).replaceAll('%','_')}
+function cleanName(name){return String(name||'').trim()}
+function num(v){return Number(v)||0}
+function fmt3(v){return isFinite(v)?v.toFixed(3):'0.000'}
+
+function getStatus(name){
+  const key=cleanName(name);
+  return playerStatus[key] || {};
+}
+function isHiddenPlayer(name){
+  const st=getStatus(name);
+  return st.mercenary===true || st.released===true;
 }
 
-function fmt3(v) {
-  if (!isFinite(v)) return '0.000';
-  return v.toFixed(3);
+function getTypeMatch(s){return currentType==='전체'||(s.gameType||'연습경기')===currentType}
+function getDateMatch(s){return !dateSearch.value||s.gameDate===dateSearch.value}
+function getFilteredSheets(){return sheets.filter(s=>getTypeMatch(s)&&getDateMatch(s))}
+
+function setType(type){
+  currentType=type;
+  allTypeBtn.classList.toggle('active',type==='전체');
+  practiceTypeBtn.classList.toggle('active',type==='연습경기');
+  leagueTypeBtn.classList.toggle('active',type==='리그경기');
+  intraTypeBtn.classList.toggle('active',type==='청백전');
+  renderSheets();renderBatterRanking();
 }
 
-function getTypeMatch(sheet) {
-  if (currentType === '전체') return true;
-  return (sheet.gameType || '연습경기') === currentType;
+function showOwnerPanel(show){
+  recordMainTab.classList.toggle('active',!show);
+  ownerPlayerTab.classList.toggle('active',show);
+  recordPanel.classList.toggle('hidden',show);
+  ownerPanel.classList.toggle('hidden',!show);
+  rankingCard.classList.toggle('hidden',show);
+  sheetsCard.classList.toggle('hidden',show);
+  if(show) renderPlayerManage();
 }
 
-function getDateMatch(sheet) {
-  if (!dateSearch.value) return true;
-  return sheet.gameDate === dateSearch.value;
+function gameTypeBadge(type){
+  const cls=type==='리그경기'?'league':type==='청백전'?'intra':'';
+  return `<span class="badge ${cls}">${type||'연습경기'}</span>`;
 }
+function timeValue(t){const m=String(t||'').match(/\d+/);return m?Number(m[0]):999}
+function groupByDate(data){const g={};data.forEach(s=>{const d=s.gameDate||'날짜 없음';(g[d] ||= []).push(s)});Object.keys(g).forEach(d=>g[d].sort((a,b)=>timeValue(a.gameTime)-timeValue(b.gameTime)));return g}
 
-function getFilteredSheets() {
-  return sheets.filter(sheet => getTypeMatch(sheet) && getDateMatch(sheet));
-}
-
-function setType(type) {
-  currentType = type;
-
-  allTypeBtn.classList.toggle('active', type === '전체');
-  practiceTypeBtn.classList.toggle('active', type === '연습경기');
-  leagueTypeBtn.classList.toggle('active', type === '리그경기');
-
-  renderSheets();
-  renderBatterRanking();
-}
-
-function gameTypeBadge(type) {
-  const isLeague = type === '리그경기';
-  return `<span class="badge ${isLeague ? 'league' : ''}">${type || '연습경기'}</span>`;
-}
-
-function timeValue(t) {
-  const text = String(t || '');
-  const match = text.match(/\d+/);
-  return match ? Number(match[0]) : 999;
-}
-
-function groupByDate(data) {
-  const grouped = {};
-  data.forEach(sheet => {
-    const d = sheet.gameDate || '날짜 없음';
-    if (!grouped[d]) grouped[d] = [];
-    grouped[d].push(sheet);
-  });
-
-  Object.keys(grouped).forEach(date => {
-    grouped[date].sort((a, b) => timeValue(a.gameTime) - timeValue(b.gameTime));
-  });
-
-  return grouped;
-}
-
-function renderSheets() {
-  const filtered = getFilteredSheets();
-  recordCount.textContent = `표시 기록 ${filtered.length}개 / 전체 기록 ${sheets.length}개`;
-
-  if (!filtered.length) {
-    sheetList.innerHTML = `<p class="empty-text">조건에 맞는 기록지가 없습니다.</p>`;
-    return;
-  }
-
-  const grouped = groupByDate(filtered);
-  const dates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
-
-  sheetList.innerHTML = '';
-
-  dates.forEach(date => {
-    const day = document.createElement('div');
-    day.innerHTML = `<div class="day-title">${date}</div>`;
-    sheetList.appendChild(day);
-
-    grouped[date].forEach(sheet => {
-      const box = document.createElement('div');
-      box.className = 'sheet-box';
-
-      const battersCount = (sheet.batters || []).length;
-      const pitchersCount = (sheet.pitchers || []).length;
-
-      box.innerHTML = `
-        <div class="sheet-top">
-          <div>
-            ${gameTypeBadge(sheet.gameType)}
-            ${sheet.gameTime || '-'} vs ${sheet.opponent || '-'}
-          </div>
-          <div>${sheet.finalScore || '-'} ${sheet.gameResult || ''}</div>
-        </div>
-        <div class="sheet-info">
-          홈/원정: <strong>${sheet.homeAway || '-'}</strong><br>
-          타자 기록 ${battersCount}명 · 투수 기록 ${pitchersCount}명
-        </div>
-        ${canEdit ? `
-          <div class="sheet-actions">
-            <button class="record-btn primary" data-edit="${sheet.id}">수정</button>
-            <button class="record-btn danger" data-delete="${sheet.id}">삭제</button>
-          </div>
-        ` : ''}
-      `;
-
-      const editBtn = box.querySelector('[data-edit]');
-      const deleteBtn = box.querySelector('[data-delete]');
-
-      if (editBtn) {
-        editBtn.addEventListener('click', () => {
-          location.href = `scoresheet.html?edit=${sheet.id}`;
-        });
-      }
-
-      if (deleteBtn) {
-        deleteBtn.addEventListener('click', async () => {
-          if (!confirm('이 기록지를 삭제할까요?')) return;
-          await deleteDoc(doc(db, 'scoresheets', sheet.id));
-          try { await deleteDoc(doc(db, 'records', sheet.id)); } catch (e) {}
-        });
-      }
-
+function renderSheets(){
+  const filtered=getFilteredSheets();
+  recordCount.textContent=`표시 기록 ${filtered.length}개 / 전체 기록 ${sheets.length}개`;
+  if(!filtered.length){sheetList.innerHTML='<p class="empty-text">조건에 맞는 기록지가 없습니다.</p>';return}
+  const grouped=groupByDate(filtered), dates=Object.keys(grouped).sort((a,b)=>b.localeCompare(a));
+  sheetList.innerHTML='';
+  dates.forEach(date=>{
+    const day=document.createElement('div');day.innerHTML=`<div class="day-title">${date}</div>`;sheetList.appendChild(day);
+    grouped[date].forEach(sheet=>{
+      const box=document.createElement('div');box.className='sheet-box';
+      box.innerHTML=`<div class="sheet-top"><div>${gameTypeBadge(sheet.gameType)}${sheet.gameTime||'-'} vs ${sheet.opponent||'-'}</div><div>${sheet.finalScore||'-'} ${sheet.gameResult||''}</div></div>
+      <div class="sheet-info">홈/원정: <strong>${sheet.homeAway||'-'}</strong><br>타자 기록 ${(sheet.batters||[]).length}명 · 투수 기록 ${(sheet.pitchers||[]).length}명</div>
+      ${canEdit?`<div class="sheet-actions"><button class="record-btn primary" data-edit="${sheet.id}">수정</button><button class="record-btn danger" data-delete="${sheet.id}">삭제</button></div>`:''}`;
+      const editBtn=box.querySelector('[data-edit]'), deleteBtn=box.querySelector('[data-delete]');
+      if(editBtn) editBtn.onclick=()=>location.href=`scoresheet.html?edit=${sheet.id}`;
+      if(deleteBtn) deleteBtn.onclick=async()=>{if(!confirm('이 기록지를 삭제할까요?'))return;await deleteDoc(doc(db,'scoresheets',sheet.id));try{await deleteDoc(doc(db,'records',sheet.id))}catch(e){}};
       sheetList.appendChild(box);
     });
   });
 }
 
-function emptyBatterRow(user) {
-  return {
-    nickname: user.nickname || '',
-    number: user.number || '',
-    gamesSet: new Set(),
-    ab: 0,
-    h: 0,
-    double: 0,
-    triple: 0,
-    hr: 0,
-    rbi: 0,
-    r: 0,
-    so: 0,
-    sb: 0,
-    bb: 0,
-    ibb: 0,
-    hbp: 0
-  };
-}
-
-function getBatterStats() {
-  const map = {};
-
-  users.forEach(user => {
-    if (!user.nickname) return;
-    map[user.nickname] = emptyBatterRow(user);
-  });
-
-  getFilteredSheets().forEach(sheet => {
-    const gameKey = sheet.id || `${sheet.gameType}_${sheet.gameDate}_${sheet.gameTime}_${sheet.opponent}`;
-
-    (sheet.batters || []).forEach(batter => {
-      const name = batter.name || '';
-      if (!name) return;
-
-      if (!map[name]) {
-        map[name] = emptyBatterRow({ nickname: name, number: '' });
-      }
-
-      const stats = batter.stats || {};
+function emptyBatterRow(u){return {nickname:u.nickname||'',number:u.number||'',gamesSet:new Set(),ab:0,h:0,double:0,triple:0,hr:0,rbi:0,r:0,so:0,sb:0,bb:0,ibb:0,hbp:0}}
+function getBatterStats(){
+  const map={};
+  users.forEach(u=>{if(u.nickname && !isHiddenPlayer(u.nickname)) map[u.nickname]=emptyBatterRow(u)});
+  getFilteredSheets().forEach(sheet=>{
+    const gameKey=sheet.id||`${sheet.gameType}_${sheet.gameDate}_${sheet.gameTime}_${sheet.opponent}`;
+    (sheet.batters||[]).forEach(b=>{
+      const name=cleanName(b.name);
+      if(!name || isHiddenPlayer(name)) return;
+      if(!map[name]) map[name]=emptyBatterRow({nickname:name,number:''});
+      const s=b.stats||{};
       map[name].gamesSet.add(gameKey);
-
-      map[name].ab += num(stats.ab);
-      map[name].h += num(stats.h);
-      map[name].double += num(stats.double);
-      map[name].triple += num(stats.triple);
-      map[name].hr += num(stats.hr);
-      map[name].rbi += num(stats.rbi);
-      map[name].r += num(stats.r);
-      map[name].so += num(stats.so);
-      map[name].sb += num(stats.sb);
-      map[name].bb += num(stats.bb);
-      map[name].ibb += num(stats.ibb);
-      map[name].hbp += num(stats.hbp);
+      map[name].ab+=num(s.ab); map[name].h+=num(s.h); map[name].double+=num(s.double); map[name].triple+=num(s.triple); map[name].hr+=num(s.hr);
+      map[name].rbi+=num(s.rbi); map[name].r+=num(s.r); map[name].so+=num(s.so); map[name].sb+=num(s.sb); map[name].bb+=num(s.bb); map[name].ibb+=num(s.ibb); map[name].hbp+=num(s.hbp);
     });
   });
-
-  return Object.values(map).map(p => {
-    const singles = Math.max(p.h - p.double - p.triple - p.hr, 0);
-    const tb = singles + p.double * 2 + p.triple * 3 + p.hr * 4;
-    const avg = p.ab > 0 ? p.h / p.ab : 0;
-    const obpDen = p.ab + p.bb + p.ibb + p.hbp;
-    const obp = obpDen > 0 ? (p.h + p.bb + p.ibb + p.hbp) / obpDen : 0;
-    const slg = p.ab > 0 ? tb / p.ab : 0;
-
-    return {
-      ...p,
-      games: p.gamesSet.size,
-      avg,
-      obp,
-      slg,
-      ops: obp + slg
-    };
+  return Object.values(map).map(p=>{
+    const singles=Math.max(p.h-p.double-p.triple-p.hr,0), tb=singles+p.double*2+p.triple*3+p.hr*4;
+    const avg=p.ab>0?p.h/p.ab:0, obpDen=p.ab+p.bb+p.ibb+p.hbp, obp=obpDen>0?(p.h+p.bb+p.ibb+p.hbp)/obpDen:0, slg=p.ab>0?tb/p.ab:0;
+    return {...p,games:p.gamesSet.size,avg,obp,slg,ops:obp+slg};
   });
 }
-
-function numberSortValue(v) {
-  const n = Number(String(v || '').replace(/[^0-9]/g, ''));
-  return Number.isFinite(n) && n > 0 ? n : 9999;
+function numberSortValue(v){const n=Number(String(v||'').replace(/[^0-9]/g,''));return Number.isFinite(n)&&n>0?n:9999}
+function renderBatterRanking(){
+  let data=getBatterStats();
+  if(rankSort.value==='number') data.sort((a,b)=>numberSortValue(a.number)-numberSortValue(b.number)||a.nickname.localeCompare(b.nickname));
+  else if(rankSort.value==='name') data.sort((a,b)=>a.nickname.localeCompare(b.nickname));
+  else data.sort((a,b)=>b.avg-a.avg||b.ops-a.ops||b.h-a.h||a.nickname.localeCompare(b.nickname));
+  if(!data.length){batterRankingBody.innerHTML='<tr><td colspan="17">표시할 선수가 없습니다.</td></tr>';return}
+  batterRankingBody.innerHTML=data.map((p,i)=>`<tr><td class="rank-num">${i+1}</td><td>${p.number||'-'}</td><td class="name-cell">${p.nickname}</td><td><strong>${fmt3(p.avg)}</strong></td><td>${fmt3(p.ops)}</td><td>${p.games}</td><td>${p.ab}</td><td>${p.h}</td><td>${p.double}</td><td>${p.triple}</td><td>${p.hr}</td><td>${p.rbi}</td><td>${p.r}</td><td>${p.sb}</td><td>${p.bb}</td><td>${p.ibb}</td><td>${p.so}</td></tr>`).join('');
 }
 
-function renderBatterRanking() {
-  let data = getBatterStats();
+function getAppearedPlayers(){
+  const map={};
+  sheets.forEach(sheet=>{
+    (sheet.batters||[]).forEach(b=>{
+      const n=cleanName(b.name); if(!n)return;
+      map[n] ||= {nickname:n, count:0};
+      map[n].count++;
+    });
+    (sheet.pitchers||[]).forEach(p=>{
+      const n=cleanName(p.name); if(!n)return;
+      map[n] ||= {nickname:n, count:0};
+      map[n].count++;
+    });
+  });
+  return Object.values(map).sort((a,b)=>a.nickname.localeCompare(b.nickname));
+}
 
-  if (rankSort.value === 'number') {
-    data.sort((a, b) => numberSortValue(a.number) - numberSortValue(b.number) || a.nickname.localeCompare(b.nickname));
-  } else if (rankSort.value === 'name') {
-    data.sort((a, b) => a.nickname.localeCompare(b.nickname));
-  } else {
-    data.sort((a, b) => b.avg - a.avg || b.ops - a.ops || b.h - a.h || a.nickname.localeCompare(b.nickname));
-  }
-
-  if (!data.length) {
-    batterRankingBody.innerHTML = `<tr><td colspan="17">표시할 선수가 없습니다.</td></tr>`;
-    return;
-  }
-
-  batterRankingBody.innerHTML = data.map((p, idx) => `
-    <tr>
-      <td class="rank-num">${idx + 1}</td>
-      <td>${p.number || '-'}</td>
+function renderPlayerManage(){
+  const players=getAppearedPlayers();
+  if(!players.length){playerManageBody.innerHTML='<tr><td colspan="4">기록지에 등장한 선수가 없습니다.</td></tr>';return}
+  playerManageBody.innerHTML=players.map(p=>{
+    const st=getStatus(p.nickname);
+    const status=st.released?'<span class="badge out">방출</span>':st.mercenary?'<span class="badge merc">용병</span>':'<span class="badge">일반</span>';
+    return `<tr>
       <td class="name-cell">${p.nickname}</td>
-      <td><strong>${fmt3(p.avg)}</strong></td>
-      <td>${fmt3(p.ops)}</td>
-      <td>${p.games}</td>
-      <td>${p.ab}</td>
-      <td>${p.h}</td>
-      <td>${p.double}</td>
-      <td>${p.triple}</td>
-      <td>${p.hr}</td>
-      <td>${p.rbi}</td>
-      <td>${p.r}</td>
-      <td>${p.sb}</td>
-      <td>${p.bb}</td>
-      <td>${p.ibb}</td>
-      <td>${p.so}</td>
-    </tr>
-  `).join('');
+      <td>${status}</td>
+      <td>${p.count}회</td>
+      <td>
+        <button class="record-btn primary" onclick="setPlayerStatus('${encodeURIComponent(p.nickname)}','normal')">일반</button>
+        <button class="record-btn danger" onclick="setPlayerStatus('${encodeURIComponent(p.nickname)}','mercenary')">용병</button>
+        <button class="record-btn dark" onclick="setPlayerStatus('${encodeURIComponent(p.nickname)}','released')">방출</button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-async function loadUsers() {
-  const snap = await getDocs(collection(db, 'users'));
-  users = [];
-  snap.forEach(docu => {
-    const user = docu.data();
-    if (user.approved && user.nickname) {
-      users.push(user);
-    }
+window.setPlayerStatus=async(encodedName,status)=>{
+  if(!isOwnerUser){alert('구단주만 가능합니다.');return}
+  const nickname=decodeURIComponent(encodedName);
+  const data={nickname, mercenary:false, released:false, updatedAt:Date.now()};
+  if(status==='mercenary') data.mercenary=true;
+  if(status==='released') data.released=true;
+  await setDoc(doc(db,'playerStatus',safeId(nickname)),data);
+};
+
+async function loadUsers(){
+  const snap=await getDocs(collection(db,'users'));
+  users=[];
+  snap.forEach(d=>{const u=d.data(); if(u.approved&&u.nickname) users.push(u)});
+}
+
+function listenPlayerStatus(){
+  onSnapshot(collection(db,'playerStatus'),snap=>{
+    playerStatus={};
+    snap.forEach(d=>{
+      const st=d.data();
+      if(st.nickname) playerStatus[cleanName(st.nickname)]=st;
+    });
+    renderBatterRanking();
+    renderPlayerManage();
   });
 }
 
-checkLogin(async (user, userData) => {
-  currentUserData = userData;
-  canEdit = isStaff(userData);
+checkLogin(async (user,userData)=>{
+  canEdit=isStaff(userData);
+  isOwnerUser=isOwner(userData);
+  if(isOwnerUser) ownerPlayerTab.classList.remove('hidden');
 
   await loadUsers();
+  listenPlayerStatus();
 
-  const sheetQuery = query(collection(db, 'scoresheets'), orderBy('createdAt', 'desc'));
-
-  onSnapshot(sheetQuery, (snapshot) => {
-    sheets = [];
-    snapshot.forEach(docu => {
-      sheets.push({
-        id: docu.id,
-        ...docu.data()
-      });
-    });
-
-    renderSheets();
-    renderBatterRanking();
-  }, (error) => {
-    console.error(error);
-    sheetList.innerHTML = `<p class="empty-text">기록지를 불러오지 못했습니다.</p>`;
-    batterRankingBody.innerHTML = `<tr><td colspan="17">타자 기록을 불러오지 못했습니다.</td></tr>`;
-  });
+  onSnapshot(query(collection(db,'scoresheets'),orderBy('createdAt','desc')),snap=>{
+    sheets=[];snap.forEach(d=>sheets.push({id:d.id,...d.data()}));
+    renderSheets();renderBatterRanking();renderPlayerManage();
+  },e=>{console.error(e);sheetList.innerHTML='<p class="empty-text">기록지를 불러오지 못했습니다.</p>';batterRankingBody.innerHTML='<tr><td colspan="17">타자 기록을 불러오지 못했습니다.</td></tr>'});
 });
 
-allTypeBtn.addEventListener('click', () => setType('전체'));
-practiceTypeBtn.addEventListener('click', () => setType('연습경기'));
-leagueTypeBtn.addEventListener('click', () => setType('리그경기'));
-dateSearch.addEventListener('change', () => {
-  renderSheets();
-  renderBatterRanking();
-});
-clearDateBtn.addEventListener('click', () => {
-  dateSearch.value = '';
-  renderSheets();
-  renderBatterRanking();
-});
-rankSort.addEventListener('change', renderBatterRanking);
+recordMainTab.onclick=()=>showOwnerPanel(false);
+ownerPlayerTab.onclick=()=>showOwnerPanel(true);
+allTypeBtn.onclick=()=>setType('전체');
+practiceTypeBtn.onclick=()=>setType('연습경기');
+leagueTypeBtn.onclick=()=>setType('리그경기');
+intraTypeBtn.onclick=()=>setType('청백전');
+dateSearch.onchange=()=>{renderSheets();renderBatterRanking()};
+clearDateBtn.onclick=()=>{dateSearch.value='';renderSheets();renderBatterRanking()};
+rankSort.onchange=renderBatterRanking;
 </script>
 </body>
 </html>
